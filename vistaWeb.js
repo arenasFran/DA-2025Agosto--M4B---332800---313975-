@@ -28,6 +28,7 @@ document.addEventListener("DOMContentLoaded", function () {
     } catch (e) {}
 });
 
+
 // Ejecuta un endpoint usando fetch y envÃ­a datos en formato URL Encoded
 function submit(endPointUrl, urlEncodedData, method = 'POST') {
     // Si el mÃ©todo es GET, los parÃ¡metros van en la URL y no en el body
