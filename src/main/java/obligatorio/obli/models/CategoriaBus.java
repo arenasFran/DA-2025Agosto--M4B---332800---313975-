@@ -1,7 +1,7 @@
 package obligatorio.obli.models;
 
 public class CategoriaBus extends Categoria {
-  public CategoriaBus(String nombre) {
+  public CategoriaBus() {
     super("Bus");
   }
 }
