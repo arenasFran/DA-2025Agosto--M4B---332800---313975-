@@ -1,4 +1,4 @@
-package obligatorio.obli.models;
+package obligatorio.obli.models.Categorias;
 
 public class Categoria {
   private String nombre;

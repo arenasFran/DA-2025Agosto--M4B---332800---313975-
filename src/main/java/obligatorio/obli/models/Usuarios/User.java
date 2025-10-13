@@ -1,4 +1,4 @@
-package obligatorio.obli.models;
+package obligatorio.obli.models.Usuarios;
 
 public abstract class User {
     private int id;

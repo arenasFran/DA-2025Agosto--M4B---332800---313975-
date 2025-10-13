@@ -2,7 +2,7 @@ package obligatorio.obli.models.Sistemas;
 
 import java.util.List;
 
-import obligatorio.obli.models.Propietario;
+import obligatorio.obli.models.Usuarios.Propietario;
 
 public class SistemaPropietario {
     public List<Propietario> propietarios;

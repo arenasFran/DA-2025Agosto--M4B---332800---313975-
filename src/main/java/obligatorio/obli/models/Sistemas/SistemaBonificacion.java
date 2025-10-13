@@ -1,4 +1,4 @@
-package obligatorio.obli.models;
+package obligatorio.obli.models.Sistemas;
 
 public class SistemaBonificacion {
 

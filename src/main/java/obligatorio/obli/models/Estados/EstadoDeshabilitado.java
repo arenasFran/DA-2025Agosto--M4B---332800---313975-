@@ -1,8 +1,8 @@
-package obligatorio.obli.models;
+package obligatorio.obli.models.Estados;
 
-public class Deshabilitado extends Estado {
+public class EstadoDeshabilitado extends Estado {
 
-    public Deshabilitado(String nombre) {
+    public EstadoDeshabilitado(String nombre) {
         super("Deshabilitado");
 
     }

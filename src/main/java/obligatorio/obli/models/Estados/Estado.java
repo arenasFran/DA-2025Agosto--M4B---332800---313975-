@@ -1,4 +1,4 @@
-package obligatorio.obli.models;
+package obligatorio.obli.models.Estados;
 
 public abstract class Estado {
     private String nombre;

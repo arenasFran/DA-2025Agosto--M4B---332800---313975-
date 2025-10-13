@@ -1,8 +1,8 @@
-package obligatorio.obli.models;
+package obligatorio.obli.models.Estados;
 
-public class Supendido extends Estado {
+public class EstadoSupendido extends Estado {
 
-    public Supendido(String nombre) {
+    public EstadoSupendido(String nombre) {
         super("Suspendido");
 
     }

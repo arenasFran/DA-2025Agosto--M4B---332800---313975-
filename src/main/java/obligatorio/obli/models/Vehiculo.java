@@ -1,4 +1,5 @@
 package obligatorio.obli.models;
+import obligatorio.obli.models.Categorias.Categoria;
 
 public class Vehiculo {
     private String matricula;
@@ -29,3 +30,4 @@ public class Vehiculo {
         return categoria;
     }
 }
+
