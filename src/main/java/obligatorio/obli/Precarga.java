@@ -12,7 +12,6 @@ import obligatorio.obli.models.Usuarios.*;
 
 public class Precarga {
     
-    // Cargar Categorías de Vehículos
     public static List<Categoria> cargarCategorias() {
         List<Categoria> categorias = new ArrayList<>();
         categorias.add(new CategoriaAuto());
@@ -21,7 +20,6 @@ public class Precarga {
         return categorias;
     }
     
-    // Cargar Tarifas
     public static List<Tarifa> cargarTarifas() {
         List<Tarifa> tarifas = new ArrayList<>();
         tarifas.add(new Tarifa(45.0, "Auto"));
@@ -30,7 +28,6 @@ public class Precarga {
         return tarifas;
     }
     
-    // Cargar Puestos con tarifas
     public static List<Puesto> cargarPuestos() {
         List<Tarifa> tarifas = cargarTarifas();
         List<Puesto> puestos = new ArrayList<>();
@@ -44,7 +41,6 @@ public class Precarga {
         return puestos;
     }
     
-    // Cargar Estados
     public static List<Estado> cargarEstados() {
         List<Estado> estados = new ArrayList<>();
         estados.add(new EstadoHabilitado("Habilitado"));
@@ -54,7 +50,6 @@ public class Precarga {
         return estados;
     }
     
-    // Cargar Vehículos
     public static List<Vehiculo> cargarVehiculos() {
         List<Categoria> categorias = cargarCategorias();
         List<Vehiculo> vehiculos = new ArrayList<>();
@@ -79,7 +74,6 @@ public class Precarga {
         return vehiculos;
     }
     
-    // Cargar Bonificaciones
     public static List<Bonificacion> cargarBonificaciones() {
         List<Bonificacion> bonificaciones = new ArrayList<>();
         bonificaciones.add(new Bonificacion("Descuento Tercera Edad"));
@@ -90,18 +84,17 @@ public class Precarga {
         return bonificaciones;
     }
     
-    // Cargar Propietarios
     public static List<Propietario> cargarPropietarios() {
         List<Vehiculo> vehiculos = cargarVehiculos();
         List<Propietario> propietarios = new ArrayList<>();
         
-        // Propietario 1 - Juan Pérez (múltiples vehículos)
-        List<Vehiculo> vehiculosJuan = Arrays.asList(vehiculos.get(0), vehiculos.get(5));
-        propietarios.add(new Propietario(1, "12345678", "Juan Carlos Pérez", "pass123", vehiculosJuan, 1500.0, 200.0));
+        // Propietario específico requerido
+        List<Vehiculo> vehiculosUsuario = Arrays.asList(vehiculos.get(1));
+        propietarios.add(new Propietario(1, "23456789", "Usuario Propietario", "prop.123", vehiculosUsuario, 2000.0, 500.0));
         
-        // Propietario 2 - María González
-        List<Vehiculo> vehiculosMaria = Arrays.asList(vehiculos.get(1));
-        propietarios.add(new Propietario(2, "23456789", "María Elena González", "pass456", vehiculosMaria, 800.0, 150.0));
+        // Propietario 2 - Juan Pérez (múltiples vehículos)
+        List<Vehiculo> vehiculosJuan = Arrays.asList(vehiculos.get(0), vehiculos.get(5));
+        propietarios.add(new Propietario(2, "12345678", "Juan Carlos Pérez", "pass123", vehiculosJuan, 1500.0, 200.0));
         
         // Propietario 3 - Carlos Rodríguez
         List<Vehiculo> vehiculosCarlos = Arrays.asList(vehiculos.get(2), vehiculos.get(8));
@@ -118,7 +111,6 @@ public class Precarga {
         return propietarios;
     }
     
-    // Cargar Tránsitos de ejemplo
     public static List<Transito> cargarTransitos() {
         List<Puesto> puestos = cargarPuestos();
         List<Vehiculo> vehiculos = cargarVehiculos();
@@ -134,5 +126,19 @@ public class Precarga {
         transitos.add(new Transito(puestos.get(4), vehiculos.get(2), tarifas.get(0), new Date(), bonificaciones.get(0)));
         
         return transitos;
+    }
+    
+    public static List<Administrador> cargarAdministradores() {
+        List<Administrador> administradores = new ArrayList<>();
+        
+        // Administrador específico requerido
+        administradores.add(new Administrador(1001, "12345678", "Usuario Administrador", "admin.123"));
+        
+        // Administradores adicionales del sistema
+        administradores.add(new Administrador(1002, "22222222", "Supervisor Operaciones", "super456"));
+        administradores.add(new Administrador(1003, "33333333", "Gerente Sistema", "gerente789"));
+        administradores.add(new Administrador(1004, "1", "Gerente Sistema", "1"));
+        
+        return administradores;
     }
 }
