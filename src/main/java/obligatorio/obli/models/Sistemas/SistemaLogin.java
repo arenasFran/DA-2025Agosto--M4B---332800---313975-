@@ -1,13 +1,17 @@
 package obligatorio.obli.models.Sistemas;
 
 import java.util.ArrayList;
+
+import obligatorio.obli.models.Usuarios.Administrador;
+import obligatorio.obli.models.Usuarios.Propietario;
 import obligatorio.obli.models.Usuarios.User;
 
 public class SistemaLogin {
 
     private static SistemaLogin instancia;
 
-    private ArrayList<User> usuarios = new ArrayList<>();
+    private ArrayList<Propietario> ps = new ArrayList<>();
+    private ArrayList<Administrador> as = new ArrayList<>();
 
     private SistemaLogin() {
 
@@ -20,17 +24,22 @@ public class SistemaLogin {
         return instancia;
     }
 
-    public User login(String ci, String password) {
-        for (User user : usuarios) {
-            if (user.getCi().equals(ci) && user.getPassword().equals(password)) {
-                return user;
+    public Propietario loginPropietario(String ci, String password) {
+        for (Propietario p : ps) {
+            if (p.getCi().equals(ci) && p.getPassword().equals(password)) {
+                return p;
             }
         }
         throw new RuntimeException("Usuario o contraseña incorrectos");
     }
 
-    public void agregarUsuario(User user) {
-        usuarios.add(user);
+    public Administrador loginAdmin(String ci, String password) {
+        for (Administrador a : as) {
+            if (a.getCi().equals(ci) && a.getPassword().equals(password)) {
+                return a;
+            }
+        }
+        throw new RuntimeException("Usuario o contraseña incorrectos");
     }
 
 }

@@ -16,12 +16,24 @@ import org.springframework.web.bind.annotation.RequestBody;
 @RequestMapping("/login")
 public class LoginController {
 
-    @PostMapping("/")
-    public List<Respuesta> login(@RequestParam String username, @RequestParam String password) {
-        User user = Fachada.getInstancia().Login(username, password);
+    @PostMapping("/propietario")
+    public List<Respuesta> loginPropietario(HttpSession sessionHttp, @RequestParam String ci,
+            @RequestParam String password) {
+        User user = Fachada.getInstancia().loginPropietario(ci, password);
 
+        sessionHttp.setAttribute("user", "propietario");
         // return Respuesta.lista(new Respuesta('login exitoso', "menu.html" ))
 
+        return null;
+    }
+
+    @PostMapping("/admin")
+    public List<Respuesta> loginAdmin(HttpSession sessionHttp, @RequestParam String ci, @RequestParam String password) {
+        User user = Fachada.getInstancia().loginAdmin(ci, password);
+        sessionHttp.setAttribute("user", "admin");
+
+        // return Respuesta.lista(new Respuesta('login exitoso', "imagino que
+        // adminPanel.html maybe" ))
         return null;
     }
 

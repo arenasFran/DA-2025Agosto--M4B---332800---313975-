@@ -17,8 +17,13 @@ public class Fachada {
         return instancia;
     }
 
-    public User Login(String ci, String password) {
+    public User loginPropietario(String ci, String password) {
         SistemaLogin sistemaLogin = SistemaLogin.getInstancia();
-        return sistemaLogin.login(ci, password);
+        return sistemaLogin.loginPropietario(ci, password);
+    }
+
+    public User loginAdmin(String ci, String password) {
+        SistemaLogin sistemaLogin = SistemaLogin.getInstancia();
+        return sistemaLogin.loginAdmin(ci, password);
     }
 }
