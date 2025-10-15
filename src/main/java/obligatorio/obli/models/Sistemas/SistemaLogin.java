@@ -4,17 +4,14 @@ import java.util.ArrayList;
 
 import obligatorio.obli.models.Usuarios.Administrador;
 import obligatorio.obli.models.Usuarios.Propietario;
-import obligatorio.obli.models.Usuarios.User;
 
 public class SistemaLogin {
 
     private static SistemaLogin instancia;
-
-    private ArrayList<Propietario> ps = new ArrayList<>();
-    private ArrayList<Administrador> as = new ArrayList<>();
+    private final SistemaUsuario sistemaUsuario;
 
     private SistemaLogin() {
-
+        this.sistemaUsuario = SistemaUsuario.getInstancia();
     }
 
     public static SistemaLogin getInstancia() {
@@ -25,7 +22,7 @@ public class SistemaLogin {
     }
 
     public Propietario loginPropietario(String ci, String password) {
-        for (Propietario p : ps) {
+        for (Propietario p : SistemaUsuario.getInstancia().getPropietarios()) {
             if (p.getCi().equals(ci) && p.getPassword().equals(password)) {
                 return p;
             }
@@ -34,7 +31,7 @@ public class SistemaLogin {
     }
 
     public Administrador loginAdmin(String ci, String password) {
-        for (Administrador a : as) {
+        for (Administrador a : SistemaUsuario.getInstancia().getAdministradores()) {
             if (a.getCi().equals(ci) && a.getPassword().equals(password)) {
                 return a;
             }

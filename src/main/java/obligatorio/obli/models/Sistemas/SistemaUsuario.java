@@ -2,39 +2,47 @@ package obligatorio.obli.models.Sistemas;
 
 import java.util.List;
 import java.util.ArrayList;
-import org.springframework.stereotype.Service;
+
 import obligatorio.obli.models.Usuarios.Administrador;
 import obligatorio.obli.models.Usuarios.Propietario;
 import obligatorio.obli.Precarga;
 
-@Service
 public class SistemaUsuario {
-    private List<Propietario> propietarios;
-    private List<Administrador> administradores;
 
-    public SistemaUsuario() {
-        this.propietarios = new ArrayList<>();
-        this.administradores = new ArrayList<>();
+    private static SistemaUsuario instancia;
+
+    private final List<Propietario> propietarios = new ArrayList<>();
+    private final List<Administrador> administradores = new ArrayList<>();
+
+    private SistemaUsuario() {
         cargarDatos();
     }
 
+    public static SistemaUsuario getInstancia() {
+        if (instancia == null) {
+            instancia = new SistemaUsuario();
+        }
+        return instancia;
+    }
+
     private void cargarDatos() {
-        List<Propietario> propietarios = Precarga.cargarPropietarios();
-        for (Propietario p : propietarios) {
-            this.propietarios.add(p);
-        }
-        
-        List<Administrador> administradores = Precarga.cargarAdministradores();
-        for (Administrador a : administradores) {
-            this.administradores.add(a);
-        }
+        propietarios.addAll(Precarga.cargarPropietarios());
+        administradores.addAll(Precarga.cargarAdministradores());
     }
 
     public List<Propietario> getPropietarios() {
-        return propietarios;
+        return new ArrayList<>(propietarios);
     }
 
     public List<Administrador> getAdministradores() {
-        return administradores;
+        return new ArrayList<>(administradores);
+    }
+
+    public void agregarPropietario(Propietario p) {
+        propietarios.add(p);
+    }
+
+    public void agregarAdministrador(Administrador a) {
+        administradores.add(a);
     }
 }
