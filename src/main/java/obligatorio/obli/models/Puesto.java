@@ -7,6 +7,12 @@ public class Puesto {
     private String direccion;
     private List<Tarifa> tarifas;
 
+    public Puesto(String nombre, String direccion, List<Tarifa> tarifas) {
+        this.nombre = nombre;
+        this.direccion = direccion;
+        this.tarifas = tarifas;
+    }
+
     public String getNombre() {
         return nombre;
     }
