@@ -5,6 +5,7 @@ import java.util.ArrayList;
 
 import obligatorio.obli.models.Usuarios.Administrador;
 import obligatorio.obli.models.Usuarios.Propietario;
+import obligatorio.obli.models.Usuarios.User;
 import obligatorio.obli.Precarga;
 
 public class SistemaUsuario {
@@ -44,5 +45,18 @@ public class SistemaUsuario {
 
     public void agregarAdministrador(Administrador a) {
         administradores.add(a);
+    }
+
+    public Propietario devolverPorpietarioPorCi(String ci) {
+        Propietario user = null;
+
+        for (Propietario u : propietarios) {
+            if (u.getCi().equals(ci)) {
+                user = u;
+                return user;
+            }
+        }
+        return null;
+
     }
 }

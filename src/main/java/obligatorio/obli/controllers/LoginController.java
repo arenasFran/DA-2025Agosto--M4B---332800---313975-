@@ -21,7 +21,7 @@ public class LoginController {
             @RequestParam String password) {
         User user = Fachada.getInstancia().loginPropietario(ci, password);
 
-        sessionHttp.setAttribute("user", "propietario");
+        sessionHttp.setAttribute("user", user);
         // return Respuesta.lista(new Respuesta('login exitoso', "menu.html" ))
 
         return null;
