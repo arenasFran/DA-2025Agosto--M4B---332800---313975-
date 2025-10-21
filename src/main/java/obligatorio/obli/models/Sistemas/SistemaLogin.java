@@ -27,7 +27,7 @@ public class SistemaLogin {
                 return p;
             }
         }
-        throw new RuntimeException("Usuario o contraseña incorrectos");
+        throw new RuntimeException("Usuario o contraseña incorrectoss");
     }
 
     public Administrador loginAdmin(String ci, String password) {
