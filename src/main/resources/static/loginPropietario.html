@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Login Propietario</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen flex items-center justify-center p-4">
+  <main class="w-full max-w-md">
+    <h1 class="text-4xl font-bold text-center text-gray-800 mb-8">Ingreso de Propietario</h1>
+
+    <section class="bg-white rounded-lg shadow-lg p-6">
+      <form id="formPropietario" onsubmit="return handlePropietarioLogin(event)" class="space-y-4">
+        <div>
+          <label for="ciProp" class="block text-sm font-medium text-gray-700 mb-1">Cédula (CI)</label>
+          <input id="ciProp" name="ci" type="text" required 
+            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition" />
+        </div>
+
+        <div>
+          <label for="passProp" class="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
+          <input id="passProp" name="password" type="password" required 
+            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition" />
+        </div>
+
+        <button type="submit" 
+          class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-md transition duration-200 shadow-md hover:shadow-lg">
+          Ingresar
+        </button>
+      </form>
+
+      <div class="mt-4 text-center">
+        <a href="login.html" class="text-sm text-gray-600 hover:text-gray-800 underline transition">
+          Volver al menú principal
+        </a>
+      </div>
+    </section>
+
+    <div id="mensaje" aria-live="polite" class="mt-6 text-center text-red-600 font-medium"></div>
+  </main>
+
+  <script src="vistaWeb.js"></script>
+  <script>
+    // Construye una cadena URL encoded a partir de un objeto
+    function toUrlEncoded(obj) {
+      return Object.keys(obj).map(k => encodeURIComponent(k) + '=' + encodeURIComponent(obj[k])).join('&');
+    }
+
+    function handlePropietarioLogin(evt) {
+      evt.preventDefault();
+      const ci = document.getElementById('ciProp').value.trim();
+      const password = document.getElementById('passProp').value;
+      const data = toUrlEncoded({ ci: ci, password: password });
+      submit('/login/propietario', data, 'POST');
+      return false;
+    }
+
+    window['mostrar_login exitoso'] = function(parametro) {
+      if (typeof parametro === 'string' && parametro.length > 0) {
+        window.location.href = parametro;
+      } else {
+        document.getElementById('mensaje').textContent = 'Inicio de sesión exitoso.';
+      }
+    };
+
+    window['mostrar_paginaLogin'] = function(parametro) {
+      if (typeof parametro === 'string' && parametro.length > 0) {
+        window.location.href = parametro;
+      }
+    };
+
+    function procesarErrorSubmit(status, text) {
+      const msg = document.getElementById('mensaje');
+      msg.textContent = 'Error: ' + (text || ('Código ' + status));
+    }
+  </script>
+  <script src="js/app.js"></script>
+</body>
+</html>
