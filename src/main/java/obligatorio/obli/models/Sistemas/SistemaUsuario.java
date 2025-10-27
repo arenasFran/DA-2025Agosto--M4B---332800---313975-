@@ -59,4 +59,17 @@ public class SistemaUsuario {
         return null;
 
     }
+
+    public Administrador devolverAdministradorPorCi(String ci) {
+        Administrador user = null;
+
+        for (Administrador u : administradores) {
+            if (u.getCi().equals(ci)) {
+                user = u;
+                return user;
+            }
+        }
+        return null;
+
+    }
 }

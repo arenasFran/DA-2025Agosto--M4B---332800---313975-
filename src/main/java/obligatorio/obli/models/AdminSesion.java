@@ -1,14 +1,14 @@
 package obligatorio.obli.models;
 
-import java.sql.Date;
+import java.util.Date;
 
 import obligatorio.obli.models.Usuarios.Administrador;
 
 public class AdminSesion {
 
-    public Date fechaIngreso;
+    private Date fechaIngreso = new Date();
 
-    public Administrador admnin;
+    private Administrador admnin;
 
     public Date getFechaIngreso() {
         return fechaIngreso;
@@ -18,8 +18,7 @@ public class AdminSesion {
         return admnin;
     }
 
-    public AdminSesion(Date fechaIngreso, Administrador admnin) {
-        this.fechaIngreso = fechaIngreso;
+    public AdminSesion(Administrador admnin) {
         this.admnin = admnin;
     }
 

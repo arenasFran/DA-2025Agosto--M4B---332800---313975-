@@ -2,7 +2,10 @@ package obligatorio.obli.models.Sistemas;
 
 import java.util.List;
 
+import obligatorio.obli.exceptions.SistemaLoginException;
+import obligatorio.obli.models.AdminSesion;
 import obligatorio.obli.models.Bonificacion;
+import obligatorio.obli.models.PropietarioSesion;
 import obligatorio.obli.models.Puesto;
 import obligatorio.obli.models.Usuarios.Propietario;
 import obligatorio.obli.models.Usuarios.User;
@@ -22,12 +25,12 @@ public class Fachada {
         return instancia;
     }
 
-    public User loginPropietario(String ci, String password) {
+    public PropietarioSesion loginPropietario(String ci, String password) throws SistemaLoginException {
         SistemaLogin sistemaLogin = SistemaLogin.getInstancia();
         return sistemaLogin.loginPropietario(ci, password);
     }
 
-    public User loginAdmin(String ci, String password) {
+    public AdminSesion loginAdmin(String ci, String password) throws SistemaLoginException {
         SistemaLogin sistemaLogin = SistemaLogin.getInstancia();
         return sistemaLogin.loginAdmin(ci, password);
     }
@@ -62,5 +65,13 @@ public class Fachada {
 
         SistemaAsignacion.getInstancia().asignarBonificacion(p, bonificacion, puesto);
 
+    }
+
+    public void logoutPropietario(PropietarioSesion sesion) {
+        SistemaLogin.getInstancia().logoutPropietario(sesion);
+    }
+
+    public void logoutAdmin(AdminSesion sesion) {
+        SistemaLogin.getInstancia().logoutAdmin(sesion);
     }
 }

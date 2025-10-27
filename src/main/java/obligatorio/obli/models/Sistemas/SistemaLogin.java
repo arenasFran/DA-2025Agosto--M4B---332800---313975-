@@ -2,16 +2,25 @@ package obligatorio.obli.models.Sistemas;
 
 import java.util.ArrayList;
 
+import javax.security.auth.login.LoginException;
+
+import org.springframework.boot.actuate.web.exchanges.HttpExchange.Session;
+
+import obligatorio.obli.exceptions.SistemaLoginException;
+import obligatorio.obli.models.AdminSesion;
+import obligatorio.obli.models.PropietarioSesion;
 import obligatorio.obli.models.Usuarios.Administrador;
 import obligatorio.obli.models.Usuarios.Propietario;
 
 public class SistemaLogin {
 
     private static SistemaLogin instancia;
-    private final SistemaUsuario sistemaUsuario;
+
+    private ArrayList<PropietarioSesion> sesionesPropietarios = new ArrayList<>();
+    private ArrayList<AdminSesion> sesionesAdmins = new ArrayList<>();
 
     private SistemaLogin() {
-        this.sistemaUsuario = SistemaUsuario.getInstancia();
+        SistemaUsuario.getInstancia();
     }
 
     public static SistemaLogin getInstancia() {
@@ -21,22 +30,39 @@ public class SistemaLogin {
         return instancia;
     }
 
-    public Propietario loginPropietario(String ci, String password) {
-        for (Propietario p : SistemaUsuario.getInstancia().getPropietarios()) {
-            if (p.getCi().equals(ci) && p.getPassword().equals(password)) {
-                return p;
-            }
+    public PropietarioSesion loginPropietario(String ci, String password) throws SistemaLoginException {
+        PropietarioSesion s = null;
+
+        Propietario p = (Propietario) SistemaUsuario.getInstancia().devolverPorpietarioPorCi(ci);
+        if (p != null) {
+            s = new PropietarioSesion(p);
+            sesionesPropietarios.add(s);
+            return s;
+
         }
-        throw new RuntimeException("Usuario o contraseña incorrectoss");
+        throw new SistemaLoginException("Login incorrecto");
+
     }
 
-    public Administrador loginAdmin(String ci, String password) {
-        for (Administrador a : SistemaUsuario.getInstancia().getAdministradores()) {
-            if (a.getCi().equals(ci) && a.getPassword().equals(password)) {
-                return a;
-            }
+    public AdminSesion loginAdmin(String ci, String password) throws SistemaLoginException {
+        AdminSesion s = null;
+
+        Administrador a = SistemaUsuario.getInstancia().devolverAdministradorPorCi(ci);
+
+        if (a != null) {
+            s = new AdminSesion(a);
+            sesionesAdmins.add(s);
+            return s;
         }
-        throw new RuntimeException("Usuario o contraseña incorrectos");
+        throw new SistemaLoginException("Usuario o contraseña incorrectos");
+    }
+
+    public void logoutPropietario(PropietarioSesion sesion) {
+        sesionesPropietarios.remove(sesion);
+    }
+
+    public void logoutAdmin(AdminSesion sesion) {
+        sesionesAdmins.remove(sesion);
     }
 
 }

@@ -1,25 +1,25 @@
 package obligatorio.obli.models;
 
-import java.sql.Date;
+import java.util.Date;
 
-import obligatorio.obli.models.Usuarios.Administrador;
+import obligatorio.obli.models.Usuarios.Propietario;
 
 public class PropietarioSesion {
 
-    public Date fechaIngreso;
+    private Date fechaIngreso = new Date();
 
-    public Administrador propietario;
+    private Propietario propietario;
 
     public Date getFechaIngreso() {
         return fechaIngreso;
     }
 
-    public Administrador getPropietario() {
+    public Propietario getPropietario() {
         return propietario;
     }
 
-    public PropietarioSesion(Date fechaIngreso, Administrador propietario) {
-        this.fechaIngreso = fechaIngreso;
+    public PropietarioSesion(Propietario propietario) {
+
         this.propietario = propietario;
     }
 
