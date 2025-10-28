@@ -33,7 +33,7 @@ public class LoginController {
         AdminSesion a = Fachada.getInstancia().loginAdmin(ci, password);
         sessionHttp.setAttribute("admin", a);
 
-        return Respuesta.lista(new Respuesta("login exitoso", "adminPanel.html"));
+        return Respuesta.lista(new Respuesta("login exitoso", "bonificaciones.html"));
     }
 
     @PostMapping("/logoutPropietario")

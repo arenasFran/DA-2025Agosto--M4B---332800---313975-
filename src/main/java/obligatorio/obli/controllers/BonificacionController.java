@@ -35,9 +35,9 @@ public class BonificacionController {
 
     @PostMapping("/asignar")
     public List<Respuesta> asignarBonificacion(@RequestBody AsignacionDTO dto) {
-
         Fachada.getInstancia().asignarBonificacion(dto.ci(), dto.nombreBonificacion(), dto.nombrePuesto());
-        return null;
+        return Respuesta.lista(
+                new Respuesta("asignacion exitosa", "Bonificación asignada correctamente"));
     }
 
 }
