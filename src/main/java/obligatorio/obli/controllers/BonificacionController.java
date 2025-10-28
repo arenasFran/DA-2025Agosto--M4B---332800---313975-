@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import obligatorio.obli.models.Asignacion;
 import obligatorio.obli.models.Bonificacion;
 import obligatorio.obli.models.Puesto;
 import obligatorio.obli.models.Sistemas.Fachada;
@@ -31,6 +32,11 @@ public class BonificacionController {
     @GetMapping("/get-propietario")
     public Propietario getPropietario(@RequestParam String ci) {
         return Fachada.getInstancia().buscarPropietarioPorCi(ci);
+    }
+
+    @GetMapping("/get-asignaciones")
+    public List<Asignacion> getAsignacionesPorPropietario(@RequestParam String ci) {
+        return Fachada.getInstancia().getAsignacionesPorPropietario(ci);
     }
 
     @PostMapping("/asignar")

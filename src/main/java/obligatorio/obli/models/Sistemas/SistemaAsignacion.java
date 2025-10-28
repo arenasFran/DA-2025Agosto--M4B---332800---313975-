@@ -38,4 +38,14 @@ public class SistemaAsignacion {
         return asignaciones;
     }
 
+    public List<Asignacion> getAsignacionesPorPropietario(String ci) {
+        List<Asignacion> resultado = new ArrayList<>();
+        for (Asignacion a : asignaciones) {
+            if (a.propietario != null && a.propietario.getCi().equals(ci)) {
+                resultado.add(a);
+            }
+        }
+        return resultado;
+    }
+
 }

@@ -4,6 +4,7 @@ import java.util.List;
 
 import obligatorio.obli.exceptions.SistemaLoginException;
 import obligatorio.obli.models.AdminSesion;
+import obligatorio.obli.models.Asignacion;
 import obligatorio.obli.models.Bonificacion;
 import obligatorio.obli.models.PropietarioSesion;
 import obligatorio.obli.models.Puesto;
@@ -65,6 +66,10 @@ public class Fachada {
 
         SistemaAsignacion.getInstancia().asignarBonificacion(p, bonificacion, puesto);
 
+    }
+
+    public List<Asignacion> getAsignacionesPorPropietario(String ci) {
+        return SistemaAsignacion.getInstancia().getAsignacionesPorPropietario(ci);
     }
 
     public void logoutPropietario(PropietarioSesion sesion) {

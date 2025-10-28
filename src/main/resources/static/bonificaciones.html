@@ -345,11 +345,29 @@
           return res.json();
         })
         .then(propietario => {
+          // Cargar también las asignaciones
+          return fetch(`/bonificaciones/get-asignaciones?ci=${encodeURIComponent(ci)}`)
+            .then(res => res.json())
+            .then(asignaciones => ({ propietario, asignaciones }))
+            .catch(err => ({ propietario, asignaciones: [] }));
+        })
+        .then(({ propietario, asignaciones }) => {
           // Construir lista de vehículos
           let vehiculosHtml = '';
           if (propietario.vehiculo && propietario.vehiculo.length > 0) {
             vehiculosHtml = propietario.vehiculo.map(v => 
               `<li class="text-xs">🚗 ${v.matricula} - ${v.modelo || 'Vehículo'} (${v.color || 'N/A'})</li>`
+            ).join('');
+          }
+
+          // Construir lista de bonificaciones asignadas
+          let bonificacionesHtml = '';
+          if (asignaciones && asignaciones.length > 0) {
+            bonificacionesHtml = asignaciones.map(a => 
+              `<li class="text-xs bg-purple-50 p-2 rounded border border-purple-200">
+                <strong>🎁 ${a.bonificacion.nombre}</strong><br>
+                <span class="text-gray-600">📍 Puesto: ${a.puesto.nombre}</span>
+              </li>`
             ).join('');
           }
 
@@ -372,6 +390,12 @@
                         <ul class="ml-2 mt-1 space-y-1">${vehiculosHtml}</ul>
                       </div>
                     ` : '<p class="text-gray-500 italic">Sin vehículos registrados</p>'}
+                    ${bonificacionesHtml ? `
+                      <div class="mt-2">
+                        <strong>Bonificaciones asignadas:</strong>
+                        <ul class="ml-2 mt-1 space-y-1">${bonificacionesHtml}</ul>
+                      </div>
+                    ` : '<p class="text-gray-500 italic mt-2">Sin bonificaciones asignadas</p>'}
                   </div>
                 </div>
               </div>
@@ -408,14 +432,28 @@
       })
       .then(async response => {
         const text = await response.text();
-        if (!response.ok) throw new Error(text || 'Error al asignar');
+        if (!response.ok) {
+          // Intentar extraer el mensaje de error del servidor
+          try {
+            const errorObj = JSON.parse(text);
+            throw new Error(errorObj.message || text || 'Error al asignar');
+          } catch (e) {
+            // Si no es JSON, usar el texto directamente
+            throw new Error(text || 'Error al asignar bonificación');
+          }
+        }
         return JSON.parse(text);
       })
       .then(respuestas => {
         procesarResultadosSubmit(respuestas);
+        // Recargar las asignaciones del propietario para ver la nueva
+        const ci = document.getElementById('ci').value.trim();
+        if (ci) {
+          buscarPropietario();
+        }
       })
       .catch(err => {
-        mostrarMensaje('Error: ' + err.message, 'error');
+        mostrarMensaje(err.message, 'error');
       });
 
       return false;
@@ -432,8 +470,16 @@
     // Handlers para vistaWeb.js
     window['mostrar_asignacion exitosa'] = function(parametro) {
       mostrarMensaje(parametro || 'Bonificación asignada correctamente', 'success');
-      document.getElementById('formAsignar').reset();
-      document.getElementById('propietarioInfo').textContent = '';
+      
+      // NO resetear el formulario, solo limpiar los selects de bonificación y puesto
+      document.getElementById('bonificacion').value = '';
+      document.getElementById('puesto').value = '';
+      
+      // Recargar la información del propietario para mostrar la nueva asignación
+      const ci = document.getElementById('ci').value.trim();
+      if (ci) {
+        buscarPropietario();
+      }
     };
 
     function procesarErrorSubmit(status, text) {
