@@ -382,6 +382,7 @@
                   <div class="text-xs text-gray-700 space-y-1 mt-1">
                     <p><strong>ID:</strong> ${propietario.id}</p>
                     <p><strong>CI:</strong> ${propietario.ci}</p>
+                    <p><strong>Estado:</strong> <span class="px-2 py-1 rounded text-white ${getEstadoColor(propietario.estado?.nombre)}">${propietario.estado?.nombre || 'Sin estado'}</span></p>
                     <p><strong>Saldo:</strong> $${propietario.saldo ? propietario.saldo.toFixed(2) : '0.00'}</p>
                     <p><strong>Saldo mínimo alerta:</strong> $${propietario.saldoMinAlerta ? propietario.saldoMinAlerta.toFixed(2) : '0.00'}</p>
                     ${vehiculosHtml ? `
@@ -410,6 +411,23 @@
             </div>
           `;
         });
+    }
+
+    function getEstadoColor(estado) {
+      if (!estado) return 'bg-gray-500';
+      
+      switch(estado.toLowerCase()) {
+        case 'habilitado':
+          return 'bg-green-500';
+        case 'deshabilitado':
+          return 'bg-red-500';
+        case 'penalizado':
+          return 'bg-orange-500';
+        case 'suspendido':
+          return 'bg-yellow-600';
+        default:
+          return 'bg-gray-500';
+      }
     }
 
     function handleAsignarBonificacion(evt) {

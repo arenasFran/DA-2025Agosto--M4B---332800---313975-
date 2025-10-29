@@ -86,30 +86,36 @@ public class Precarga {
 
     public static List<Propietario> cargarPropietarios() {
         List<Vehiculo> vehiculos = cargarVehiculos();
+        List<Estado> estados = cargarEstados();
         List<Propietario> propietarios = new ArrayList<>();
 
         // Propietario específico requerido
         List<Vehiculo> vehiculosUsuario = Arrays.asList(vehiculos.get(1));
         propietarios.add(
-                new Propietario(1, "23456789", "Usuario Propietario", "prop.123", vehiculosUsuario, 2000.0, 500.0));
+                new Propietario(1, "23456789", "Usuario Propietario", "prop.123", vehiculosUsuario, 2000.0, 500.0,
+                        estados.get(0)));
 
         // Propietario 2 - Juan Pérez (múltiples vehículos)
         List<Vehiculo> vehiculosJuan = Arrays.asList(vehiculos.get(0), vehiculos.get(5));
-        propietarios.add(new Propietario(2, "12345678", "Juan Carlos Pérez", "pass123", vehiculosJuan, 1500.0, 200.0));
+        propietarios.add(new Propietario(2, "12345678", "Juan Carlos Pérez", "pass123", vehiculosJuan, 1500.0, 200.0,
+                estados.get(0)));
 
         // Propietario 3 - Carlos Rodríguez
         List<Vehiculo> vehiculosCarlos = Arrays.asList(vehiculos.get(2), vehiculos.get(8));
         propietarios.add(
-                new Propietario(3, "34567890", "Carlos Alberto Rodríguez", "pass789", vehiculosCarlos, 2200.0, 300.0));
+                new Propietario(3, "34567890", "Carlos Alberto Rodríguez", "pass789", vehiculosCarlos, 2200.0, 300.0,
+                        estados.get(0)));
 
         // Propietario 4 - Ana Fernández
         List<Vehiculo> vehiculosAna = Arrays.asList(vehiculos.get(3));
-        propietarios.add(new Propietario(4, "45678901", "Ana Sofía Fernández", "pass101", vehiculosAna, 650.0, 100.0));
+        propietarios.add(new Propietario(4, "45678901", "Ana Sofía Fernández", "pass101", vehiculosAna, 650.0, 100.0,
+                estados.get(2)));
 
         // Propietario 5 - Luis Martínez (transportista)
         List<Vehiculo> vehiculosLuis = Arrays.asList(vehiculos.get(6), vehiculos.get(9), vehiculos.get(10));
         propietarios
-                .add(new Propietario(5, "56789012", "Luis Fernando Martínez", "pass202", vehiculosLuis, 5000.0, 500.0));
+                .add(new Propietario(5, "56789012", "Luis Fernando Martínez", "pass202", vehiculosLuis, 5000.0, 500.0,
+                        estados.get(0)));
 
         return propietarios;
     }
