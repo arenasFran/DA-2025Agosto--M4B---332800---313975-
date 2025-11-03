@@ -148,6 +148,47 @@
       // Configure vistaWeb.js to restore state on page load
       var urlIniciarVista = "/admin/cambiarEstado/vistaConectada";
       var parametrosInicioVista = "";
+
+      // ===== Required handlers for vistaWeb.js integration =====
+
+      /**
+       * Error handler required by vistaWeb.js
+       * Called when server returns an HTTP error status (4xx, 5xx)
+       */
+      function procesarErrorSubmit(status, text) {
+        console.log(
+          "Error capturado por vistaWeb.js - Status:",
+          status,
+          "Text:",
+          text
+        );
+
+        // Try to parse error as JSON (GlobalExceptionHandler returns ErrorResponse)
+        try {
+          const errorObj = JSON.parse(text);
+          mostrarMensaje(errorObj.message || text, "error");
+        } catch (e) {
+          // If not valid JSON, show text directly
+          mostrarMensaje(text || "Error en la operación", "error");
+        }
+      }
+
+      /**
+       * Handler for session expiration or login redirect
+       * Called when server returns paginaLogin response
+       */
+      window["mostrar_paginaLogin"] = function () {
+        // Redirect to login page
+        window.location.href = "../../loginAdmin.html";
+      };
+
+      /**
+       * Generic message handler
+       * Called for informational messages from server
+       */
+      window["mostrar_mensaje"] = function (parametro) {
+        console.log("Mensaje del servidor:", parametro);
+      };
     </script>
     <script src="index.js"></script>
   </body>

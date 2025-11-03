@@ -12,6 +12,10 @@ document
 // Handler for vistaWeb.js callback when propietario is found (restore or new search)
 function mostrar_propietarioEncontrado(data) {
   propietarioActual = data;
+
+  // Populate the cedula input field (important for page refresh/restore)
+  document.getElementById("cedula").value = data.cedula;
+
   mostrarPropietarioInfo();
   ocultarMensaje();
 }
