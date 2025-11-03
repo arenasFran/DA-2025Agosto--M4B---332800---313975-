@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Administrador - Cambiar Estado</title>
+    <link rel="stylesheet" href="../../globals.css" />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  </head>
+  <body class="bg-[var(--background)] text-[var(--foreground)] p-8">
+    <div class="max-w-4xl mx-auto">
+      <!-- Header Card -->
+      <div class="bg-[var(--card)] border border-[var(--border)] mb-6">
+        <div
+          class="bg-[var(--primary)] text-[var(--primary-foreground)] p-4 flex items-center gap-3"
+        >
+          <div
+            class="w-10 h-10 bg-[var(--chart-3)] border border-[var(--primary-foreground)]"
+          ></div>
+          <h1 class="text-xl font-bold">Cambiar estado de propietario</h1>
+        </div>
+        <div class="p-4 text-[var(--muted-foreground)]">
+          <p>
+            Ingrese la cédula, revise el estado actual y seleccione un nuevo
+            estado (datos de ejemplo).
+          </p>
+        </div>
+      </div>
+
+      <!-- Main Form Card -->
+      <div class="bg-[var(--card)] border border-[var(--border)]">
+        <div class="p-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <!-- Cédula Input -->
+            <div>
+              <label
+                for="cedula"
+                class="block text-sm font-semibold text-[var(--foreground)] mb-2"
+              >
+                Cédula de identidad
+              </label>
+              <input
+                type="text"
+                id="cedula"
+                class="w-full px-4 py-2 border border-[var(--input)] focus:border-[var(--ring)] focus:outline-none bg-[var(--background)]"
+                placeholder="12345678"
+              />
+            </div>
+
+            <!-- Estado Dropdown -->
+            <div>
+              <label
+                for="estado"
+                class="block text-sm font-semibold text-[var(--foreground)] mb-2"
+              >
+                Estados definidos
+              </label>
+              <select
+                id="estado"
+                class="w-full px-4 py-2 border border-[var(--input)] focus:border-[var(--ring)] focus:outline-none bg-[var(--background)] disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled
+              >
+                <option value="">Primero busque un propietario</option>
+                <option value="Habilitado">Habilitado</option>
+                <option value="Deshabilitado">Deshabilitado</option>
+                <option value="Suspendido">Suspendido</option>
+                <option value="Penalizado">Penalizado</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <!-- Buscar Button -->
+            <div>
+              <button
+                id="btnBuscar"
+                class="bg-[var(--primary)] hover:opacity-90 text-[var(--primary-foreground)] font-semibold px-6 py-2 border border-[var(--primary)] transition-opacity"
+              >
+                Buscar
+              </button>
+            </div>
+
+            <!-- Cambiar Estado Button -->
+            <div class="flex flex-col gap-2">
+              <button
+                id="btnCambiarEstado"
+                class="bg-[var(--chart-3)] hover:opacity-90 text-[var(--primary-foreground)] font-semibold px-6 py-2 border border-[var(--chart-3)] transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled
+              >
+                Cambiar estado
+              </button>
+              <p class="text-sm text-[var(--muted-foreground)]">
+                El estado actual se mostrará preseleccionado.
+              </p>
+            </div>
+          </div>
+
+          <!-- Propietario Info Section -->
+          <div
+            class="border-t border-[var(--border)] pt-6"
+            id="propietarioInfo"
+            style="display: none"
+          >
+            <h2 class="text-lg font-bold text-[var(--foreground)] mb-4">
+              Propietario
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <p class="text-sm text-[var(--muted-foreground)] mb-1">
+                  Nombre
+                </p>
+                <p
+                  id="propietarioNombre"
+                  class="font-semibold text-[var(--foreground)]"
+                >
+                  -
+                </p>
+              </div>
+              <div>
+                <p class="text-sm text-[var(--muted-foreground)] mb-1">
+                  Estado actual
+                </p>
+                <p
+                  id="propietarioEstado"
+                  class="font-semibold text-[var(--foreground)]"
+                >
+                  -
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Error/Success Messages -->
+          <div id="mensaje" class="mt-4" style="display: none"></div>
+        </div>
+
+        <!-- Footer -->
+        <div
+          class="bg-[var(--muted)] p-4 text-center text-sm text-[var(--muted-foreground)] border-t border-[var(--border)]"
+        >
+          © 2025 – Administración
+        </div>
+      </div>
+    </div>
+
+    <script src="../../vistaWeb.js"></script>
+    <script>
+      // Configure vistaWeb.js to restore state on page load
+      var urlIniciarVista = "/admin/cambiarEstado/vistaConectada";
+      var parametrosInicioVista = "";
+    </script>
+    <script src="index.js"></script>
+  </body>
+</html>
