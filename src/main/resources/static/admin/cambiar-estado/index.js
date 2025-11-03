@@ -42,7 +42,7 @@ function buscarPropietario() {
 
   // Use vistaWeb.js submit instead of fetch
   const params = "cedula=" + encodeURIComponent(cedula);
-  submit("/administrador/buscarPropietario", params, "POST");
+  submit("/estado/buscar", params, "POST");
 }
 
 function cambiarEstado() {
@@ -64,7 +64,7 @@ function cambiarEstado() {
     encodeURIComponent(propietarioActual.cedula) +
     "&nuevoEstado=" +
     encodeURIComponent(nuevoEstado);
-  submit("/administrador/cambiarEstado", params, "POST");
+  submit("/estado/actualizar", params, "PUT");
 }
 
 function mostrarPropietarioInfo() {
