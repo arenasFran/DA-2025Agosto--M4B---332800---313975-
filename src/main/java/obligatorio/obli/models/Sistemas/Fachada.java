@@ -12,8 +12,16 @@ import obligatorio.obli.models.PropietarioSesion;
 import obligatorio.obli.models.Puesto;
 import obligatorio.obli.models.Usuarios.Propietario;
 import obligatorio.obli.models.Usuarios.User;
+import obligatorio.obli.observador.Observable;
 
-public class Fachada {
+public class Fachada extends Observable {
+
+    /**
+     * Enum con los tipos de eventos que notifica la Fachada
+     */
+    public enum Eventos {
+        nuevaAsignacion
+    }
 
     private static Fachada instancia;
 
@@ -68,6 +76,8 @@ public class Fachada {
 
         SistemaAsignacion.getInstancia().asignarBonificacion(p, bonificacion, puesto);
 
+        // NOTIFICAR A TODOS LOS OBSERVADORES (ADMINISTRADORES CONECTADOS)
+        avisar(Eventos.nuevaAsignacion);
     }
 
     public List<Asignacion> getAsignacionesPorPropietario(String ci) {

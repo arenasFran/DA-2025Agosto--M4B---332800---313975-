@@ -13,8 +13,6 @@ import obligatorio.obli.models.Puesto;
 import obligatorio.obli.models.Sistemas.Fachada;
 import obligatorio.obli.models.Usuarios.Propietario;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import obligatorio.obli.dtos.AsignacionDTO;
 
 @RestController
 @RequestMapping("/bonificaciones")
@@ -45,8 +43,11 @@ public class BonificacionController {
     }
 
     @PostMapping("/asignar")
-    public List<Respuesta> asignarBonificacion(@RequestBody AsignacionDTO dto) {
-        Fachada.getInstancia().asignarBonificacion(dto.ci(), dto.nombreBonificacion(), dto.nombrePuesto());
+    public List<Respuesta> asignarBonificacion(
+            @RequestParam String ci,
+            @RequestParam String nombreBonificacion,
+            @RequestParam String nombrePuesto) {
+        Fachada.getInstancia().asignarBonificacion(ci, nombreBonificacion, nombrePuesto);
         return Respuesta.lista(
                 new Respuesta("asignacion exitosa", "Bonificación asignada correctamente"));
     }

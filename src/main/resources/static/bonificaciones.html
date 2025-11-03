@@ -64,7 +64,7 @@
       <!-- Formulario de Asignación -->
       <section class="bg-white rounded-lg shadow-lg p-6">
         <h2 class="text-2xl font-semibold text-teal-600 mb-4">Asignar Bonificación</h2>
-        <form id="formAsignar" onsubmit="return handleAsignarBonificacion(event)" class="space-y-4">
+        <form id="formAsignar" onsubmit="asignarBonificacion(this); return false;" class="space-y-4">
           <div>
             <label for="ci" class="block text-sm font-medium text-gray-700 mb-1">
               Cédula del Propietario
@@ -141,7 +141,13 @@
   </main>
 
   <script src="vistaWeb.js"></script>
+  <script src="sse.js"></script>
   <script>
+    // CONFIGURACIÓN SSE - Debe definirse ANTES de que vistaWeb.js haga su primer submit
+    urlIniciarVista = "/administrador/vistaConectada";
+    urlCierreVista = "/administrador/vistaCerrada";
+    urlRegistroSSE = "/administrador/registrarSSE";
+
     // Cargar datos al iniciar la página
     document.addEventListener('DOMContentLoaded', function() {
       cargarBonificaciones();
@@ -450,55 +456,14 @@
       }
     }
 
-    function handleAsignarBonificacion(evt) {
-      evt.preventDefault();
+    // Función para asignar bonificación usando vistaWeb.js
+    function asignarBonificacion(form) {
+      // Serializar el formulario a formato URL-encoded
+      const formData = new FormData(form);
+      const urlEncodedData = new URLSearchParams(formData).toString();
       
-      const ci = document.getElementById('ci').value.trim();
-      const nombreBonificacion = document.getElementById('bonificacion').value;
-      const nombrePuesto = document.getElementById('puesto').value;
-
-      // Convertir a formato application/json para el POST
-      const data = JSON.stringify({
-        ci: ci,
-        nombreBonificacion: nombreBonificacion,
-        nombrePuesto: nombrePuesto
-      });
-
-      // Usar fetch directo porque vistaWeb.js usa URL encoded, pero este endpoint necesita JSON
-      fetch('/bonificaciones/asignar', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: data
-      })
-      .then(async response => {
-        const status = response.status;
-        const text = await response.text();
-        
-        if (!response.ok) {
-          // Manejar error usando la función de vistaWeb.js
-          try {
-            const errorObj = JSON.parse(text);
-            mostrarMensaje(errorObj.message || text || 'Error al asignar', 'error');
-          } catch (e) {
-            mostrarMensaje(text || 'Error al asignar bonificación', 'error');
-          }
-          return;
-        }
-        
-        const respuestas = JSON.parse(text);
-        procesarResultadosSubmit(respuestas);
-        
-        // Recargar las asignaciones del propietario para ver la nueva
-        const ci = document.getElementById('ci').value.trim();
-        if (ci) {
-          buscarPropietario();
-        }
-      })
-      .catch(err => {
-        mostrarMensaje(err.message, 'error');
-      });
-
-      return false;
+      // Usar submit() de vistaWeb.js
+      submit('/bonificaciones/asignar', urlEncodedData, 'POST');
     }
 
     function mostrarMensaje(texto, tipo = 'success') {
@@ -547,6 +512,33 @@
     window['mostrar_login exitoso'] = function(parametro) {
       window.location.href = parametro || 'bonificaciones.html';
     };
+
+    // Handler para notificaciones en tiempo real via SSE
+    window['mostrar_notificacion'] = function(parametro) {
+      mostrarNotificacion('Nueva bonificación asignada', parametro, 'info');
+      
+      // Recargar la lista del propietario actual si hay uno buscado
+      const ci = document.getElementById('ci').value.trim();
+      if (ci) {
+        buscarPropietario();
+      }
+    };
+
+    // Handler para mensajes del servidor (nombre del admin)
+    window['mostrar_nombreAdmin'] = function(parametro) {
+      console.log('Administrador conectado:', parametro);
+    };
+
+    // Handler genérico para mensajes
+    window['mostrar_mensaje'] = function(parametro) {
+      console.log('Mensaje del servidor:', parametro);
+    };
+
+    // Manejo del cierre de conexión SSE (opcional)
+    function conexionSSECerrada(event) {
+      console.log('Conexión SSE cerrada, intentando reconectar...');
+      // La reconexión se maneja automáticamente en sse.js
+    }
   </script>
   <script src="js/app.js"></script>
 </body>
