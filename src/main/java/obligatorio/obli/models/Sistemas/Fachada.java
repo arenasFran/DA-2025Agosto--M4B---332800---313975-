@@ -8,6 +8,7 @@ import obligatorio.obli.exceptions.SistemaLoginException;
 import obligatorio.obli.models.AdminSesion;
 import obligatorio.obli.models.Asignacion;
 import obligatorio.obli.models.Bonificacion;
+import obligatorio.obli.models.Estados.Estado;
 import obligatorio.obli.models.PropietarioSesion;
 import obligatorio.obli.models.Puesto;
 import obligatorio.obli.models.Usuarios.Propietario;
@@ -87,6 +88,20 @@ public class Fachada extends Observable {
             return propietario.getAsignaciones();
         }
         return new ArrayList<>();
+    }
+
+    public void cambiarEstadoPropietario(String ci, String nuevoEstadoNombre)
+            throws RuntimeException, PropietarioNoEncontradoException {
+        Propietario p = SistemaUsuario.getInstancia().devolverPorpietarioPorCi(ci);
+        if (p == null)
+            throw new PropietarioNoEncontradoException(ci);
+
+        Estado nuevoEstado = Estado.fromNombre(nuevoEstadoNombre);
+        p.cambiarEstado(nuevoEstado);
+
+        // Mandar notificacion al propietario
+        // "[Fecha y hora] Se ha cambiado tu estado en el sistema. Tu estado actual es
+        // [estado]"
     }
 
     public void logoutPropietario(PropietarioSesion sesion) {
