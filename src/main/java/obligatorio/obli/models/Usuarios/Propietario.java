@@ -10,6 +10,9 @@ public class Propietario extends User {
     private double saldo;
     private double saldoMinAlerta;
     private Estado estado;
+    // private boolean puedeLoguearse;
+    // private List<Transito> transitos;
+    // private List<Asignacion> asignaciones;
 
     public Propietario(int id, String ci, String nombre, String password, List<Vehiculo> vehiculo, double saldo,
             double saldoMinAlerta, Estado estado) {
@@ -52,4 +55,6 @@ public class Propietario extends User {
     public void setEstado(Estado estado) {
         this.estado = estado;
     }
-}
+
+    // public void registrarTransito(Transito transito) {
+} // protected void hacerRegistroTransito(Transito transito) {

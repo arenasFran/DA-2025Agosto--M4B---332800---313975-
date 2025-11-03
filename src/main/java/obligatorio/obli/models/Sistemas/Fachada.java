@@ -2,6 +2,7 @@ package obligatorio.obli.models.Sistemas;
 
 import java.util.List;
 
+import obligatorio.obli.exceptions.PropietarioNoEncontradoException;
 import obligatorio.obli.exceptions.SistemaLoginException;
 import obligatorio.obli.models.AdminSesion;
 import obligatorio.obli.models.Asignacion;
@@ -54,7 +55,7 @@ public class Fachada {
     public void asignarBonificacion(String ci, String nombreBonificacion, String nombrePuesto) {
         Propietario p = SistemaUsuario.getInstancia().devolverPorpietarioPorCi(ci);
         if (p == null)
-            throw new RuntimeException("Propietario no encontrado");
+            throw new PropietarioNoEncontradoException(ci);
 
         Bonificacion bonificacion = SistemaBonificacion.getInstancia().buscarPorNombre(nombreBonificacion);
         if (bonificacion == null)

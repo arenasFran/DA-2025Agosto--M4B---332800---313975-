@@ -340,9 +340,29 @@
       infoDiv.innerHTML = '<span class="text-gray-500">🔍 Buscando...</span>';
 
       fetch(`/bonificaciones/get-propietario?ci=${encodeURIComponent(ci)}`)
-        .then(res => {
-          if (!res.ok) throw new Error('Propietario no encontrado');
-          return res.json();
+        .then(async res => {
+          const status = res.status;
+          const text = await res.text();
+          
+          if (!res.ok) {
+            // Manejar error según vistaWeb.js
+            if (status >= 400 && status < 500) {
+              // Error del cliente (ej: 404 Not Found)
+              try {
+                const errorData = JSON.parse(text);
+                throw new Error(errorData.message || 'Propietario no encontrado');
+              } catch (e) {
+                if (e.message && e.message !== 'Propietario no encontrado') {
+                  throw new Error('No se encontró ningún propietario con la cédula ingresada');
+                }
+                throw e;
+              }
+            } else {
+              // Error del servidor
+              throw new Error('Error al comunicarse con el servidor');
+            }
+          }
+          return JSON.parse(text);
         })
         .then(propietario => {
           // Cargar también las asignaciones
@@ -437,33 +457,37 @@
       const nombreBonificacion = document.getElementById('bonificacion').value;
       const nombrePuesto = document.getElementById('puesto').value;
 
+      // Convertir a formato application/json para el POST
       const data = JSON.stringify({
         ci: ci,
         nombreBonificacion: nombreBonificacion,
         nombrePuesto: nombrePuesto
       });
 
+      // Usar fetch directo porque vistaWeb.js usa URL encoded, pero este endpoint necesita JSON
       fetch('/bonificaciones/asignar', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: data
       })
       .then(async response => {
+        const status = response.status;
         const text = await response.text();
+        
         if (!response.ok) {
-          // Intentar extraer el mensaje de error del servidor
+          // Manejar error usando la función de vistaWeb.js
           try {
             const errorObj = JSON.parse(text);
-            throw new Error(errorObj.message || text || 'Error al asignar');
+            mostrarMensaje(errorObj.message || text || 'Error al asignar', 'error');
           } catch (e) {
-            // Si no es JSON, usar el texto directamente
-            throw new Error(text || 'Error al asignar bonificación');
+            mostrarMensaje(text || 'Error al asignar bonificación', 'error');
           }
+          return;
         }
-        return JSON.parse(text);
-      })
-      .then(respuestas => {
+        
+        const respuestas = JSON.parse(text);
         procesarResultadosSubmit(respuestas);
+        
         // Recargar las asignaciones del propietario para ver la nueva
         const ci = document.getElementById('ci').value.trim();
         if (ci) {
@@ -485,6 +509,20 @@
       );
     }
 
+    // Función requerida por vistaWeb.js para manejar errores
+    function procesarErrorSubmit(status, text) {
+      console.log('Error capturado por vistaWeb.js - Status:', status, 'Text:', text);
+      
+      // Intentar parsear el error como JSON
+      try {
+        const errorObj = JSON.parse(text);
+        mostrarNotificacion('Error', errorObj.message || text, 'error');
+      } catch (e) {
+        // Si no es JSON válido, mostrar el texto directamente
+        mostrarNotificacion('Error', text || 'Error en la operación', 'error');
+      }
+    }
+
     // Handlers para vistaWeb.js
     window['mostrar_asignacion exitosa'] = function(parametro) {
       mostrarMensaje(parametro || 'Bonificación asignada correctamente', 'success');
@@ -500,9 +538,15 @@
       }
     };
 
-    function procesarErrorSubmit(status, text) {
-      mostrarMensaje('Error: ' + (text || 'Código ' + status), 'error');
-    }
+    // Handler para página de login (si se redirige por sesión expirada)
+    window['mostrar_paginaLogin'] = function(parametro) {
+      window.location.href = parametro || 'login.html';
+    };
+
+    // Handler genérico para login exitoso
+    window['mostrar_login exitoso'] = function(parametro) {
+      window.location.href = parametro || 'bonificaciones.html';
+    };
   </script>
   <script src="js/app.js"></script>
 </body>
