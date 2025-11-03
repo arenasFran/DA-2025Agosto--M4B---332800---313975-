@@ -73,5 +73,12 @@ public class Propietario extends User {
         asignaciones.remove(asignacion);
     }
 
+    public void cambiarEstado(Estado nuevoEstado) {
+        if (this.estado.getNombre().equals(nuevoEstado.getNombre())) {
+            throw new RuntimeException("El propietario ya esta en estado " + nuevoEstado.getNombre());
+        }
+        this.estado = nuevoEstado;
+    }
+
     // public void registrarTransito(Transito transito) {
 } // protected void hacerRegistroTransito(Transito transito) {
