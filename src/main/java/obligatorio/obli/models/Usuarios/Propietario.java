@@ -1,7 +1,9 @@
 package obligatorio.obli.models.Usuarios;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import obligatorio.obli.models.Asignacion;
 import obligatorio.obli.models.Estados.Estado;
 import obligatorio.obli.models.Vehiculo;
 
@@ -10,9 +12,9 @@ public class Propietario extends User {
     private double saldo;
     private double saldoMinAlerta;
     private Estado estado;
+    private List<Asignacion> asignaciones;
     // private boolean puedeLoguearse;
     // private List<Transito> transitos;
-    // private List<Asignacion> asignaciones;
 
     public Propietario(int id, String ci, String nombre, String password, List<Vehiculo> vehiculo, double saldo,
             double saldoMinAlerta, Estado estado) {
@@ -21,6 +23,7 @@ public class Propietario extends User {
         this.saldo = saldo;
         this.saldoMinAlerta = saldoMinAlerta;
         this.estado = estado;
+        this.asignaciones = new ArrayList<>();
     }
 
     // Getters and setters
@@ -54,6 +57,20 @@ public class Propietario extends User {
 
     public void setEstado(Estado estado) {
         this.estado = estado;
+    }
+
+    public List<Asignacion> getAsignaciones() {
+        return new ArrayList<>(asignaciones);
+    }
+
+    public void agregarAsignacion(Asignacion asignacion) {
+        if (asignacion != null && !asignaciones.contains(asignacion)) {
+            asignaciones.add(asignacion);
+        }
+    }
+
+    public void removerAsignacion(Asignacion asignacion) {
+        asignaciones.remove(asignacion);
     }
 
     // public void registrarTransito(Transito transito) {

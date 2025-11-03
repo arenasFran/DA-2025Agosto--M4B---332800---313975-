@@ -1,5 +1,6 @@
 package obligatorio.obli.models.Sistemas;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import obligatorio.obli.exceptions.PropietarioNoEncontradoException;
@@ -70,7 +71,12 @@ public class Fachada {
     }
 
     public List<Asignacion> getAsignacionesPorPropietario(String ci) {
-        return SistemaAsignacion.getInstancia().getAsignacionesPorPropietario(ci);
+        // Obtener directamente del propietario (más orientado a objetos)
+        Propietario propietario = buscarPropietarioPorCi(ci);
+        if (propietario != null) {
+            return propietario.getAsignaciones();
+        }
+        return new ArrayList<>();
     }
 
     public void logoutPropietario(PropietarioSesion sesion) {
