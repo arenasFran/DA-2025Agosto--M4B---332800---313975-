@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Gestión de Bonificaciones</title>
+    <link rel="stylesheet" href="../../globals.css" />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  </head>
+  <body class="bg-[var(--background)] text-[var(--foreground)] p-8">
+    <main class="max-w-7xl mx-auto">
+      <!-- Header -->
+      <div class="bg-[var(--card)] border border-[var(--border)] mb-6">
+        <div class="bg-[var(--primary)] text-[var(--primary-foreground)] p-4 flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-[var(--chart-3)] border border-[var(--primary-foreground)]"></div>
+            <h1 class="text-xl font-bold">Gestión de Bonificaciones</h1>
+          </div>
+          <button
+            onclick="cerrarSesion()"
+            class="text-[var(--primary-foreground)] hover:opacity-80 underline"
+          >
+            Cerrar sesión
+          </button>
+        </div>
+      </div>
+
+      <!-- Modal de confirmación -->
+      <div
+        id="modalConfirm"
+        class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50"
+      >
+        <div
+          class="bg-[var(--card)] border border-[var(--border)] shadow-xl p-6 max-w-md w-full mx-4 transform transition-all"
+        >
+          <div class="flex items-center gap-3 mb-4">
+            <div
+              class="w-12 h-12 bg-[var(--muted)] border border-[var(--border)] flex items-center justify-center"
+            >
+              <svg
+                class="w-6 h-6 text-[var(--muted-foreground)]"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                ></path>
+              </svg>
+            </div>
+            <h3 class="text-xl font-semibold text-[var(--foreground)]">Cerrar sesión</h3>
+          </div>
+          <p class="text-[var(--muted-foreground)] mb-6">
+            ¿Está seguro que desea cerrar sesión?
+          </p>
+          <div class="flex gap-3 justify-end">
+            <button
+              onclick="cerrarModal()"
+              class="px-4 py-2 bg-[var(--muted)] hover:opacity-90 text-[var(--foreground)] border border-[var(--border)] transition font-medium"
+            >
+              Cancelar
+            </button>
+            <button
+              onclick="confirmarCierreSesion()"
+              class="px-4 py-2 bg-[var(--destructive)] hover:opacity-90 text-white border border-[var(--destructive)] transition font-medium"
+            >
+              Cerrar sesión
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal de notificación -->
+      <div id="modalNotif" class="fixed top-4 right-4 z-50 hidden">
+        <div
+          class="bg-[var(--card)] border shadow-xl p-4 max-w-sm border-l-4 transform transition-all"
+          id="modalNotifContent"
+        >
+          <div class="flex items-start gap-3">
+            <div id="modalNotifIcon" class="flex-shrink-0"></div>
+            <div class="flex-1">
+              <h4 id="modalNotifTitle" class="font-semibold text-[var(--foreground)]"></h4>
+              <p id="modalNotifMessage" class="text-sm text-[var(--muted-foreground)] mt-1"></p>
+            </div>
+            <button
+              onclick="cerrarNotificacion()"
+              class="text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
+            >
+              <svg
+                class="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M6 18L18 6M6 6l12 12"
+                ></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid lg:grid-cols-2 gap-6">
+        <!-- Formulario de Asignación -->
+        <section class="bg-[var(--card)] border border-[var(--border)] p-6">
+          <h2 class="text-lg font-bold text-[var(--foreground)] mb-4">
+            Asignar Bonificación
+          </h2>
+          <form
+            id="formAsignar"
+            onsubmit="asignarBonificacion(this); return false;"
+            class="space-y-4"
+          >
+            <div>
+              <label
+                for="ci"
+                class="block text-xs font-medium text-[var(--muted-foreground)] mb-1 uppercase tracking-wider"
+              >
+                Cédula del Propietario
+              </label>
+              <div class="flex gap-2">
+                <input
+                  id="ci"
+                  name="ci"
+                  type="text"
+                  required
+                  class="flex-1 px-4 py-2 bg-[var(--background)] border border-[var(--border)] text-[var(--foreground)] focus:ring-2 focus:ring-[var(--ring)] outline-none transition"
+                  placeholder="12345678"
+                />
+                <button
+                  type="button"
+                  onclick="buscarPropietario()"
+                  class="bg-[var(--muted)] hover:opacity-90 text-[var(--foreground)] px-4 py-2 border border-[var(--border)] transition font-semibold"
+                >
+                  Buscar
+                </button>
+              </div>
+              <div
+                id="propietarioInfo"
+                class="mt-2 text-sm text-[var(--muted-foreground)]"
+              ></div>
+            </div>
+
+            <div>
+              <label
+                for="bonificacion"
+                class="block text-xs font-medium text-[var(--muted-foreground)] mb-1 uppercase tracking-wider"
+              >
+                Bonificación
+              </label>
+              <select
+                id="bonificacion"
+                name="nombreBonificacion"
+                required
+                class="w-full px-4 py-2 bg-[var(--background)] border border-[var(--border)] text-[var(--foreground)] focus:ring-2 focus:ring-[var(--ring)] outline-none transition"
+              >
+                <option value="">Seleccione una bonificación</option>
+              </select>
+            </div>
+
+            <div>
+              <label
+                for="puesto"
+                class="block text-xs font-medium text-[var(--muted-foreground)] mb-1 uppercase tracking-wider"
+              >
+                Puesto
+              </label>
+              <select
+                id="puesto"
+                name="nombrePuesto"
+                required
+                class="w-full px-4 py-2 bg-[var(--background)] border border-[var(--border)] text-[var(--foreground)] focus:ring-2 focus:ring-[var(--ring)] outline-none transition"
+              >
+                <option value="">Seleccione un puesto</option>
+              </select>
+            </div>
+
+            <button
+              type="submit"
+              class="w-full bg-[var(--primary)] hover:opacity-90 text-[var(--primary-foreground)] font-semibold py-3 px-4 border border-[var(--primary)] transition-opacity"
+            >
+              Asignar Bonificación
+            </button>
+          </form>
+
+          <div
+            id="mensaje"
+            aria-live="polite"
+            class="mt-4 p-3 border border-[var(--border)] hidden"
+          ></div>
+        </section>
+
+        <!-- Listado de Bonificaciones -->
+        <section class="bg-[var(--card)] border border-[var(--border)] p-6">
+          <div class="flex justify-between items-center mb-4">
+            <h2 class="text-lg font-bold text-[var(--foreground)]">
+              Bonificaciones Disponibles
+            </h2>
+            <button
+              onclick="cargarBonificaciones()"
+              class="text-sm bg-[var(--muted)] hover:opacity-90 text-[var(--foreground)] px-3 py-1 border border-[var(--border)] transition"
+            >
+              ↻ Actualizar
+            </button>
+          </div>
+          <div id="listaBonificaciones" class="space-y-2">
+            <p class="text-[var(--muted-foreground)] text-center py-4">
+              Cargando bonificaciones...
+            </p>
+          </div>
+        </section>
+
+        <!-- Listado de Puestos -->
+        <section class="bg-[var(--card)] border border-[var(--border)] p-6 lg:col-span-2">
+          <div class="flex justify-between items-center mb-4">
+            <h2 class="text-lg font-bold text-[var(--foreground)]">
+              Puestos Disponibles
+            </h2>
+            <button
+              onclick="cargarPuestos()"
+              class="text-sm bg-[var(--muted)] hover:opacity-90 text-[var(--foreground)] px-3 py-1 border border-[var(--border)] transition"
+            >
+              ↻ Actualizar
+            </button>
+          </div>
+          <div
+            id="listaPuestos"
+            class="grid md:grid-cols-2 lg:grid-cols-3 gap-4"
+          >
+            <p class="text-[var(--muted-foreground)] text-center py-4 col-span-full">
+              Cargando puestos...
+            </p>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <script src="../../vistaWeb.js"></script>
+    <script src="../../sse.js"></script>
+    <script src="index.js"></script>
+    <script src="../../js/app.js"></script>
+  </body>
+</html>
