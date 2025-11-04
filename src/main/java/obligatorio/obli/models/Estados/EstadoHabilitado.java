@@ -6,4 +6,34 @@ public class EstadoHabilitado extends Estado {
         super("Habilitado");
     }
 
+    @Override
+    public boolean puedeIniciarSesion() {
+        return true;
+    }
+
+    @Override
+    public boolean puedeRealizarTransito() {
+        return true;
+    }
+
+    @Override
+    public boolean puedeRecibirBonificacion() {
+        return true;
+    }
+
+    @Override
+    public boolean aplicanBonificacionesEnTransito() {
+        return true;
+    }
+
+    @Override
+    public boolean recibeNotificaciones() {
+        return true;
+    }
+
+    @Override
+    public String getMensajeRestriccion() {
+        return "";
+    }
+
 }

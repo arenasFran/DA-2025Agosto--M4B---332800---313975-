@@ -130,3 +130,8 @@ function mostrarMensaje(texto, tipo) {
 function ocultarMensaje() {
   document.getElementById("mensaje").style.display = "none";
 }
+
+function cerrarSesion() {
+  // Cerrar sesión usando vistaWeb.js
+  submit("/login/logoutAdmin", "", "POST");
+}

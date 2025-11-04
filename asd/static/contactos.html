@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contactos</title>
+    <link rel="stylesheet" href="agenda.css">
+    <script src='vistaWeb.js'></script>
+</head>
+<body>
+    <script src='utilesVista.js'></script>
+    <div class="content">
+                <div class="login-container" style="max-width: 400px; margin-top: 40px;">
+            <h2>Crear contacto</h2>
+            <form id="formContacto" onsubmit="crearContacto(event)">
+                <div class="input-group">
+                    <label for="nombre">Nombre:</label>
+                    <input type="text" id="nombre" name="nombre" >
+                </div>
+                <div class="input-group">
+                    <label for="telefono">Teléfono:</label>
+                    <input type="text" id="telefono" name="telefono" >
+                </div>
+                <div class="input-group">
+                    <label for="tipo">Tipo de Telefono:</label>
+                    <span id="spnTiposTelefono"></span>
+                </div>
+
+                <div class="input-group">
+                    <label for="tipo">Tipo de Contacto:</label>
+                    <span id="spnTiposContacto"></span>
+                </div>
+                <button type="submit">Agregar Contacto</button>
+            </form>
+        </div>
+        <h2><div id="cantidadContactos"></div></h2>
+        <div id="divListaContactos">
+            <!-- Aquí se mostrarán los contactos del usuario -->
+        </div>
+    </div>
+    <script>
+        urlIniciarVista="/agenda/vistaConectada";
+        urlCierreVista="/agenda/vistaCerrada";
+        
+        function crearContacto(event) {
+            event.preventDefault();
+            submit("/agenda/crearContacto",serializarFormulario("formContacto"));
+        }
+        function mostrar_tiposContacto(tipos){
+            document.getElementById("spnTiposContacto").innerHTML = crearListaDesdeJson({data:tipos,id:"posTipoContacto",campoMostrar: "nombre"});
+        }
+         function mostrar_tiposTelefono(tipos){
+            document.getElementById("spnTiposTelefono").innerHTML = crearListaDesdeJson({data:tipos,id:"posTipoTelefono",campoMostrar: "nombre"});
+        }
+        function mostrar_agenda(agenda){
+            document.getElementById("cantidadContactos").innerHTML =  agenda.cantidadContactos + " Contacto(s)";
+            document.getElementById("divListaContactos").innerHTML=crearTablaDesdeJson(agenda.contactos);
+        }
+        async function excepcionDeAplicacion(mensaje){
+            await mostrarMensaje(mensaje);
+        } 
+
+    </script>
+</body>
+</html>

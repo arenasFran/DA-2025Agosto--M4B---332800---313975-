@@ -73,7 +73,18 @@
 
     function procesarErrorSubmit(status, text) {
       const msg = document.getElementById('mensaje');
-      msg.textContent = 'Error: ' + (text || ('Código ' + status));
+      
+      // Intentar parsear el error como JSON
+      try {
+        const errorObj = JSON.parse(text);
+        msg.textContent = '❌ ' + (errorObj.message || errorObj.error || text);
+      } catch (e) {
+        // Si no es JSON, mostrar el texto directamente
+        msg.textContent = '❌ ' + (text || ('Error código ' + status));
+      }
+      
+      // Mostrar el mensaje en rojo
+      msg.className = 'mt-6 text-center text-red-600 font-medium bg-red-50 border border-red-200 rounded-md p-3';
     }
   </script>
   <script src="js/app.js"></script>

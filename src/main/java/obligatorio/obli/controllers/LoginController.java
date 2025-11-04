@@ -22,8 +22,12 @@ public class LoginController {
             @RequestParam String password) throws SistemaLoginException {
         PropietarioSesion sesion = Fachada.getInstancia().loginPropietario(ci, password);
 
+        if (!sesion.getPropietario().puedeIniciarSesion()) {
+            throw new SistemaLoginException(sesion.getPropietario().getMensajeRestriccion());
+        }
+
         sessionHttp.setAttribute("propietario", sesion);
-        return Respuesta.lista(new Respuesta("login exitoso", "menu.html"));
+        return Respuesta.lista(new Respuesta("login exitoso", "propietario/dashboard.html"));
 
     }
 
@@ -33,7 +37,7 @@ public class LoginController {
         AdminSesion a = Fachada.getInstancia().loginAdmin(ci, password);
         sessionHttp.setAttribute("admin", a);
 
-        return Respuesta.lista(new Respuesta("login exitoso", "bonificaciones.html"));
+        return Respuesta.lista(new Respuesta("login exitoso", "admin/bonificaciones/index.html"));
     }
 
     @PostMapping("/logoutPropietario")
@@ -43,7 +47,7 @@ public class LoginController {
             Fachada.getInstancia().logoutPropietario(sesion);
             sessionHttp.removeAttribute("propietario");
         }
-        return Respuesta.lista(new Respuesta("paginaLogin", "login.html"));
+        return Respuesta.lista(new Respuesta("paginaLogin", "/login.html"));
     }
 
     @PostMapping("/logoutAdmin")
@@ -53,7 +57,7 @@ public class LoginController {
             Fachada.getInstancia().logoutAdmin(sesion);
             sessionHttp.removeAttribute("admin");
         }
-        return Respuesta.lista(new Respuesta("paginaLogin", "login.html"));
+        return Respuesta.lista(new Respuesta("paginaLogin", "/login.html"));
     }
 
 }

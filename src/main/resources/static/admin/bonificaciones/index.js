@@ -54,7 +54,7 @@ function confirmarCierreSesion() {
         }
       } else {
         // Si ninguno funcionó, redirigir manualmente al login
-        window.location.href = "login.html";
+        window.location.href = "/login.html";
       }
     })
     .catch((err) => {
@@ -66,7 +66,7 @@ function confirmarCierreSesion() {
       );
       // En caso de error, redirigir al login de todas formas después de 2 segundos
       setTimeout(() => {
-        window.location.href = "login.html";
+        window.location.href = "/login.html";
       }, 2000);
     });
 }
@@ -417,12 +417,12 @@ window["mostrar_asignacion exitosa"] = function (parametro) {
 
 // Handler para página de login (si se redirige por sesión expirada)
 window["mostrar_paginaLogin"] = function (parametro) {
-  window.location.href = parametro || "login.html";
+  window.location.href = parametro || "/login.html";
 };
 
 // Handler genérico para login exitoso
 window["mostrar_login exitoso"] = function (parametro) {
-  window.location.href = parametro || "bonificaciones.html";
+  window.location.href = parametro || "index.html";
 };
 
 // Handler para notificaciones en tiempo real via SSE

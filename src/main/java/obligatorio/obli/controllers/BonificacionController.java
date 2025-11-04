@@ -47,6 +47,17 @@ public class BonificacionController {
             @RequestParam String ci,
             @RequestParam String nombreBonificacion,
             @RequestParam String nombrePuesto) {
+
+        Propietario propietario = Fachada.getInstancia().buscarPropietarioPorCi(ci);
+        if (propietario == null) {
+            throw new PropietarioNoEncontradoException(ci);
+        }
+
+        if (!propietario.puedeRecibirBonificacion()) {
+            throw new IllegalStateException(
+                    "No se puede asignar bonificación: " + propietario.getMensajeRestriccion());
+        }
+
         Fachada.getInstancia().asignarBonificacion(ci, nombreBonificacion, nombrePuesto);
         return Respuesta.lista(
                 new Respuesta("asignacion exitosa", "Bonificación asignada correctamente"));

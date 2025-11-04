@@ -13,7 +13,6 @@ public class Propietario extends User {
     private double saldoMinAlerta;
     private Estado estado;
     private List<Asignacion> asignaciones;
-    // private boolean puedeLoguearse;
     // private List<Transito> transitos;
 
     public Propietario(int id, String ci, String nombre, String password, List<Vehiculo> vehiculo, double saldo,
@@ -78,6 +77,31 @@ public class Propietario extends User {
             throw new RuntimeException("El propietario ya esta en estado " + nuevoEstado.getNombre());
         }
         this.estado = nuevoEstado;
+    }
+
+    // Métodos delegados al Estado (Patrón State Expert)
+    public boolean puedeIniciarSesion() {
+        return this.estado.puedeIniciarSesion();
+    }
+
+    public boolean puedeRealizarTransito() {
+        return this.estado.puedeRealizarTransito();
+    }
+
+    public boolean puedeRecibirBonificacion() {
+        return this.estado.puedeRecibirBonificacion();
+    }
+
+    public boolean aplicanBonificacionesEnTransito() {
+        return this.estado.aplicanBonificacionesEnTransito();
+    }
+
+    public boolean recibeNotificaciones() {
+        return this.estado.recibeNotificaciones();
+    }
+
+    public String getMensajeRestriccion() {
+        return this.estado.getMensajeRestriccion();
     }
 
     // public void registrarTransito(Transito transito) {

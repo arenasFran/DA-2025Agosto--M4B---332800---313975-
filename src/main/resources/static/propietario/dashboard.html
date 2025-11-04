@@ -215,6 +215,10 @@
 
     <script src="../vistaWeb.js"></script>
     <script>
+      // Configuración para vistaWeb.js
+      urlIniciarVista = "/propietario/vistaConectada";
+      urlCierreVista = "/propietario/vistaCerrada";
+
       // Event listeners
       document
         .getElementById("btnBorrarNotificaciones")
@@ -227,18 +231,130 @@
       }
 
       function salir() {
-        // TODO: Implement logout
-        console.log("Salir");
+        submit("/login/logoutPropietario", "", "POST");
       }
 
-      // Auto-refresh functionality will be implemented later
-      function cargarDatos() {
-        // TODO: Fetch real data from backend
-        console.log("Cargar datos del propietario");
+      // Handlers para vistaWeb.js
+      window["mostrar_nombrePropietario"] = function(parametro) {
+        console.log("Propietario conectado:", parametro);
+      };
+
+      window["mostrar_datosPropietario"] = function(parametro) {
+        console.log("Datos del propietario:", parametro);
+        renderizarDatosPropietario(parametro);
+      };
+
+      window["mostrar_paginaLogin"] = function(parametro) {
+        window.location.href = parametro || "/login.html";
+      };
+
+      function renderizarDatosPropietario(propietario) {
+        // Actualizar resumen
+        const resumenContainer = document.querySelector('.grid.grid-cols-1.md\\:grid-cols-3');
+        
+        const estadoColor = obtenerColorEstado(propietario.estado.nombre);
+        const mensajeRestriccion = propietario.estado.nombre !== "Habilitado" 
+          ? `<p class="text-xs text-[var(--destructive)] mt-2">⚠️ ${obtenerMensajeEstado(propietario)}</p>` 
+          : '';
+        
+        resumenContainer.innerHTML = `
+          <div class="bg-[var(--background)] border-l-4 border-l-[var(--primary)] border border-[var(--border)] p-4">
+            <p class="text-xs text-[var(--muted-foreground)] mb-2 uppercase tracking-wider">Nombre completo</p>
+            <p class="text-base font-semibold text-[var(--foreground)]">${propietario.nombre || 'N/A'}</p>
+            <p class="text-xs text-[var(--muted-foreground)] mt-1">CI: ${propietario.ci || 'N/A'}</p>
+          </div>
+          <div class="bg-[var(--background)] border-l-4 ${estadoColor} border border-[var(--border)] p-4">
+            <p class="text-xs text-[var(--muted-foreground)] mb-2 uppercase tracking-wider">Estado</p>
+            <p class="text-base font-semibold text-[var(--foreground)]">${propietario.estado.nombre}</p>
+            ${mensajeRestriccion}
+          </div>
+          <div class="bg-[var(--background)] border-l-4 border-l-[var(--chart-3)] border border-[var(--border)] p-4">
+            <p class="text-xs text-[var(--muted-foreground)] mb-2 uppercase tracking-wider">Saldo actual</p>
+            <p class="text-base font-semibold text-[var(--foreground)]">$ ${propietario.saldo.toFixed(2)}</p>
+            <p class="text-xs text-[var(--muted-foreground)] mt-1">Alerta: $ ${propietario.saldoMinAlerta.toFixed(2)}</p>
+          </div>
+        `;
+
+        // Renderizar vehículos
+        renderizarVehiculos(propietario.vehiculo || []);
+        
+        // Renderizar bonificaciones
+        renderizarBonificaciones(propietario.asignaciones || []);
       }
 
-      // Initial load
-      cargarDatos();
+      function obtenerColorEstado(estado) {
+        switch(estado) {
+          case "Habilitado": return "border-l-[var(--chart-2)]";
+          case "Deshabilitado": return "border-l-[var(--destructive)]";
+          case "Suspendido": return "border-l-[var(--chart-4)]";
+          case "Penalizado": return "border-l-[var(--chart-5)]";
+          default: return "border-l-[var(--muted)]";
+        }
+      }
+
+      function obtenerMensajeEstado(propietario) {
+        const estado = propietario.estado.nombre;
+        switch(estado) {
+          case "Deshabilitado":
+            return "No puede realizar ninguna operación en el sistema";
+          case "Suspendido":
+            return "No puede realizar tránsitos";
+          case "Penalizado":
+            return "Las bonificaciones no aplican en tránsitos. No recibe notificaciones";
+          default:
+            return "";
+        }
+      }
+
+      function renderizarVehiculos(vehiculos) {
+        const tbody = document.querySelector('.bg-[var\\(--card\\)].border:has(h2:contains("Vehículos")) tbody');
+        if (!tbody) return;
+
+        if (vehiculos.length === 0) {
+          tbody.innerHTML = `
+            <tr>
+              <td colspan="5" class="py-4 px-4 text-sm text-[var(--muted-foreground)] text-center">
+                No hay vehículos registrados
+              </td>
+            </tr>
+          `;
+          return;
+        }
+
+        tbody.innerHTML = vehiculos.map(v => `
+          <tr>
+            <td class="py-3 px-4 text-sm text-[var(--foreground)] border-b border-[var(--border)]">${v.matricula}</td>
+            <td class="py-3 px-4 text-sm text-[var(--foreground)] border-b border-[var(--border)]">${v.modelo || 'N/A'}</td>
+            <td class="py-3 px-4 text-sm text-[var(--foreground)] border-b border-[var(--border)]">${v.color || 'N/A'}</td>
+            <td class="py-3 px-4 text-sm text-[var(--foreground)] border-b border-[var(--border)]">0</td>
+            <td class="py-3 px-4 text-sm text-[var(--foreground)] border-b border-[var(--border)]">$ 0.00</td>
+          </tr>
+        `).join('');
+      }
+
+      function renderizarBonificaciones(asignaciones) {
+        const tbody = document.querySelector('.bg-[var\\(--card\\)].border:has(h2:contains("Bonificaciones")) tbody');
+        if (!tbody) return;
+
+        if (asignaciones.length === 0) {
+          tbody.innerHTML = `
+            <tr>
+              <td colspan="3" class="py-4 px-4 text-sm text-[var(--muted-foreground)] text-center">
+                No hay bonificaciones asignadas
+              </td>
+            </tr>
+          `;
+          return;
+        }
+
+        tbody.innerHTML = asignaciones.map(a => `
+          <tr>
+            <td class="py-3 px-4 text-sm text-[var(--foreground)] border-b border-[var(--border)]">${a.bonificacion.nombre}</td>
+            <td class="py-3 px-4 text-sm text-[var(--foreground)] border-b border-[var(--border)]">${a.puesto.nombre}</td>
+            <td class="py-3 px-4 text-sm text-[var(--muted-foreground)] border-b border-[var(--border)]">-</td>
+          </tr>
+        `).join('');
+      }
     </script>
   </body>
 </html>

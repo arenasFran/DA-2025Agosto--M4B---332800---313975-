@@ -12,12 +12,28 @@
       <!-- Header Card -->
       <div class="bg-[var(--card)] border border-[var(--border)] mb-6">
         <div
-          class="bg-[var(--primary)] text-[var(--primary-foreground)] p-4 flex items-center gap-3"
+          class="bg-[var(--primary)] text-[var(--primary-foreground)] p-4 flex items-center justify-between"
         >
-          <div
-            class="w-10 h-10 bg-[var(--chart-3)] border border-[var(--primary-foreground)]"
-          ></div>
-          <h1 class="text-xl font-bold">Cambiar estado de propietario</h1>
+          <div class="flex items-center gap-3">
+            <div
+              class="w-10 h-10 bg-[var(--chart-3)] border border-[var(--primary-foreground)]"
+            ></div>
+            <h1 class="text-xl font-bold">Cambiar estado de propietario</h1>
+          </div>
+          <div class="flex items-center gap-3">
+            <a
+              href="../bonificaciones/index.html"
+              class="px-4 py-2 bg-[var(--chart-2)] hover:opacity-90 text-white border border-[var(--chart-2)] transition font-medium"
+            >
+              Bonificaciones
+            </a>
+            <button
+              onclick="cerrarSesion()"
+              class="text-[var(--primary-foreground)] hover:opacity-80 underline"
+            >
+              Cerrar sesión
+            </button>
+          </div>
         </div>
         <div class="p-4 text-[var(--muted-foreground)]">
           <p>
@@ -144,10 +160,13 @@
     </div>
 
     <script src="../../vistaWeb.js"></script>
+    <script src="../../sse.js"></script>
     <script>
-      // Configure vistaWeb.js to restore state on page load
-      var urlIniciarVista = "/estado/vistaConectada";
-      var parametrosInicioVista = "";
+      // Configure vistaWeb.js to restore state on page load + SSE notifications
+      urlIniciarVista = "/administrador/vistaConectada";
+      urlCierreVista = "/administrador/vistaCerrada";
+      urlRegistroSSE = "/administrador/registrarSSE";
+      parametrosInicioVista = "";
 
       // ===== Required handlers for vistaWeb.js integration =====
 
@@ -177,9 +196,9 @@
        * Handler for session expiration or login redirect
        * Called when server returns paginaLogin response
        */
-      window["mostrar_paginaLogin"] = function () {
+      window["mostrar_paginaLogin"] = function (parametro) {
         // Redirect to login page
-        window.location.href = "../../loginAdmin.html";
+        window.location.href = parametro || "/login.html";
       };
 
       /**
@@ -189,6 +208,37 @@
       window["mostrar_mensaje"] = function (parametro) {
         console.log("Mensaje del servidor:", parametro);
       };
+
+      /**
+       * Handler for real-time notifications via SSE
+       * Called when other admins perform actions (e.g., assign bonification, change state)
+       */
+      window["mostrar_notificacion"] = function (parametro) {
+        console.log("Notificación en tiempo real:", parametro);
+        mostrarMensaje(parametro, "info");
+        
+        // Optionally reload current propietario if displayed
+        const cedulaInput = document.getElementById("cedula");
+        if (cedulaInput && cedulaInput.value.trim()) {
+          // Could refresh propietario info here if needed
+          console.log("Propietario actualmente mostrado:", cedulaInput.value);
+        }
+      };
+
+      /**
+       * Handler for admin name (initial connection)
+       */
+      window["mostrar_nombreAdmin"] = function (parametro) {
+        console.log("Administrador conectado:", parametro);
+      };
+
+      /**
+       * Handle SSE connection closed (optional)
+       */
+      function conexionSSECerrada(event) {
+        console.log("Conexión SSE cerrada, intentando reconectar...");
+        // Auto-reconnection handled by sse.js
+      }
     </script>
     <script src="index.js"></script>
   </body>

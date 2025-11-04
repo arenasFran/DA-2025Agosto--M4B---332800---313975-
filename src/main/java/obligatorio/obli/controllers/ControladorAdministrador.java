@@ -20,7 +20,7 @@ import obligatorio.obli.observador.Observador;
 
 @RestController
 @RequestMapping("/administrador")
-@Scope("session") // Una instancia por sesión - importante para mantener el estado del observador
+@Scope("session")
 public class ControladorAdministrador implements Observador {
 
     private final ConexionNavegador conexionNavegador;
@@ -38,14 +38,13 @@ public class ControladorAdministrador implements Observador {
     @RequestMapping(value = "/vistaConectada", method = { RequestMethod.GET, RequestMethod.POST })
     public List<Respuesta> inicializarVista(
             @SessionAttribute(name = "admin", required = false) AdminSesion admin) {
-        // Verificar si hay sesión de admin
+
         if (admin == null) {
-            // Si no hay sesión, retornar redirección al login
+
             return Respuesta.lista(
                     new Respuesta("paginaLogin", "login.html"));
         }
 
-        // Registrarse como observador para recibir notificaciones
         Fachada.getInstancia().agregarObservador(this);
 
         return Respuesta.lista(
@@ -61,7 +60,7 @@ public class ControladorAdministrador implements Observador {
 
     @Override
     public void actualizar(Object evento, Observable origen) {
-        // Si el evento es una nueva asignación, enviar notificación via SSE
+
         if (evento.equals(Fachada.Eventos.nuevaAsignacion)) {
             conexionNavegador.enviarJSON(
                     Respuesta.lista(

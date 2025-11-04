@@ -15,6 +15,18 @@ public abstract class Estado {
         this.nombre = nombre;
     }
 
+    public abstract boolean puedeIniciarSesion();
+
+    public abstract boolean puedeRealizarTransito();
+
+    public abstract boolean puedeRecibirBonificacion();
+
+    public abstract boolean aplicanBonificacionesEnTransito();
+
+    public abstract boolean recibeNotificaciones();
+
+    public abstract String getMensajeRestriccion();
+
     public static Estado fromNombre(String nombre) throws IllegalArgumentException {
         switch (nombre) {
             case "Habilitado":
