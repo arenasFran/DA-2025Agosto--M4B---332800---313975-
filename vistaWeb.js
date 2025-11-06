@@ -2,7 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Other/javascript.js to edit this template
  */
-// La página que incluya esta lib debe (opcionalmente) cargar estas variables 
+// La pÃ¡gina que incluya esta lib debe (opcionalmente) cargar estas variables 
 var urlIniciarVista = null;
 var parametrosInicioVista = "";
 var urlCierreVista = null;
@@ -10,30 +10,47 @@ var parametrosCierreVista = "";
 var isPrimerSubmitFinalizado = false;
 var prefijoNombreFuncionProcesoResultado = "mostrar_";
 
-// Se ejecuta al final de la carga de la página para avisar al controlador que la vista esta cargada
+// Se ejecuta al final de la carga de la pÃ¡gina para avisar al controlador que la vista esta cargada
 document.addEventListener("DOMContentLoaded", function () {
     if (urlIniciarVista !== null) {
-        submit(urlIniciarVista, parametrosInicioVista);
+        submit(urlIniciarVista, parametrosInicioVista,'GET');
     }
 
-//Cuando se baja la pagina le avisa al controlador que la vista no está activa
+//Cuando se baja la pagina le avisa al controlador que la vista no estÃ¡ activa
     if (urlCierreVista !== null) {
         window.addEventListener("beforeunload", function () {
             navigator.sendBeacon(urlCierreVista, parametrosCierreVista);
         });
     }
-    
+    //Quitar este metodo, ya no es necesario...revisar antes 
+    try {
+        ejecutarCodigoDocumentReady();
+    } catch (e) {}
 });
 
-// Ejecuta un endpoint usando fetch y envía datos en formato URL Encoded
-function submit(endPointUrl, urlEncodedData) {
-    fetch(endPointUrl, {
-        method: 'POST',
+
+// Ejecuta un endpoint usando fetch y envÃ­a datos en formato URL Encoded
+function submit(endPointUrl, urlEncodedData, method = 'POST') {
+    // Si el mÃ©todo es GET, los parÃ¡metros van en la URL y no en el body
+    let fetchUrl = endPointUrl;
+    let fetchOptions = {
+        method: method,
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        body: urlEncodedData
-    }).then(async response => {
+        }
+    };
+
+    if (method.toUpperCase() === 'GET') {
+        if (urlEncodedData && urlEncodedData.length > 0) {
+            fetchUrl += (fetchUrl.includes('?') ? '&' : '?') + urlEncodedData;
+        }
+        // GET no debe tener body
+        delete fetchOptions.headers; // No es necesario el Content-Type en GET
+    } else {
+        fetchOptions.body = urlEncodedData;
+    }
+
+    fetch(fetchUrl, fetchOptions).then(async response => {
         const status = response.status;
         const text = await response.text();
         //Si el servidor responede con error
@@ -75,7 +92,7 @@ function submit(endPointUrl, urlEncodedData) {
             }
              
         } catch (e) {
-            console.error("Error procesar la respuesta: " + text, e);
+            console.error("Error procesar la respuesta:", e);
         }   
         
     }).catch(error => {
@@ -96,7 +113,7 @@ function manejarError(status, text, url, data){
      }
 }
 
-// Por cada respuesta llama a la función "mostrar_" correspondiente
+// Por cada respuesta llama a la funciÃ³n "mostrar_" correspondiente
 //cambiando el valor de prefijoNombreFuncionProcesoResultado se puede personalizar el nombre 
 //del prefijo de las funciones que procesan las respuestas del controlador
 function procesarResultadosSubmit(listaRespuestas) {
@@ -110,7 +127,7 @@ function procesarResultadosSubmit(listaRespuestas) {
                 console.error("Error en la funcion " + nombreFuncion + " : ", e);
             }
         } else {
-            console.error("No está definida la función " + nombreFuncion + " para procesar la respuesta " + respuesta.id);
+            console.error("No estÃ¡ definida la funciÃ³n " + nombreFuncion + " para procesar la respuesta " + respuesta.id);
         }
     });
 }
