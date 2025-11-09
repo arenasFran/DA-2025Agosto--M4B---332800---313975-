@@ -1,4 +1,4 @@
-package obligatorio.obli.exceptions;
+package obligatorio.obli.exceptions.login;
 
 public class SistemaLoginException extends Exception {
 

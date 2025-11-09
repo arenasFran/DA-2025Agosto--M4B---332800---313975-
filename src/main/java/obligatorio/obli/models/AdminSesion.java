@@ -1,11 +1,11 @@
 package obligatorio.obli.models;
 
+import java.io.Serializable;
 import java.util.Date;
 
 import obligatorio.obli.models.Usuarios.Administrador;
 
-public class AdminSesion {
-
+public class AdminSesion implements Serializable {
     private Date fechaIngreso = new Date();
 
     private Administrador admnin;

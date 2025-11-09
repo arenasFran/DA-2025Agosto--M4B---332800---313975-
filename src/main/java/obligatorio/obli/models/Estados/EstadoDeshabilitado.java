@@ -30,10 +30,4 @@ public class EstadoDeshabilitado extends Estado {
     public boolean recibeNotificaciones() {
         return false;
     }
-
-    @Override
-    public String getMensajeRestriccion() {
-        return "Usuario deshabilitado. No puede acceder al sistema ni realizar operaciones.";
-    }
-
 }

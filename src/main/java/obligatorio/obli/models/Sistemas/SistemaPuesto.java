@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import obligatorio.obli.Precarga;
+import obligatorio.obli.exceptions.puesto.PuestoNoEncontradoException;
 import obligatorio.obli.models.Puesto;
 
 public class SistemaPuesto {
@@ -30,15 +31,13 @@ public class SistemaPuesto {
         return new ArrayList<>(puestos);
     }
 
-    public Puesto buscarPorNombre(String nombre) {
-        Puesto p;
-
+    public Puesto buscarPorNombre(String nombre) throws PuestoNoEncontradoException {
         for (Puesto puesto : puestos) {
             if (puesto.getNombre().equals(nombre)) {
-                p = puesto;
-                return p;
+                return puesto;
             }
         }
-        return null;
+
+        throw new PuestoNoEncontradoException(nombre);
     }
 }

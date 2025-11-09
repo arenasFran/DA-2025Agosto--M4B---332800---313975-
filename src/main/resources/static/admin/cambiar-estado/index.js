@@ -10,7 +10,8 @@ document
   .addEventListener("click", cambiarEstado);
 
 // Handler for vistaWeb.js callback when propietario is found (restore or new search)
-function mostrar_propietarioEncontrado(data) {
+function mostrar_propietario(data) {
+  console.log("Propietario encontrado:", data);
   propietarioActual = data;
 
   // Populate the cedula input field (important for page refresh/restore)

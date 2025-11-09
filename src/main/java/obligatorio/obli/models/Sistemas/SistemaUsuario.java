@@ -5,11 +5,11 @@ import java.util.ArrayList;
 
 import obligatorio.obli.models.Usuarios.Administrador;
 import obligatorio.obli.models.Usuarios.Propietario;
-import obligatorio.obli.models.Usuarios.User;
 import obligatorio.obli.Precarga;
+import obligatorio.obli.exceptions.administrador.AdministradorNoEncontradoException;
+import obligatorio.obli.exceptions.propietario.PropietarioNoEncontradoException;
 
 public class SistemaUsuario {
-
     private static SistemaUsuario instancia;
 
     private final List<Propietario> propietarios = new ArrayList<>();
@@ -47,30 +47,24 @@ public class SistemaUsuario {
         administradores.add(a);
     }
 
-    public Propietario devolverPorpietarioPorCi(String ci) {
-        Propietario user = null;
-
-        for (Propietario u : propietarios) {
-            if (u.getCi().equals(ci)) {
-                user = u;
-                return user;
+    public Propietario getPropietarioPorCi(String ci) throws PropietarioNoEncontradoException {
+        for (Propietario p : propietarios) {
+            if (p.getCi().equals(ci)) {
+                return p;
             }
         }
-        return null;
 
+        throw new PropietarioNoEncontradoException(ci);
     }
 
-    public Administrador devolverAdministradorPorCi(String ci) {
-        Administrador user = null;
-
-        for (Administrador u : administradores) {
-            if (u.getCi().equals(ci)) {
-                user = u;
-                return user;
+    public Administrador getAdministradorPorCi(String ci) throws AdministradorNoEncontradoException {
+        for (Administrador a : administradores) {
+            if (a.getCi().equals(ci)) {
+                return a;
             }
         }
-        return null;
 
+        throw new AdministradorNoEncontradoException(ci);
     }
 
 }

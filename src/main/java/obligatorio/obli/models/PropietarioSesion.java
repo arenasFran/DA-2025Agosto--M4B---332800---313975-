@@ -1,10 +1,11 @@
 package obligatorio.obli.models;
 
+import java.io.Serializable;
 import java.util.Date;
 
 import obligatorio.obli.models.Usuarios.Propietario;
 
-public class PropietarioSesion {
+public class PropietarioSesion implements Serializable {
 
     private Date fechaIngreso = new Date();
 

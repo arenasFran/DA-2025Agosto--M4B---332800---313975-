@@ -162,9 +162,8 @@
     <script src="../../vistaWeb.js"></script>
     <script src="../../sse.js"></script>
     <script>
-      // Configure vistaWeb.js to restore state on page load + SSE notifications
-      urlIniciarVista = "/administrador/vistaConectada";
-      urlCierreVista = "/administrador/vistaCerrada";
+      urlIniciarVista = "/estado/vistaConectada";
+      urlCierreVista = "/estado/vistaCerrada";
       urlRegistroSSE = "/administrador/registrarSSE";
       parametrosInicioVista = "";
 
@@ -184,6 +183,11 @@
 
         // Try to parse error as JSON (GlobalExceptionHandler returns ErrorResponse)
         try {
+          if (status === 401) {
+            window.location.href = window.location.origin + "/login.html";
+            return;
+          }
+
           const errorObj = JSON.parse(text);
           mostrarMensaje(errorObj.message || text, "error");
         } catch (e) {
@@ -197,8 +201,7 @@
        * Called when server returns paginaLogin response
        */
       window["mostrar_paginaLogin"] = function (parametro) {
-        // Redirect to login page
-        window.location.href = parametro || "/login.html";
+        window.location.href = window.location.origin + "/login.html";
       };
 
       /**
@@ -216,7 +219,7 @@
       window["mostrar_notificacion"] = function (parametro) {
         console.log("Notificación en tiempo real:", parametro);
         mostrarMensaje(parametro, "info");
-        
+
         // Optionally reload current propietario if displayed
         const cedulaInput = document.getElementById("cedula");
         if (cedulaInput && cedulaInput.value.trim()) {

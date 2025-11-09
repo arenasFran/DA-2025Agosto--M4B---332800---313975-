@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import obligatorio.obli.Precarga;
+import obligatorio.obli.exceptions.bonificaciones.BonificacionNoEncontradaException;
 import obligatorio.obli.models.Bonificacion;
 
 public class SistemaBonificacion {
@@ -30,15 +31,13 @@ public class SistemaBonificacion {
         return new ArrayList<>(bonificaciones);
     }
 
-    public Bonificacion buscarPorNombre(String nombre) {
-        Bonificacion b;
-
+    public Bonificacion buscarPorNombre(String nombre) throws BonificacionNoEncontradaException {
         for (Bonificacion bonificacion : bonificaciones) {
             if (bonificacion.getNombre().equals(nombre)) {
-                b = bonificacion;
-                return b;
+                return bonificacion;
             }
         }
-        return null;
+
+        throw new BonificacionNoEncontradaException(nombre);
     }
 }

@@ -30,10 +30,4 @@ public class EstadoHabilitado extends Estado {
     public boolean recibeNotificaciones() {
         return true;
     }
-
-    @Override
-    public String getMensajeRestriccion() {
-        return "";
-    }
-
 }

@@ -25,8 +25,6 @@ public abstract class Estado {
 
     public abstract boolean recibeNotificaciones();
 
-    public abstract String getMensajeRestriccion();
-
     public static Estado fromNombre(String nombre) throws IllegalArgumentException {
         switch (nombre) {
             case "Habilitado":
@@ -40,5 +38,17 @@ public abstract class Estado {
             default:
                 throw new IllegalArgumentException("Estado no válido: " + nombre);
         }
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
+        if (obj == null || obj.getClass() != this.getClass()) {
+            return false;
+        }
+        Estado estado = (Estado) obj;
+        return this.nombre.equals(estado.getNombre());
     }
 }

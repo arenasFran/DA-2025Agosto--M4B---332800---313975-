@@ -30,10 +30,4 @@ public class EstadoSupendido extends Estado {
     public boolean recibeNotificaciones() {
         return true;
     }
-
-    @Override
-    public String getMensajeRestriccion() {
-        return "Usuario suspendido. No puede realizar tránsitos.";
-    }
-
 }

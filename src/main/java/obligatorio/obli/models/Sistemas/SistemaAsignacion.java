@@ -25,5 +25,4 @@ public class SistemaAsignacion {
         propietario.agregarAsignacion(asignacion);
         return asignacion;
     }
-
 }

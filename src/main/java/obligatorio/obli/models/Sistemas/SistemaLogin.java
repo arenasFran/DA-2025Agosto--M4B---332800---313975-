@@ -2,18 +2,15 @@ package obligatorio.obli.models.Sistemas;
 
 import java.util.ArrayList;
 
-import javax.security.auth.login.LoginException;
-
-import org.springframework.boot.actuate.web.exchanges.HttpExchange.Session;
-
-import obligatorio.obli.exceptions.SistemaLoginException;
+import obligatorio.obli.exceptions.administrador.AdministradorNoEncontradoException;
+import obligatorio.obli.exceptions.login.LoginCredencialesInvalidasException;
+import obligatorio.obli.exceptions.propietario.PropietarioNoEncontradoException;
 import obligatorio.obli.models.AdminSesion;
 import obligatorio.obli.models.PropietarioSesion;
 import obligatorio.obli.models.Usuarios.Administrador;
 import obligatorio.obli.models.Usuarios.Propietario;
 
 public class SistemaLogin {
-
     private static SistemaLogin instancia;
 
     private ArrayList<PropietarioSesion> sesionesPropietarios = new ArrayList<>();
@@ -30,31 +27,29 @@ public class SistemaLogin {
         return instancia;
     }
 
-    public PropietarioSesion loginPropietario(String ci, String password) throws SistemaLoginException {
-        PropietarioSesion s = null;
+    public PropietarioSesion loginPropietario(String ci, String password)
+            throws LoginCredencialesInvalidasException {
+        try {
+            Propietario prop = SistemaUsuario.getInstancia().getPropietarioPorCi(ci);
 
-        Propietario p = (Propietario) SistemaUsuario.getInstancia().devolverPorpietarioPorCi(ci);
-        if (p != null) {
-            s = new PropietarioSesion(p);
+            PropietarioSesion s = new PropietarioSesion(prop);
             sesionesPropietarios.add(s);
             return s;
-
+        } catch (PropietarioNoEncontradoException e) {
+            throw new LoginCredencialesInvalidasException();
         }
-        throw new SistemaLoginException("Login incorrecto");
-
     }
 
-    public AdminSesion loginAdmin(String ci, String password) throws SistemaLoginException {
-        AdminSesion s = null;
+    public AdminSesion loginAdmin(String ci, String password) throws LoginCredencialesInvalidasException {
+        try {
+            Administrador admin = SistemaUsuario.getInstancia().getAdministradorPorCi(ci);
 
-        Administrador a = SistemaUsuario.getInstancia().devolverAdministradorPorCi(ci);
-
-        if (a != null) {
-            s = new AdminSesion(a);
+            AdminSesion s = new AdminSesion(admin);
             sesionesAdmins.add(s);
             return s;
+        } catch (AdministradorNoEncontradoException e) {
+            throw new LoginCredencialesInvalidasException();
         }
-        throw new SistemaLoginException("Usuario o contraseña incorrectos");
     }
 
     public void logoutPropietario(PropietarioSesion sesion) {

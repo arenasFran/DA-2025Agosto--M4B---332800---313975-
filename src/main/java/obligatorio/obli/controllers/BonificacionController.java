@@ -6,7 +6,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import obligatorio.obli.exceptions.PropietarioNoEncontradoException;
+
+import obligatorio.obli.exceptions.bonificaciones.BonificacionNoEncontradaException;
+import obligatorio.obli.exceptions.propietario.PropietarioNoEncontradoException;
+import obligatorio.obli.exceptions.propietario.estados.EstadoProhibidoRecibirBonificacionException;
+import obligatorio.obli.exceptions.puesto.PuestoNoEncontradoException;
 import obligatorio.obli.models.Asignacion;
 import obligatorio.obli.models.Bonificacion;
 import obligatorio.obli.models.Puesto;
@@ -29,16 +33,13 @@ public class BonificacionController {
     }
 
     @GetMapping("/get-propietario")
-    public Propietario getPropietario(@RequestParam String ci) {
-        Propietario propietario = Fachada.getInstancia().buscarPropietarioPorCi(ci);
-        if (propietario == null) {
-            throw new PropietarioNoEncontradoException(ci);
-        }
-        return propietario;
+    public Propietario getPropietario(@RequestParam String ci) throws PropietarioNoEncontradoException {
+        return Fachada.getInstancia().buscarPropietarioPorCi(ci);
     }
 
     @GetMapping("/get-asignaciones")
-    public List<Asignacion> getAsignacionesPorPropietario(@RequestParam String ci) {
+    public List<Asignacion> getAsignacionesPorPropietario(@RequestParam String ci)
+            throws PropietarioNoEncontradoException {
         return Fachada.getInstancia().getAsignacionesPorPropietario(ci);
     }
 
@@ -46,19 +47,13 @@ public class BonificacionController {
     public List<Respuesta> asignarBonificacion(
             @RequestParam String ci,
             @RequestParam String nombreBonificacion,
-            @RequestParam String nombrePuesto) {
-
-        Propietario propietario = Fachada.getInstancia().buscarPropietarioPorCi(ci);
-        if (propietario == null) {
-            throw new PropietarioNoEncontradoException(ci);
-        }
-
-        if (!propietario.puedeRecibirBonificacion()) {
-            throw new IllegalStateException(
-                    "No se puede asignar bonificación: " + propietario.getMensajeRestriccion());
-        }
-
+            @RequestParam String nombrePuesto)
+            throws PropietarioNoEncontradoException,
+            BonificacionNoEncontradaException,
+            PuestoNoEncontradoException,
+            EstadoProhibidoRecibirBonificacionException {
         Fachada.getInstancia().asignarBonificacion(ci, nombreBonificacion, nombrePuesto);
+
         return Respuesta.lista(
                 new Respuesta("asignacion exitosa", "Bonificación asignada correctamente"));
     }

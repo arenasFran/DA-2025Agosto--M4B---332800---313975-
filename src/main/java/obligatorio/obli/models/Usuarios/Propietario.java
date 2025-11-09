@@ -3,6 +3,7 @@ package obligatorio.obli.models.Usuarios;
 import java.util.ArrayList;
 import java.util.List;
 
+import obligatorio.obli.exceptions.propietario.PropietarioErrorActualizacionEstadoException;
 import obligatorio.obli.models.Asignacion;
 import obligatorio.obli.models.Estados.Estado;
 import obligatorio.obli.models.Vehiculo;
@@ -72,9 +73,10 @@ public class Propietario extends User {
         asignaciones.remove(asignacion);
     }
 
-    public void cambiarEstado(Estado nuevoEstado) {
-        if (this.estado.getNombre().equals(nuevoEstado.getNombre())) {
-            throw new RuntimeException("El propietario ya esta en estado " + nuevoEstado.getNombre());
+    public void cambiarEstado(Estado nuevoEstado) throws PropietarioErrorActualizacionEstadoException {
+        if (this.estado.equals(nuevoEstado)) {
+            throw new PropietarioErrorActualizacionEstadoException(
+                    String.format("El propietario ya esta en el estado '%s'", nuevoEstado.getNombre()));
         }
         this.estado = nuevoEstado;
     }
@@ -99,10 +101,5 @@ public class Propietario extends User {
     public boolean recibeNotificaciones() {
         return this.estado.recibeNotificaciones();
     }
-
-    public String getMensajeRestriccion() {
-        return this.estado.getMensajeRestriccion();
-    }
-
     // public void registrarTransito(Transito transito) {
 } // protected void hacerRegistroTransito(Transito transito) {
