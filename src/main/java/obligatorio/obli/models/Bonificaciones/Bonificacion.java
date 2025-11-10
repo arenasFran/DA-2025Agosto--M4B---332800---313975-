@@ -1,4 +1,4 @@
-package obligatorio.obli.models;
+package obligatorio.obli.models.Bonificaciones;
 
 public class Bonificacion {
     private String nombre;

@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.List;
 
 import obligatorio.obli.models.*;
+import obligatorio.obli.models.Bonificaciones.Bonificacion;
 import obligatorio.obli.models.Categorias.*;
 import obligatorio.obli.models.Estados.*;
 import obligatorio.obli.models.Usuarios.*;

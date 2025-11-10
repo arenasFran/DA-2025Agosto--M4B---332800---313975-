@@ -1,5 +1,7 @@
 package obligatorio.obli.models;
 
+import obligatorio.obli.models.Bonificaciones.Bonificacion;
+
 public class Asignacion {
 
     public Bonificacion bonificacion;

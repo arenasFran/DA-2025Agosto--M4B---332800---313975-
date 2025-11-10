@@ -1,6 +1,6 @@
 // CONFIGURACIÓN SSE - Debe definirse ANTES de que vistaWeb.js haga su primer submit
 urlIniciarVista = "/bonificaciones/vistaConectada";
-urlCierreVista = "/administrador/vistaCerrada";
+urlCierreVista = "/bonificaciones/vistaCerrada";
 urlRegistroSSE = "/administrador/registrarSSE";
 
 // State management - persistir propietario buscado

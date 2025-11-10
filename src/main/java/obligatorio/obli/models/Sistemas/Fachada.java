@@ -9,10 +9,10 @@ import obligatorio.obli.exceptions.puesto.PuestoNoEncontradoException;
 import obligatorio.obli.exceptions.bonificaciones.BonificacionNoEncontradaException;
 import obligatorio.obli.exceptions.login.LoginCredencialesInvalidasException;
 import obligatorio.obli.models.AdminSesion;
-import obligatorio.obli.models.Bonificacion;
 import obligatorio.obli.models.Estados.Estado;
 import obligatorio.obli.models.PropietarioSesion;
 import obligatorio.obli.models.Puesto;
+import obligatorio.obli.models.Bonificaciones.Bonificacion;
 import obligatorio.obli.models.Usuarios.Propietario;
 import obligatorio.obli.observador.Observable;
 

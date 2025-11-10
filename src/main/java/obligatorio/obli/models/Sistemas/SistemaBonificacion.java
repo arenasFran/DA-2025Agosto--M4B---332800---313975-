@@ -5,7 +5,7 @@ import java.util.List;
 
 import obligatorio.obli.Precarga;
 import obligatorio.obli.exceptions.bonificaciones.BonificacionNoEncontradaException;
-import obligatorio.obli.models.Bonificacion;
+import obligatorio.obli.models.Bonificaciones.Bonificacion;
 
 public class SistemaBonificacion {
 

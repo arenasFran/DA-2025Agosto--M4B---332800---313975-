@@ -6,10 +6,10 @@ import java.util.List;
 import obligatorio.obli.exceptions.propietario.PropietarioErrorActualizacionEstadoException;
 import obligatorio.obli.exceptions.propietario.estados.EstadoProhibidoRecibirBonificacionException;
 import obligatorio.obli.models.Asignacion;
-import obligatorio.obli.models.Bonificacion;
 import obligatorio.obli.models.Estados.Estado;
 import obligatorio.obli.models.Puesto;
 import obligatorio.obli.models.Vehiculo;
+import obligatorio.obli.models.Bonificaciones.Bonificacion;
 
 public class Propietario extends User {
     private List<Vehiculo> vehiculo;

@@ -2,6 +2,8 @@ package obligatorio.obli.models;
 
 import java.util.Date;
 
+import obligatorio.obli.models.Bonificaciones.Bonificacion;
+
 public class Transito {
     private Puesto puesto;
     private Vehiculo vehiculo;
