@@ -17,16 +17,86 @@ window["mostrar_propietario"] = function(propietario) {
   // Llenar el campo de cédula (importante para restauración)
   document.getElementById("ci").value = propietario.ci;
   
-  // Cargar asignaciones y mostrar toda la información
-  fetch(`/bonificaciones/get-asignaciones?ci=${encodeURIComponent(propietario.ci)}`)
-    .then(res => res.json())
-    .then(asignaciones => {
-      mostrarPropietarioInfo(propietario, asignaciones);
-    })
-    .catch(err => {
-      console.error("Error al cargar asignaciones:", err);
-      mostrarPropietarioInfo(propietario, []);
-    });
+  // Cargar asignaciones usando vistaWeb.js
+  const params = "ci=" + encodeURIComponent(propietario.ci);
+  submit("/bonificaciones/get-asignaciones", params, "GET");
+};
+
+// Handler para recibir asignaciones del propietario
+window["mostrar_asignaciones"] = function(asignaciones) {
+  console.log("Asignaciones recibidas desde vistaWeb.js:", asignaciones);
+  
+  if (propietarioActual) {
+    mostrarPropietarioInfo(propietarioActual, asignaciones || []);
+  }
+};
+
+// Handler para recibir lista de bonificaciones
+window["mostrar_bonificaciones"] = function(bonificaciones) {
+  console.log("Bonificaciones recibidas desde vistaWeb.js:", bonificaciones);
+  
+  const select = document.getElementById("bonificacion");
+  const lista = document.getElementById("listaBonificaciones");
+
+  // Llenar el select
+  select.innerHTML = '<option value="">Seleccione una bonificación</option>';
+  bonificaciones.forEach((bon) => {
+    const option = document.createElement("option");
+    option.value = bon.nombre;
+    option.textContent = bon.nombre;
+    select.appendChild(option);
+  });
+
+  // Mostrar lista
+  lista.innerHTML =
+    bonificaciones.length > 0
+      ? bonificaciones
+          .map(
+            (bon) => `
+        <div class="p-3 bg-[var(--background)] border border-[var(--border)] border-l-4 border-l-[var(--chart-2)]">
+          <span class="font-medium text-[var(--foreground)]">📌 ${bon.nombre}</span>
+        </div>
+      `
+          )
+          .join("")
+      : '<p class="text-[var(--muted-foreground)] text-center py-4">No hay bonificaciones disponibles</p>';
+};
+
+// Handler para recibir lista de puestos
+window["mostrar_puestos"] = function(puestos) {
+  console.log("Puestos recibidos desde vistaWeb.js:", puestos);
+  
+  const select = document.getElementById("puesto");
+  const lista = document.getElementById("listaPuestos");
+
+  // Llenar el select
+  select.innerHTML = '<option value="">Seleccione un puesto</option>';
+  puestos.forEach((puesto) => {
+    const option = document.createElement("option");
+    option.value = puesto.nombre;
+    option.textContent = `${puesto.nombre} - ${puesto.direccion}`;
+    select.appendChild(option);
+  });
+
+  // Mostrar lista
+  lista.innerHTML =
+    puestos.length > 0
+      ? puestos
+          .map(
+            (puesto) => `
+        <div class="p-4 bg-[var(--background)] border border-[var(--border)] border-l-4 border-l-[var(--chart-3)]">
+          <h3 class="font-semibold text-[var(--foreground)] mb-1">${puesto.nombre}</h3>
+          <p class="text-sm text-[var(--muted-foreground)]">📍 ${puesto.direccion}</p>
+          ${
+            puesto.tarifas && puesto.tarifas.length > 0
+              ? `<p class="text-xs text-[var(--muted-foreground)] mt-1">${puesto.tarifas.length} tarifa(s)</p>`
+              : ""
+          }
+        </div>
+      `
+          )
+          .join("")
+      : '<p class="text-[var(--muted-foreground)] text-center py-4 col-span-full">No hay puestos disponibles</p>';
 };
 
 // Cargar datos al iniciar la página
@@ -156,84 +226,11 @@ function cerrarNotificacion() {
 }
 
 function cargarBonificaciones() {
-  fetch("/bonificaciones/get-bon")
-    .then((res) => res.json())
-    .then((bonificaciones) => {
-      const select = document.getElementById("bonificacion");
-      const lista = document.getElementById("listaBonificaciones");
-
-      // Llenar el select
-      select.innerHTML =
-        '<option value="">Seleccione una bonificación</option>';
-      bonificaciones.forEach((bon) => {
-        const option = document.createElement("option");
-        option.value = bon.nombre;
-        option.textContent = bon.nombre;
-        select.appendChild(option);
-      });
-
-      // Mostrar lista
-      lista.innerHTML =
-        bonificaciones.length > 0
-          ? bonificaciones
-              .map(
-                (bon) => `
-            <div class="p-3 bg-[var(--background)] border border-[var(--border)] border-l-4 border-l-[var(--chart-2)]">
-              <span class="font-medium text-[var(--foreground)]">📌 ${bon.nombre}</span>
-            </div>
-          `
-              )
-              .join("")
-          : '<p class="text-[var(--muted-foreground)] text-center py-4">No hay bonificaciones disponibles</p>';
-    })
-    .catch((err) => {
-      console.error("Error al cargar bonificaciones:", err);
-      document.getElementById("listaBonificaciones").innerHTML =
-        '<p class="text-[var(--destructive)] text-center py-4">Error al cargar bonificaciones</p>';
-    });
+  submit("/bonificaciones/get-bon", "", "GET");
 }
 
 function cargarPuestos() {
-  fetch("/bonificaciones/get-puestos")
-    .then((res) => res.json())
-    .then((puestos) => {
-      const select = document.getElementById("puesto");
-      const lista = document.getElementById("listaPuestos");
-
-      // Llenar el select
-      select.innerHTML = '<option value="">Seleccione un puesto</option>';
-      puestos.forEach((puesto) => {
-        const option = document.createElement("option");
-        option.value = puesto.nombre;
-        option.textContent = `${puesto.nombre} - ${puesto.direccion}`;
-        select.appendChild(option);
-      });
-
-      // Mostrar lista
-      lista.innerHTML =
-        puestos.length > 0
-          ? puestos
-              .map(
-                (puesto) => `
-            <div class="p-4 bg-[var(--background)] border border-[var(--border)] border-l-4 border-l-[var(--chart-3)]">
-              <h3 class="font-semibold text-[var(--foreground)] mb-1">${puesto.nombre}</h3>
-              <p class="text-sm text-[var(--muted-foreground)]">📍 ${puesto.direccion}</p>
-              ${
-                puesto.tarifas && puesto.tarifas.length > 0
-                  ? `<p class="text-xs text-[var(--muted-foreground)] mt-1">${puesto.tarifas.length} tarifa(s)</p>`
-                  : ""
-              }
-            </div>
-          `
-              )
-              .join("")
-          : '<p class="text-[var(--muted-foreground)] text-center py-4 col-span-full">No hay puestos disponibles</p>';
-    })
-    .catch((err) => {
-      console.error("Error al cargar puestos:", err);
-      document.getElementById("listaPuestos").innerHTML =
-        '<p class="text-[var(--destructive)] text-center py-4 col-span-full">Error al cargar puestos</p>';
-    });
+  submit("/bonificaciones/get-puestos", "", "GET");
 }
 
 function buscarPropietario() {

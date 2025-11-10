@@ -31,25 +31,29 @@ public class BonificacionController {
     private String propietarioActualCi;
 
     @GetMapping("/get-bon")
-    public List<Bonificacion> getBonificaciones() {
-        return Fachada.getInstancia().mostrarBonificaciones();
+    public List<Respuesta> getBonificaciones() {
+        List<Bonificacion> bonificaciones = Fachada.getInstancia().mostrarBonificaciones();
+        return Respuesta.lista(new Respuesta("bonificaciones", bonificaciones));
     }
 
     @GetMapping("/get-puestos")
-    public List<Puesto> getPuestos() {
-        return Fachada.getInstancia().getPuestos();
+    public List<Respuesta> getPuestos() {
+        List<Puesto> puestos = Fachada.getInstancia().getPuestos();
+        return Respuesta.lista(new Respuesta("puestos", puestos));
     }
 
     @GetMapping("/get-propietario")
-    public Propietario getPropietario(@RequestParam String ci) throws PropietarioNoEncontradoException {
-        return Fachada.getInstancia().buscarPropietarioPorCi(ci);
+    public List<Respuesta> getPropietario(@RequestParam String ci) throws PropietarioNoEncontradoException {
+        Propietario propietario = Fachada.getInstancia().buscarPropietarioPorCi(ci);
+        return Respuesta.lista(new Respuesta("propietario", propietario));
     }
 
     @GetMapping("/get-asignaciones")
-    public List<Asignacion> getAsignacionesPorPropietario(@RequestParam String ci)
+    public List<Respuesta> getAsignacionesPorPropietario(@RequestParam String ci)
             throws PropietarioNoEncontradoException {
         Propietario propietario = Fachada.getInstancia().buscarPropietarioPorCi(ci);
-        return propietario.getAsignaciones();
+        List<Asignacion> asignaciones = propietario.getAsignaciones();
+        return Respuesta.lista(new Respuesta("asignaciones", asignaciones));
     }
 
     @PostMapping("/buscar-propietario")
@@ -69,15 +73,18 @@ public class BonificacionController {
             @SessionAttribute(name = LoginController.SESSION_ADMIN_COOKIE, required = true) AdminSesion adminSession) {
         List<Respuesta> respuestas = new ArrayList<>();
 
-        System.out.println("Propietario actual en bonificaciones: " + this.propietarioActualCi);
-
+        // Restaurar propietario previo si existe (útil para reconexiones)
         if (this.propietarioActualCi != null) {
+            System.out.println("Restaurando propietario: " + this.propietarioActualCi);
             try {
                 Propietario propietario = Fachada.getInstancia().buscarPropietarioPorCi(this.propietarioActualCi);
                 respuestas.add(new Respuesta("propietario", propietario));
             } catch (PropietarioNoEncontradoException e) {
+                System.err.println("Error al restaurar propietario: " + e.getMessage());
                 respuestas.add(new Respuesta("mensaje", "Propietario no encontrado"));
             }
+        } else {
+            System.out.println("Vista de bonificaciones conectada - Sin propietario seleccionado");
         }
 
         respuestas.add(new Respuesta("mensaje", "Vista conectada"));
