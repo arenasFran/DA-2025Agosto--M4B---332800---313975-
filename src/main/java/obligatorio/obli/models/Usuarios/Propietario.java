@@ -101,5 +101,6 @@ public class Propietario extends User {
     public boolean recibeNotificaciones() {
         return this.estado.recibeNotificaciones();
     }
+
     // public void registrarTransito(Transito transito) {
 } // protected void hacerRegistroTransito(Transito transito) {

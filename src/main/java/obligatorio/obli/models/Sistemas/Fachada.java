@@ -41,9 +41,6 @@ public class Fachada extends Observable {
         return instancia;
     }
 
-    /**
-     * Enum con los tipos de eventos que notifica la Fachada
-     */
     public enum Eventos {
         nuevaAsignacion
     }

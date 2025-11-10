@@ -1,7 +1,33 @@
 // CONFIGURACIÓN SSE - Debe definirse ANTES de que vistaWeb.js haga su primer submit
-urlIniciarVista = "/administrador/vistaConectada";
+urlIniciarVista = "/bonificaciones/vistaConectada";
 urlCierreVista = "/administrador/vistaCerrada";
 urlRegistroSSE = "/administrador/registrarSSE";
+
+// State management - persistir propietario buscado
+let propietarioActual = null;
+let cedulaActual = null;
+
+// Handler para restaurar propietario desde vistaWeb.js
+window["mostrar_propietario"] = function(propietario) {
+  console.log("Propietario recibido desde vistaWeb.js:", propietario);
+  
+  propietarioActual = propietario;
+  cedulaActual = propietario.ci;
+  
+  // Llenar el campo de cédula (importante para restauración)
+  document.getElementById("ci").value = propietario.ci;
+  
+  // Cargar asignaciones y mostrar toda la información
+  fetch(`/bonificaciones/get-asignaciones?ci=${encodeURIComponent(propietario.ci)}`)
+    .then(res => res.json())
+    .then(asignaciones => {
+      mostrarPropietarioInfo(propietario, asignaciones);
+    })
+    .catch(err => {
+      console.error("Error al cargar asignaciones:", err);
+      mostrarPropietarioInfo(propietario, []);
+    });
+};
 
 // Cargar datos al iniciar la página
 document.addEventListener("DOMContentLoaded", function () {
@@ -26,7 +52,7 @@ function confirmarCierreSesion() {
   cerrarModal();
   mostrarNotificacion("Cerrando sesión...", "Espere un momento", "info");
 
-  // Intentar cerrar sesión de propietario primero
+  
   fetch("/login/logoutPropietario", {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -34,13 +60,13 @@ function confirmarCierreSesion() {
     .then(async (response) => {
       if (response.ok) {
         const data = await response.json();
-        // Si fue exitoso, redirigir
+       
         if (data && data.length > 0) {
           procesarResultadosSubmit(data);
           return;
         }
       }
-      // Si falló el logout de propietario, intentar admin
+      
       return fetch("/login/logoutAdmin", {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -53,7 +79,7 @@ function confirmarCierreSesion() {
           procesarResultadosSubmit(data);
         }
       } else {
-        // Si ninguno funcionó, redirigir manualmente al login
+       
         window.location.href = "/login.html";
       }
     })
@@ -64,7 +90,7 @@ function confirmarCierreSesion() {
         "No se pudo cerrar sesión correctamente",
         "error"
       );
-      // En caso de error, redirigir al login de todas formas después de 2 segundos
+     
       setTimeout(() => {
         window.location.href = "/login.html";
       }, 2000);
@@ -78,7 +104,6 @@ function mostrarNotificacion(titulo, mensaje, tipo = "success") {
   const title = document.getElementById("modalNotifTitle");
   const msg = document.getElementById("modalNotifMessage");
 
-  // Configurar según el tipo
   if (tipo === "success") {
     content.className =
       "bg-[var(--card)] border shadow-xl p-4 max-w-sm border-l-4 border-l-[var(--chart-2)] transform transition-all";
@@ -221,129 +246,15 @@ function buscarPropietario() {
     return;
   }
 
+  // Guardar cédula actual
+  cedulaActual = ci;
+
   // Mostrar mensaje de carga
   infoDiv.innerHTML = '<span class="text-[var(--muted-foreground)]">🔍 Buscando...</span>';
 
-  fetch(`/bonificaciones/get-propietario?ci=${encodeURIComponent(ci)}`)
-    .then(async (res) => {
-      const status = res.status;
-      const text = await res.text();
-
-      if (!res.ok) {
-        // Manejar error según vistaWeb.js
-        if (status >= 400 && status < 500) {
-          // Error del cliente (ej: 404 Not Found)
-          try {
-            const errorData = JSON.parse(text);
-            throw new Error(errorData.message || "Propietario no encontrado");
-          } catch (e) {
-            if (e.message && e.message !== "Propietario no encontrado") {
-              throw new Error(
-                "No se encontró ningún propietario con la cédula ingresada"
-              );
-            }
-            throw e;
-          }
-        } else {
-          // Error del servidor
-          throw new Error("Error al comunicarse con el servidor");
-        }
-      }
-      return JSON.parse(text);
-    })
-    .then((propietario) => {
-      // Cargar también las asignaciones
-      return fetch(
-        `/bonificaciones/get-asignaciones?ci=${encodeURIComponent(ci)}`
-      )
-        .then((res) => res.json())
-        .then((asignaciones) => ({ propietario, asignaciones }))
-        .catch((err) => ({ propietario, asignaciones: [] }));
-    })
-    .then(({ propietario, asignaciones }) => {
-      // Construir lista de vehículos
-      let vehiculosHtml = "";
-      if (propietario.vehiculo && propietario.vehiculo.length > 0) {
-        vehiculosHtml = propietario.vehiculo
-          .map(
-            (v) =>
-              `<li class="text-xs">🚗 ${v.matricula} - ${
-                v.modelo || "Vehículo"
-              } (${v.color || "N/A"})</li>`
-          )
-          .join("");
-      }
-
-      // Construir lista de bonificaciones asignadas
-      let bonificacionesHtml = "";
-      if (asignaciones && asignaciones.length > 0) {
-        bonificacionesHtml = asignaciones
-          .map(
-            (a) =>
-              `<li class="text-xs bg-[var(--background)] p-2 border border-[var(--border)] border-l-4 border-l-[var(--chart-4)]">
-            <strong>🎁 ${a.bonificacion.nombre}</strong><br>
-            <span class="text-[var(--muted-foreground)]">📍 Puesto: ${a.puesto.nombre}</span>
-          </li>`
-          )
-          .join("");
-      }
-
-      infoDiv.innerHTML = `
-        <div class="bg-[var(--background)] border border-[var(--border)] border-l-4 border-l-[var(--chart-2)] p-3">
-          <div class="flex items-start gap-2">
-            <span class="text-[var(--chart-2)] text-lg">✓</span>
-            <div class="flex-1">
-              <p class="font-semibold text-[var(--foreground)]">
-                ${propietario.nombre || "Sin nombre"}
-              </p>
-              <div class="text-xs text-[var(--foreground)] space-y-1 mt-1">
-                <p><strong>ID:</strong> ${propietario.id}</p>
-                <p><strong>CI:</strong> ${propietario.ci}</p>
-                <p><strong>Estado:</strong> <span class="px-2 py-1 text-white ${getEstadoColor(
-                  propietario.estado?.nombre
-                )}">${propietario.estado?.nombre || "Sin estado"}</span></p>
-                <p><strong>Saldo:</strong> $${
-                  propietario.saldo ? propietario.saldo.toFixed(2) : "0.00"
-                }</p>
-                <p><strong>Saldo mínimo alerta:</strong> $${
-                  propietario.saldoMinAlerta
-                    ? propietario.saldoMinAlerta.toFixed(2)
-                    : "0.00"
-                }</p>
-                ${
-                  vehiculosHtml
-                    ? `
-                  <div class="mt-2">
-                    <strong>Vehículos:</strong>
-                    <ul class="ml-2 mt-1 space-y-1">${vehiculosHtml}</ul>
-                  </div>
-                `
-                    : '<p class="text-[var(--muted-foreground)] italic">Sin vehículos registrados</p>'
-                }
-                ${
-                  bonificacionesHtml
-                    ? `
-                  <div class="mt-2">
-                    <strong>Bonificaciones asignadas:</strong>
-                    <ul class="ml-2 mt-1 space-y-1">${bonificacionesHtml}</ul>
-                  </div>
-                `
-                    : '<p class="text-[var(--muted-foreground)] italic mt-2">Sin bonificaciones asignadas</p>'
-                }
-              </div>
-            </div>
-          </div>
-        </div>
-      `;
-    })
-    .catch((err) => {
-      infoDiv.innerHTML = `
-        <div class="bg-[var(--background)] border border-[var(--border)] border-l-4 border-l-[var(--destructive)] p-3 flex items-start gap-2">
-          <span class="text-[var(--destructive)] text-lg">✗</span>
-          <p class="text-sm text-[var(--foreground)]">${err.message}</p>
-        </div>
-      `;
-    });
+  // Usar vistaWeb.js en lugar de fetch directo
+  const params = "ci=" + encodeURIComponent(ci);
+  submit("/bonificaciones/buscar-propietario", params, "POST");
 }
 
 function getEstadoColor(estado) {
@@ -361,6 +272,86 @@ function getEstadoColor(estado) {
     default:
       return "bg-[var(--muted)]";
   }
+}
+
+// Función para mostrar la información del propietario
+function mostrarPropietarioInfo(propietario, asignaciones = []) {
+  const infoDiv = document.getElementById("propietarioInfo");
+  
+  // Construir lista de vehículos
+  let vehiculosHtml = "";
+  if (propietario.vehiculo && propietario.vehiculo.length > 0) {
+    vehiculosHtml = propietario.vehiculo
+      .map(
+        (v) =>
+          `<li class="text-xs">🚗 ${v.matricula} - ${
+            v.modelo || "Vehículo"
+          } (${v.color || "N/A"})</li>`
+      )
+      .join("");
+  }
+
+  // Construir lista de bonificaciones asignadas
+  let bonificacionesHtml = "";
+  if (asignaciones && asignaciones.length > 0) {
+    bonificacionesHtml = asignaciones
+      .map(
+        (a) =>
+          `<li class="text-xs bg-[var(--background)] p-2 border border-[var(--border)] border-l-4 border-l-[var(--chart-4)]">
+        <strong>🎁 ${a.bonificacion.nombre}</strong><br>
+        <span class="text-[var(--muted-foreground)]">📍 Puesto: ${a.puesto.nombre}</span>
+      </li>`
+      )
+      .join("");
+  }
+
+  infoDiv.innerHTML = `
+    <div class="bg-[var(--background)] border border-[var(--border)] border-l-4 border-l-[var(--chart-2)] p-3">
+      <div class="flex items-start gap-2">
+        <span class="text-[var(--chart-2)] text-lg">✓</span>
+        <div class="flex-1">
+          <p class="font-semibold text-[var(--foreground)]">
+            ${propietario.nombre || "Sin nombre"}
+          </p>
+          <div class="text-xs text-[var(--foreground)] space-y-1 mt-1">
+            <p><strong>ID:</strong> ${propietario.id}</p>
+            <p><strong>CI:</strong> ${propietario.ci}</p>
+            <p><strong>Estado:</strong> <span class="px-2 py-1 text-white ${getEstadoColor(
+              propietario.estado?.nombre
+            )}">${propietario.estado?.nombre || "Sin estado"}</span></p>
+            <p><strong>Saldo:</strong> $${
+              propietario.saldo ? propietario.saldo.toFixed(2) : "0.00"
+            }</p>
+            <p><strong>Saldo mínimo alerta:</strong> $${
+              propietario.saldoMinAlerta
+                ? propietario.saldoMinAlerta.toFixed(2)
+                : "0.00"
+            }</p>
+            ${
+              vehiculosHtml
+                ? `
+              <div class="mt-2">
+                <strong>Vehículos:</strong>
+                <ul class="ml-2 mt-1 space-y-1">${vehiculosHtml}</ul>
+              </div>
+            `
+                : '<p class="text-[var(--muted-foreground)] italic">Sin vehículos registrados</p>'
+            }
+            ${
+              bonificacionesHtml
+                ? `
+              <div class="mt-2">
+                <strong>Bonificaciones asignadas:</strong>
+                <ul class="ml-2 mt-1 space-y-1">${bonificacionesHtml}</ul>
+              </div>
+            `
+                : '<p class="text-[var(--muted-foreground)] italic mt-2">Sin bonificaciones asignadas</p>'
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
 }
 
 // Función para asignar bonificación usando vistaWeb.js
