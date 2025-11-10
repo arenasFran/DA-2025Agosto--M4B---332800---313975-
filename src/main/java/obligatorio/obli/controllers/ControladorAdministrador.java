@@ -37,7 +37,7 @@ public class ControladorAdministrador implements Observador {
 
     @RequestMapping(value = "/vistaConectada", method = { RequestMethod.GET, RequestMethod.POST })
     public List<Respuesta> inicializarVista(
-            @SessionAttribute(name = LoginController.SESSION_ADMIN_COOKIE, required = false) AdminSesion admin) {
+            @SessionAttribute(name = "admin", required = false) AdminSesion admin) {
 
         if (admin == null) {
 

@@ -257,6 +257,24 @@ function buscarPropietario() {
   submit("/bonificaciones/buscar-propietario", params, "POST");
 }
 
+// Función para recargar el propietario actual (usada desde SSE)
+function recargarPropietarioActual() {
+  if (!cedulaActual) {
+    console.log("No hay propietario para recargar");
+    return;
+  }
+
+  console.log("Recargando propietario desde SSE:", cedulaActual);
+  const infoDiv = document.getElementById("propietarioInfo");
+  
+  // Mostrar mensaje de recarga
+  infoDiv.innerHTML = '<span class="text-[var(--muted-foreground)]">🔄 Actualizando...</span>';
+
+  // Usar vistaWeb.js para recargar
+  const params = "ci=" + encodeURIComponent(cedulaActual);
+  submit("/bonificaciones/buscar-propietario", params, "POST");
+}
+
 function getEstadoColor(estado) {
   if (!estado) return "bg-[var(--muted)]";
 
@@ -418,12 +436,15 @@ window["mostrar_login exitoso"] = function (parametro) {
 
 // Handler para notificaciones en tiempo real via SSE
 window["mostrar_notificacion"] = function (parametro) {
-  mostrarNotificacion("Nueva bonificación asignada", parametro, "info");
+  console.log("📢 Notificación SSE recibida:", parametro);
+  mostrarNotificacion("Nueva bonificación asignada", "✅ Se asignó una nueva bonificación", "info");
 
   // Recargar la lista del propietario actual si hay uno buscado
-  const ci = document.getElementById("ci").value.trim();
-  if (ci) {
-    buscarPropietario();
+  if (cedulaActual) {
+    console.log("🔄 Recargando propietario:", cedulaActual);
+    recargarPropietarioActual();
+  } else {
+    console.log("⚠️ No hay propietario actual para recargar");
   }
 };
 

@@ -9,7 +9,6 @@ import obligatorio.obli.exceptions.puesto.PuestoNoEncontradoException;
 import obligatorio.obli.exceptions.bonificaciones.BonificacionNoEncontradaException;
 import obligatorio.obli.exceptions.login.LoginCredencialesInvalidasException;
 import obligatorio.obli.models.AdminSesion;
-import obligatorio.obli.models.Asignacion;
 import obligatorio.obli.models.Bonificacion;
 import obligatorio.obli.models.Estados.Estado;
 import obligatorio.obli.models.PropietarioSesion;
@@ -22,14 +21,12 @@ public class Fachada extends Observable {
     private SistemaUsuario sistemaUsuario;
     private SistemaBonificacion sistemaBonificacion;
     private SistemaPuesto sistemaPuesto;
-    private SistemaAsignacion sistemaAsignacion;
 
     private Fachada() {
         sistemaLogin = SistemaLogin.getInstancia();
         sistemaUsuario = SistemaUsuario.getInstancia();
         sistemaBonificacion = SistemaBonificacion.getInstancia();
         sistemaPuesto = SistemaPuesto.getInstancia();
-        sistemaAsignacion = SistemaAsignacion.getInstancia();
     }
 
     private static Fachada instancia;
@@ -69,25 +66,12 @@ public class Fachada extends Observable {
             throws PropietarioNoEncontradoException, BonificacionNoEncontradaException, PuestoNoEncontradoException,
             EstadoProhibidoRecibirBonificacionException {
         Propietario propietario = this.buscarPropietarioPorCi(ci);
-
-        if (!propietario.puedeRecibirBonificacion()) {
-            throw new EstadoProhibidoRecibirBonificacionException(propietario.getEstado());
-        }
-
         Bonificacion bonificacion = this.sistemaBonificacion.buscarPorNombre(nombreBonificacion);
-
         Puesto puesto = this.sistemaPuesto.buscarPorNombre(nombrePuesto);
 
-        this.sistemaAsignacion.asignarBonificacion(propietario, bonificacion, puesto);
+        propietario.asignarBonificacion(bonificacion, puesto);
 
-        // NOTIFICAR A TODOS LOS OBSERVADORES (ADMINISTRADORES CONECTADOS)
         avisar(Eventos.nuevaAsignacion);
-    }
-
-    public List<Asignacion> getAsignacionesPorPropietario(String ci) throws PropietarioNoEncontradoException {
-        Propietario propietario = this.buscarPropietarioPorCi(ci);
-
-        return propietario.getAsignaciones();
     }
 
     public void cambiarEstadoPropietario(String ci, String nuevoEstadoNombre)

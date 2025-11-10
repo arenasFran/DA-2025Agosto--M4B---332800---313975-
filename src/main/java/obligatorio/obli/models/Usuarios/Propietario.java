@@ -4,8 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import obligatorio.obli.exceptions.propietario.PropietarioErrorActualizacionEstadoException;
+import obligatorio.obli.exceptions.propietario.estados.EstadoProhibidoRecibirBonificacionException;
 import obligatorio.obli.models.Asignacion;
+import obligatorio.obli.models.Bonificacion;
 import obligatorio.obli.models.Estados.Estado;
+import obligatorio.obli.models.Puesto;
 import obligatorio.obli.models.Vehiculo;
 
 public class Propietario extends User {
@@ -67,6 +70,16 @@ public class Propietario extends User {
         if (asignacion != null && !asignaciones.contains(asignacion)) {
             asignaciones.add(asignacion);
         }
+    }
+
+    public void asignarBonificacion(Bonificacion bonificacion, Puesto puesto)
+            throws EstadoProhibidoRecibirBonificacionException {
+        if (!this.puedeRecibirBonificacion()) {
+            throw new EstadoProhibidoRecibirBonificacionException(this.estado);
+        }
+
+        Asignacion asignacion = new Asignacion(bonificacion, puesto);
+        this.agregarAsignacion(asignacion);
     }
 
     public void removerAsignacion(Asignacion asignacion) {

@@ -1,4 +1,5 @@
 package obligatorio.obli.models;
+
 import obligatorio.obli.models.Categorias.Categoria;
 
 public class Vehiculo {
@@ -6,6 +7,7 @@ public class Vehiculo {
     private String modelo;
     private String color;
     private Categoria categoria;
+    // agregar propietario
 
     public Vehiculo(String matricula, String modelo, String color, Categoria categoria) {
         this.matricula = matricula;
@@ -46,4 +48,3 @@ public class Vehiculo {
         this.categoria = categoria;
     }
 }
-

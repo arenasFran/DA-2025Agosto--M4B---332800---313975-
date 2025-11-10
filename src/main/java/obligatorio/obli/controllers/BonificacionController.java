@@ -48,7 +48,8 @@ public class BonificacionController {
     @GetMapping("/get-asignaciones")
     public List<Asignacion> getAsignacionesPorPropietario(@RequestParam String ci)
             throws PropietarioNoEncontradoException {
-        return Fachada.getInstancia().getAsignacionesPorPropietario(ci);
+        Propietario propietario = Fachada.getInstancia().buscarPropietarioPorCi(ci);
+        return propietario.getAsignaciones();
     }
 
     @PostMapping("/buscar-propietario")
