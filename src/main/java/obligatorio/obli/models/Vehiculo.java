@@ -47,4 +47,28 @@ public class Vehiculo {
     public void setCategoria(Categoria categoria) {
         this.categoria = categoria;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
+        if (obj == null || obj.getClass() != this.getClass()) {
+            return false;
+        }
+        Vehiculo vehiculo = (Vehiculo) obj;
+        return this.matricula.equals(vehiculo.getMatricula());
+    }
+
+    @Override
+    public int hashCode() {
+        return matricula.hashCode();
+    }
+
+    public String getNombreCategoria() {
+        if (categoria == null) {
+            return null;
+        }
+        return categoria.getNombre();
+    }
 }

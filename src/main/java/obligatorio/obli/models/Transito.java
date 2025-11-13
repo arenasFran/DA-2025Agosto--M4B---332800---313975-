@@ -1,6 +1,7 @@
 package obligatorio.obli.models;
 
 import java.util.Date;
+import java.util.List;
 
 import obligatorio.obli.models.Bonificaciones.Bonificacion;
 
@@ -58,5 +59,46 @@ public class Transito {
 
     public void setBono(Bonificacion bono) {
         this.bono = bono;
+    }
+
+    /**
+     * Calcula el monto final del tránsito aplicando la bonificación
+     * 
+     * @param transitosDelDia Lista de tránsitos realizados en el mismo día
+     *                        (necesario para bonificaciones frecuentes)
+     * @return Monto final a pagar después de aplicar descuentos
+     */
+    public double calcularMontoFinal(List<Transito> transitosDelDia) {
+        if (bono == null) {
+            return tarifa.getMonto();
+        }
+
+        double descuento = bono.calcularDescuento(this, transitosDelDia);
+        double montoBase = tarifa.getMonto();
+
+        return montoBase * (1.0 - descuento);
+    }
+
+    /**
+     * Calcula el monto final sin considerar otros tránsitos del día
+     * Útil cuando no se tiene el historial completo
+     * 
+     * @return Monto final a pagar
+     */
+    public double calcularMontoFinal() {
+        return calcularMontoFinal(null);
+    }
+
+    /**
+     * Obtiene el porcentaje de descuento aplicado
+     * 
+     * @param transitosDelDia Lista de tránsitos del día
+     * @return Porcentaje de descuento (0.0 a 1.0)
+     */
+    public double obtenerPorcentajeDescuento(List<Transito> transitosDelDia) {
+        if (bono == null) {
+            return 0.0;
+        }
+        return bono.calcularDescuento(this, transitosDelDia);
     }
 }

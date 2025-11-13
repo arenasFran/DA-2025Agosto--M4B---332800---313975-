@@ -36,4 +36,37 @@ public class Puesto {
     public void setTarifas(List<Tarifa> tarifas) {
         this.tarifas = tarifas;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
+        if (obj == null || obj.getClass() != this.getClass()) {
+            return false;
+        }
+        Puesto puesto = (Puesto) obj;
+        return this.nombre.equals(puesto.getNombre());
+    }
+
+    @Override
+    public int hashCode() {
+        return nombre.hashCode();
+    }
+
+    public Tarifa obtenerTarifaPorCategoria(String categoriaVehiculo) {
+        if (categoriaVehiculo == null || tarifas == null) {
+            return null;
+        }
+        for (Tarifa t : tarifas) {
+            if (t.esParaCategoria(categoriaVehiculo)) {
+                return t;
+            }
+        }
+        return null;
+    }
+
+    public boolean tieneTarifaParaCategoria(String categoriaVehiculo) {
+        return obtenerTarifaPorCategoria(categoriaVehiculo) != null;
+    }
 }

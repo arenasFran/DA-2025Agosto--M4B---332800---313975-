@@ -7,6 +7,10 @@ import java.util.List;
 
 import obligatorio.obli.models.*;
 import obligatorio.obli.models.Bonificaciones.Bonificacion;
+import obligatorio.obli.models.Bonificaciones.BonificacionExonerados;
+import obligatorio.obli.models.Bonificaciones.BonificacionFrecuentes;
+import obligatorio.obli.models.Bonificaciones.BonificacionTrabajadores;
+import obligatorio.obli.models.Bonificaciones.SinBonificacion;
 import obligatorio.obli.models.Categorias.*;
 import obligatorio.obli.models.Estados.*;
 import obligatorio.obli.models.Usuarios.*;
@@ -77,11 +81,10 @@ public class Precarga {
 
     public static List<Bonificacion> cargarBonificaciones() {
         List<Bonificacion> bonificaciones = new ArrayList<>();
-        bonificaciones.add(new Bonificacion("Descuento Tercera Edad"));
-        bonificaciones.add(new Bonificacion("Descuento Estudiante"));
-        bonificaciones.add(new Bonificacion("Descuento Discapacitado"));
-        bonificaciones.add(new Bonificacion("Descuento Residente Local"));
-        bonificaciones.add(new Bonificacion("Sin Bonificación"));
+        bonificaciones.add(new BonificacionExonerados());
+        bonificaciones.add(new BonificacionFrecuentes());
+        bonificaciones.add(new BonificacionTrabajadores());
+        bonificaciones.add(new SinBonificacion());
         return bonificaciones;
     }
 

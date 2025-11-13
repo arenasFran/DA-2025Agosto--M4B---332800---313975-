@@ -115,5 +115,44 @@ public class Propietario extends User {
         return this.estado.recibeNotificaciones();
     }
 
+    public Bonificacion obtenerBonificacionParaPuesto(Puesto puesto) {
+        if (puesto == null) {
+            return null;
+        }
+        for (Asignacion asig : asignaciones) {
+            if (asig.getPuesto().equals(puesto)) {
+                return asig.getBonificacion();
+            }
+        }
+        return null;
+    }
+
+    public boolean tieneVehiculo(Vehiculo vehiculo) {
+        if (vehiculo == null) {
+            return false;
+        }
+        return this.vehiculo.contains(vehiculo);
+    }
+
+    public boolean tieneSaldoSuficiente(double monto) {
+        return this.saldo >= monto;
+    }
+
+    public void descontarSaldo(double monto) {
+        if (monto < 0) {
+            throw new IllegalArgumentException("El monto a descontar no puede ser negativo");
+        }
+        if (!tieneSaldoSuficiente(monto)) {
+            throw new IllegalArgumentException(
+                    String.format("Saldo insuficiente. Saldo actual: $%.2f, Monto requerido: $%.2f",
+                            this.saldo, monto));
+        }
+        this.saldo -= monto;
+    }
+
+    public boolean saldoBajoMinimo() {
+        return this.saldo < this.saldoMinAlerta;
+    }
+
     // public void registrarTransito(Transito transito) {
 } // protected void hacerRegistroTransito(Transito transito) {
