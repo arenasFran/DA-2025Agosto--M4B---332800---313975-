@@ -18,12 +18,12 @@ public class EstadoSupendido extends Estado {
 
     @Override
     public boolean puedeRecibirBonificacion() {
-        return false;
+        return true;
     }
 
     @Override
     public boolean aplicanBonificacionesEnTransito() {
-        return false;
+        return true;
     }
 
     @Override
