@@ -81,11 +81,8 @@ public class BonificacionController implements Observador {
     public List<Respuesta> vistaConectada(
             @SessionAttribute(name = LoginController.SESSION_ADMIN_COOKIE, required = true) Administrador admin) {
         List<Respuesta> respuestas = new ArrayList<>();
-
-        // Registrar este controlador como observador de cambios en bonificaciones
         Fachada.getInstancia().agregarObservador(this);
 
-        // Restaurar propietario previo si existe (útil para reconexiones)
         if (this.propietarioActualCi != null) {
             System.out.println("Restaurando propietario: " + this.propietarioActualCi);
             try {
@@ -124,26 +121,17 @@ public class BonificacionController implements Observador {
                 new Respuesta("asignacion exitosa", "Bonificación asignada correctamente"));
     }
 
-    /**
-     * Implementación del patrón Observer
-     * Este método se ejecuta cuando hay cambios en las bonificaciones
-     */
     @Override
     public void actualizar(Object evento, Observable origen) {
         if (evento.equals(Fachada.Eventos.nuevaAsignacion)) {
             System.out.println("🔔 [BonificacionController] Nueva asignación detectada");
-
-            // Si este admin tiene un propietario buscado, enviar notificación para
-            // actualizar
             if (this.propietarioActualCi != null) {
                 System.out.println(
                         "📤 Enviando notificación SSE para actualizar propietario: " + this.propietarioActualCi);
 
                 try {
-                    // Obtener datos actualizados del propietario
                     Propietario propietario = Fachada.getInstancia().buscarPropietarioPorCi(this.propietarioActualCi);
 
-                    // Enviar notificación con los datos actualizados
                     conexionNavegador.enviarJSON(
                             Respuesta.lista(
                                     new Respuesta("notificacion", "Nueva bonificación asignada"),

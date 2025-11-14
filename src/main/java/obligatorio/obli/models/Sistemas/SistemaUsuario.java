@@ -3,6 +3,7 @@ package obligatorio.obli.models.Sistemas;
 import java.util.List;
 import java.util.ArrayList;
 
+import obligatorio.obli.models.Vehiculo;
 import obligatorio.obli.models.Usuarios.Administrador;
 import obligatorio.obli.models.Usuarios.Propietario;
 import obligatorio.obli.Precarga;
@@ -67,13 +68,7 @@ public class SistemaUsuario {
         throw new AdministradorNoEncontradoException(ci);
     }
 
-    /**
-     * Busca un vehículo por su matrícula entre todos los propietarios
-     * 
-     * @return El vehículo encontrado
-     * @throws Exception si no se encuentra
-     */
-    public obligatorio.obli.models.Vehiculo buscarVehiculoPorMatricula(String matricula) throws Exception {
+    public Vehiculo buscarVehiculoPorMatricula(String matricula) throws Exception {
         for (Propietario prop : propietarios) {
             for (obligatorio.obli.models.Vehiculo v : prop.getVehiculo()) {
                 if (v.getMatricula().equalsIgnoreCase(matricula)) {
@@ -84,12 +79,6 @@ public class SistemaUsuario {
         throw new Exception("No existe el vehículo");
     }
 
-    /**
-     * Busca el propietario de un vehículo específico
-     * 
-     * @return El propietario dueño del vehículo
-     * @throws Exception si no se encuentra
-     */
     public Propietario buscarPropietarioDeVehiculo(obligatorio.obli.models.Vehiculo vehiculo) throws Exception {
         for (Propietario prop : propietarios) {
             if (prop.tieneVehiculo(vehiculo)) {
