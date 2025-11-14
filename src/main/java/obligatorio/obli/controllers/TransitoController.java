@@ -17,7 +17,7 @@ import obligatorio.obli.ConexionNavegador;
 import obligatorio.obli.dtos.DetalleTransitoDTO;
 import obligatorio.obli.dtos.TarifaDTO;
 import obligatorio.obli.models.Puesto;
-import obligatorio.obli.models.Transito;
+import obligatorio.obli.models.ResultadoTransito;
 import obligatorio.obli.models.Sistemas.Fachada;
 import obligatorio.obli.models.Usuarios.Administrador;
 import obligatorio.obli.models.Usuarios.Propietario;
@@ -69,14 +69,18 @@ public class TransitoController implements Observador {
             @RequestParam String fechaHora) throws Exception {
 
         Fachada fachada = Fachada.getInstancia();
+
+        ResultadoTransito resultado = fachada.emularTransito(matricula, nombrePuesto, fechaHora);
+
         Propietario propietario = fachada.buscarPropietarioDeVehiculo(
                 fachada.buscarVehiculoPorMatricula(matricula));
 
-        double saldoAntes = propietario.getSaldo();
-        Transito transito = fachada.emularTransito(matricula, nombrePuesto, fechaHora);
-        double saldoDespues = propietario.getSaldo();
+        DetalleTransitoDTO detalle = new DetalleTransitoDTO(
+                resultado.getTransito(),
+                propietario,
+                resultado.getSaldoAntes(),
+                resultado.getSaldoDespues());
 
-        DetalleTransitoDTO detalle = new DetalleTransitoDTO(transito, propietario, saldoAntes, saldoDespues);
         this.transitosEmulados.add(detalle);
         this.ultimoTamañoConocido = this.transitosEmulados.size();
 
@@ -110,7 +114,6 @@ public class TransitoController implements Observador {
 
             int tamañoActual = this.transitosEmulados.size();
             if (tamañoActual == this.ultimoTamañoConocido) {
-                System.out.println("ℹ️ Este controller ya procesó el tránsito, no se duplica");
                 return;
             }
 
