@@ -79,7 +79,8 @@ public class TransitoController implements Observador {
                 resultado.getTransito(),
                 propietario,
                 resultado.getSaldoAntes(),
-                resultado.getSaldoDespues());
+                resultado.getSaldoDespues(),
+                resultado.getMontoDescontado());
 
         this.transitosEmulados.add(detalle);
         this.ultimoTamañoConocido = this.transitosEmulados.size();

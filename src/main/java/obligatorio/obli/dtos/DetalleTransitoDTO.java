@@ -25,7 +25,7 @@ public class DetalleTransitoDTO {
     private double saldoDespues;
     private String fechaHora;
 
-    public DetalleTransitoDTO(Transito transito, Propietario propietario, double saldoAntes, double saldoDespues) {
+    public DetalleTransitoDTO(Transito transito, Propietario propietario, double saldoAntes, double saldoDespues, double montoDescontado) {
         // Extraer info usando métodos Expert de cada objeto
         Vehiculo vehiculo = transito.getVehiculo();
 
@@ -40,15 +40,15 @@ public class DetalleTransitoDTO {
         this.vehiculoColor = vehiculo.getColor();
         this.categoriaVehiculo = vehiculo.getNombreCategoria();
 
-        // Transito es Expert de sus datos y cálculos
+        // Transito es Expert de sus datos
         this.puestoNombre = transito.getPuesto().getNombre();
-        this.montoDescontado = transito.calcularMontoFinal();
         this.fechaHora = transito.obtenerFechaFormateada();
 
         // Propietario es Expert de sus bonificaciones
         this.bonificacion = propietario.obtenerNombreBonificacionDelTransito(transito.getPuesto());
 
-        // Saldos calculados en controller (info temporal)
+        // Información de resultado (calculada una sola vez en Fachada)
+        this.montoDescontado = montoDescontado;
         this.saldoAntes = saldoAntes;
         this.saldoDespues = saldoDespues;
     }

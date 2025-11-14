@@ -10,6 +10,7 @@ import obligatorio.obli.exceptions.bonificaciones.BonificacionNoEncontradaExcept
 import obligatorio.obli.exceptions.login.LoginCredencialesInvalidasException;
 import obligatorio.obli.models.Estados.Estado;
 import obligatorio.obli.models.Puesto;
+import obligatorio.obli.models.ResultadoTransito;
 import obligatorio.obli.models.Vehiculo;
 import obligatorio.obli.models.Tarifa;
 import obligatorio.obli.models.Transito;
@@ -107,27 +108,24 @@ public class Fachada extends Observable {
         return this.sistemaUsuario.buscarPropietarioDeVehiculo(vehiculo);
     }
 
-    public Transito emularTransito(String matricula, String nombrePuesto, String fechaHora) throws Exception {
+    public ResultadoTransito emularTransito(String matricula, String nombrePuesto, String fechaHora) throws Exception {
         Vehiculo vehiculo = this.sistemaUsuario.buscarVehiculoPorMatricula(matricula);
         Propietario propietario = this.sistemaUsuario.buscarPropietarioDeVehiculo(vehiculo);
         Puesto puesto = this.sistemaPuesto.buscarPorNombre(nombrePuesto);
 
         String categoriaVehiculo = vehiculo.getNombreCategoria();
         Tarifa tarifa = puesto.obtenerTarifaPorCategoria(categoriaVehiculo);
-        if (tarifa == null) {
-            throw new Exception("No hay tarifa definida para la categoría " + categoriaVehiculo);
-        }
         Bonificacion bonificacion = propietario.obtenerBonificacionDelTransito(puesto);
 
         Transito transito = Transito.crearConFechaString(puesto, vehiculo, tarifa, fechaHora, bonificacion);
-
-        propietario.registrarTransito(transito);
+        double saldoAntes = propietario.getSaldo();
+        double montoDescontado = propietario.registrarTransito(transito);
         propietario.enviarNotificacionesTransito(transito);
+        double saldoDespues = propietario.getSaldo();
 
-        // Notificar a observadores (patrón Observer)
         avisar(Eventos.nuevoTransito);
 
-        return transito;
+        return new ResultadoTransito(transito, saldoAntes, saldoDespues, montoDescontado);
     }
 
 }
