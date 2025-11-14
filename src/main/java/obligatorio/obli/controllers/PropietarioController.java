@@ -6,7 +6,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.servlet.http.HttpSession;
-import obligatorio.obli.models.PropietarioSesion;
 import obligatorio.obli.models.Usuarios.Propietario;
 
 @RestController
@@ -15,15 +14,12 @@ public class PropietarioController {
 
     @RequestMapping("/vistaConectada")
     public List<Respuesta> vistaConectada(HttpSession sessionHttp) {
-        PropietarioSesion sesion = (PropietarioSesion) sessionHttp.getAttribute("propietario");
+        Propietario propietario = (Propietario) sessionHttp.getAttribute(LoginController.SESSION_PROPIETARIO_COOKIE);
 
-        if (sesion == null) {
+        if (propietario == null) {
             return Respuesta.lista(new Respuesta("paginaLogin", "login.html"));
         }
 
-        Propietario propietario = sesion.getPropietario();
-
-        // Retornar datos del propietario
         return Respuesta.lista(
                 new Respuesta("nombrePropietario", propietario.getNombre()),
                 new Respuesta("datosPropietario", propietario));
@@ -31,6 +27,6 @@ public class PropietarioController {
 
     @RequestMapping("/vistaCerrada")
     public void vistaCerrada(HttpSession sessionHttp) {
-        // Opcional: lógica al cerrar la vista
+
     }
 }

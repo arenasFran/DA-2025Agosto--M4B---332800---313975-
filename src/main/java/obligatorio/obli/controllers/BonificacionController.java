@@ -17,11 +17,11 @@ import obligatorio.obli.exceptions.bonificaciones.BonificacionNoEncontradaExcept
 import obligatorio.obli.exceptions.propietario.PropietarioNoEncontradoException;
 import obligatorio.obli.exceptions.propietario.estados.EstadoProhibidoRecibirBonificacionException;
 import obligatorio.obli.exceptions.puesto.PuestoNoEncontradoException;
-import obligatorio.obli.models.AdminSesion;
 import obligatorio.obli.models.Asignacion;
 import obligatorio.obli.models.Puesto;
 import obligatorio.obli.models.Bonificaciones.Bonificacion;
 import obligatorio.obli.models.Sistemas.Fachada;
+import obligatorio.obli.models.Usuarios.Administrador;
 import obligatorio.obli.models.Usuarios.Propietario;
 import obligatorio.obli.observador.Observable;
 import obligatorio.obli.observador.Observador;
@@ -79,7 +79,7 @@ public class BonificacionController implements Observador {
 
     @RequestMapping(value = "/vistaConectada", method = { RequestMethod.GET, RequestMethod.POST })
     public List<Respuesta> vistaConectada(
-            @SessionAttribute(name = LoginController.SESSION_ADMIN_COOKIE, required = true) AdminSesion adminSession) {
+            @SessionAttribute(name = LoginController.SESSION_ADMIN_COOKIE, required = true) Administrador admin) {
         List<Respuesta> respuestas = new ArrayList<>();
 
         // Registrar este controlador como observador de cambios en bonificaciones

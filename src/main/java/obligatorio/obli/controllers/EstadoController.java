@@ -15,8 +15,8 @@ import org.springframework.web.bind.annotation.SessionAttribute;
 import obligatorio.obli.dtos.PropietarioEstadoDTO;
 import obligatorio.obli.exceptions.propietario.PropietarioErrorActualizacionEstadoException;
 import obligatorio.obli.exceptions.propietario.PropietarioNoEncontradoException;
-import obligatorio.obli.models.AdminSesion;
 import obligatorio.obli.models.Sistemas.Fachada;
+import obligatorio.obli.models.Usuarios.Administrador;
 import obligatorio.obli.models.Usuarios.Propietario;
 
 @RestController
@@ -26,7 +26,7 @@ public class EstadoController {
 
     @PostMapping("/estado/buscar")
     public List<Respuesta> buscarPropietario(
-            @SessionAttribute(name = LoginController.SESSION_ADMIN_COOKIE, required = true) AdminSesion adminSession,
+            @SessionAttribute(name = LoginController.SESSION_ADMIN_COOKIE, required = true) Administrador admin,
             @RequestParam String cedula) throws PropietarioNoEncontradoException {
 
         Propietario p = Fachada.getInstancia().buscarPropietarioPorCi(cedula);
@@ -43,7 +43,7 @@ public class EstadoController {
 
     @PutMapping("/estado/actualizar")
     public List<Respuesta> cambiarEstado(
-            @SessionAttribute(name = LoginController.SESSION_ADMIN_COOKIE, required = true) AdminSesion adminSession,
+            @SessionAttribute(name = LoginController.SESSION_ADMIN_COOKIE, required = true) Administrador admin,
             @RequestParam String cedula,
             @RequestParam String nuevoEstado)
             throws PropietarioNoEncontradoException, PropietarioErrorActualizacionEstadoException {
@@ -55,7 +55,7 @@ public class EstadoController {
 
     @RequestMapping(value = "/estado/vistaConectada", method = { RequestMethod.GET, RequestMethod.POST })
     public List<Respuesta> vistaConectada(
-            @SessionAttribute(name = LoginController.SESSION_ADMIN_COOKIE, required = true) AdminSesion adminSession) {
+            @SessionAttribute(name = LoginController.SESSION_ADMIN_COOKIE, required = true) Administrador admin) {
         List<Respuesta> respuestas = new ArrayList<>();
 
         System.out.println("Propietario actual: " + this.propietarioActualCi);

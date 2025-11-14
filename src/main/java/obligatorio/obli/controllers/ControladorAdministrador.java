@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.SessionAttribute;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import obligatorio.obli.ConexionNavegador;
-import obligatorio.obli.models.AdminSesion;
 import obligatorio.obli.models.Sistemas.Fachada;
+import obligatorio.obli.models.Usuarios.Administrador;
 import obligatorio.obli.observador.Observable;
 import obligatorio.obli.observador.Observador;
 
@@ -37,7 +37,7 @@ public class ControladorAdministrador implements Observador {
 
     @RequestMapping(value = "/vistaConectada", method = { RequestMethod.GET, RequestMethod.POST })
     public List<Respuesta> inicializarVista(
-            @SessionAttribute(name = "admin", required = false) AdminSesion admin) {
+            @SessionAttribute(name = LoginController.SESSION_ADMIN_COOKIE, required = false) Administrador admin) {
 
         if (admin == null) {
 
@@ -49,7 +49,7 @@ public class ControladorAdministrador implements Observador {
 
         return Respuesta.lista(
                 new Respuesta("mensaje", "Vista conectada - Recibirás notificaciones en tiempo real"),
-                new Respuesta("nombreAdmin", admin.getAdmnin().getNombre()));
+                new Respuesta("nombreAdmin", admin.getNombre()));
     }
 
     @RequestMapping(value = "/vistaCerrada", method = { RequestMethod.GET, RequestMethod.POST })

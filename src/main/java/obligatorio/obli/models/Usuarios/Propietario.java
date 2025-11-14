@@ -8,6 +8,7 @@ import obligatorio.obli.exceptions.propietario.estados.EstadoProhibidoRecibirBon
 import obligatorio.obli.models.Asignacion;
 import obligatorio.obli.models.Estados.Estado;
 import obligatorio.obli.models.Puesto;
+import obligatorio.obli.models.Transito;
 import obligatorio.obli.models.Vehiculo;
 import obligatorio.obli.models.Bonificaciones.Bonificacion;
 
@@ -17,7 +18,7 @@ public class Propietario extends User {
     private double saldoMinAlerta;
     private Estado estado;
     private List<Asignacion> asignaciones;
-    // private List<Transito> transitos;
+    private List<Transito> transitos;
 
     public Propietario(int id, String ci, String nombre, String password, List<Vehiculo> vehiculo, double saldo,
             double saldoMinAlerta, Estado estado) {
@@ -27,6 +28,7 @@ public class Propietario extends User {
         this.saldoMinAlerta = saldoMinAlerta;
         this.estado = estado;
         this.asignaciones = new ArrayList<>();
+        this.transitos = new ArrayList<>();
     }
 
     // Getters and setters
@@ -154,5 +156,56 @@ public class Propietario extends User {
         return this.saldo < this.saldoMinAlerta;
     }
 
-    // public void registrarTransito(Transito transito) {
-} // protected void hacerRegistroTransito(Transito transito) {
+    public double registrarTransito(Transito transito) {
+        if (!this.puedeRealizarTransito()) {
+            throw new IllegalStateException(
+                    String.format("El propietario está %s, no puede realizar tránsitos",
+                            this.estado.getNombre().toLowerCase()));
+        }
+
+        double montoFinal = transito.calcularMontoFinal(this.transitos);
+
+        if (!tieneSaldoSuficiente(montoFinal)) {
+            throw new IllegalArgumentException(
+                    String.format("Saldo insuficiente. Saldo actual: $%.2f, Monto requerido: $%.2f",
+                            this.saldo, montoFinal));
+        }
+
+        this.saldo -= montoFinal;
+        this.transitos.add(transito);
+
+        return montoFinal;
+    }
+
+    public List<Transito> getTransitos() {
+        return new ArrayList<>(transitos);
+    }
+
+    public Bonificacion obtenerBonificacionDelTransito(Puesto puesto) {
+        if (!this.aplicanBonificacionesEnTransito()) {
+            return null;
+        }
+        return this.obtenerBonificacionParaPuesto(puesto);
+    }
+
+    public String obtenerNombreBonificacionDelTransito(Puesto puesto) {
+        Bonificacion bonificacion = obtenerBonificacionDelTransito(puesto);
+        return bonificacion != null ? bonificacion.getNombre() : "Ninguna";
+    }
+
+    public void enviarNotificacionesTransito(Transito transito) {
+        if (!this.recibeNotificaciones()) {
+            return;
+        }
+
+        String vehiculoMatricula = transito.getVehiculo().getMatricula();
+        String puestoNombre = transito.getPuesto().getNombre();
+        String notif1 = String.format("Pasaste por el puesto %s con el vehiculo %s",
+                puestoNombre, vehiculoMatricula);
+
+        if (this.saldoBajoMinimo()) {
+            String notif2 = String.format("Tu saldo actual es de $%.2f. Te recomendamos hacer una recarga",
+                    this.getSaldo());
+        }
+    }
+}

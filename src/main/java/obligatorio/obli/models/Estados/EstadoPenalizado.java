@@ -18,7 +18,7 @@ public class EstadoPenalizado extends Estado {
 
     @Override
     public boolean puedeRecibirBonificacion() {
-        return true;
+        return false;
     }
 
     @Override

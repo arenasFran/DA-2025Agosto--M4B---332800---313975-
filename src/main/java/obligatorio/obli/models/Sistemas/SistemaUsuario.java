@@ -67,4 +67,36 @@ public class SistemaUsuario {
         throw new AdministradorNoEncontradoException(ci);
     }
 
+    /**
+     * Busca un vehículo por su matrícula entre todos los propietarios
+     * 
+     * @return El vehículo encontrado
+     * @throws Exception si no se encuentra
+     */
+    public obligatorio.obli.models.Vehiculo buscarVehiculoPorMatricula(String matricula) throws Exception {
+        for (Propietario prop : propietarios) {
+            for (obligatorio.obli.models.Vehiculo v : prop.getVehiculo()) {
+                if (v.getMatricula().equalsIgnoreCase(matricula)) {
+                    return v;
+                }
+            }
+        }
+        throw new Exception("No existe el vehículo");
+    }
+
+    /**
+     * Busca el propietario de un vehículo específico
+     * 
+     * @return El propietario dueño del vehículo
+     * @throws Exception si no se encuentra
+     */
+    public Propietario buscarPropietarioDeVehiculo(obligatorio.obli.models.Vehiculo vehiculo) throws Exception {
+        for (Propietario prop : propietarios) {
+            if (prop.tieneVehiculo(vehiculo)) {
+                return prop;
+            }
+        }
+        throw new Exception("El vehículo no tiene propietario registrado");
+    }
+
 }

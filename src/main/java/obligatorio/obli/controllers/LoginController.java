@@ -8,9 +8,9 @@ import jakarta.servlet.http.HttpSession;
 import obligatorio.obli.exceptions.login.LoginCredencialesInvalidasException;
 import obligatorio.obli.exceptions.login.SistemaLoginException;
 import obligatorio.obli.exceptions.propietario.estados.EstadoProhibidoIniciarSesionException;
-import obligatorio.obli.models.AdminSesion;
-import obligatorio.obli.models.PropietarioSesion;
 import obligatorio.obli.models.Sistemas.Fachada;
+import obligatorio.obli.models.Usuarios.Administrador;
+import obligatorio.obli.models.Usuarios.Propietario;
 
 import java.util.List;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,8 +18,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 @RestController
 @RequestMapping("/login")
 public class LoginController {
-    public static final String SESSION_PROPIETARIO_COOKIE = "propietarioSession";
-    public static final String SESSION_ADMIN_COOKIE = "adminSession";
+    public static final String SESSION_PROPIETARIO_COOKIE = "propietario";
+    public static final String SESSION_ADMIN_COOKIE = "administrador";
 
     private Fachada fachada;
 
@@ -31,13 +31,13 @@ public class LoginController {
     public List<Respuesta> loginPropietario(HttpSession sessionHttp, @RequestParam String ci,
             @RequestParam String password)
             throws LoginCredencialesInvalidasException, EstadoProhibidoIniciarSesionException {
-        PropietarioSesion sesion = this.fachada.loginPropietario(ci, password);
+        Propietario propietario = this.fachada.loginPropietario(ci, password);
 
-        if (!sesion.getPropietario().puedeIniciarSesion()) {
-            throw new EstadoProhibidoIniciarSesionException(sesion.getPropietario().getEstado());
+        if (!propietario.puedeIniciarSesion()) {
+            throw new EstadoProhibidoIniciarSesionException(propietario.getEstado());
         }
 
-        sessionHttp.setAttribute(SESSION_PROPIETARIO_COOKIE, sesion);
+        sessionHttp.setAttribute(SESSION_PROPIETARIO_COOKIE, propietario);
 
         return Respuesta.lista(new Respuesta("login exitoso", "propietario/dashboard.html"));
     }
@@ -45,30 +45,22 @@ public class LoginController {
     @PostMapping("/admin")
     public List<Respuesta> loginAdmin(HttpSession sessionHttp, @RequestParam String ci, @RequestParam String password)
             throws LoginCredencialesInvalidasException {
-        AdminSesion a = this.fachada.loginAdmin(ci, password);
+        Administrador admin = this.fachada.loginAdmin(ci, password);
 
-        sessionHttp.setAttribute(SESSION_ADMIN_COOKIE, a);
+        sessionHttp.setAttribute(SESSION_ADMIN_COOKIE, admin);
 
         return Respuesta.lista(new Respuesta("login exitoso", "admin/bonificaciones/index.html"));
     }
 
     @PostMapping("/logoutPropietario")
     public List<Respuesta> logoutPropietario(HttpSession sessionHttp) throws SistemaLoginException {
-        PropietarioSesion sesion = (PropietarioSesion) sessionHttp.getAttribute(SESSION_PROPIETARIO_COOKIE);
-        if (sesion != null) {
-            Fachada.getInstancia().logoutPropietario(sesion);
-            sessionHttp.removeAttribute(SESSION_PROPIETARIO_COOKIE);
-        }
+        sessionHttp.removeAttribute(SESSION_PROPIETARIO_COOKIE);
         return Respuesta.lista(new Respuesta("paginaLogin", "/login.html"));
     }
 
     @PostMapping("/logoutAdmin")
     public List<Respuesta> logoutAdmin(HttpSession sessionHttp) throws SistemaLoginException {
-        AdminSesion sesion = (AdminSesion) sessionHttp.getAttribute(SESSION_ADMIN_COOKIE);
-        if (sesion != null) {
-            Fachada.getInstancia().logoutAdmin(sesion);
-            sessionHttp.removeAttribute(SESSION_ADMIN_COOKIE);
-        }
+        sessionHttp.removeAttribute(SESSION_ADMIN_COOKIE);
         return Respuesta.lista(new Respuesta("paginaLogin", "/login.html"));
     }
 }

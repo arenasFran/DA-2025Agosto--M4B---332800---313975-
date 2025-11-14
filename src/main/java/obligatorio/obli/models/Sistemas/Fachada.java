@@ -8,22 +8,22 @@ import obligatorio.obli.exceptions.propietario.estados.EstadoProhibidoRecibirBon
 import obligatorio.obli.exceptions.puesto.PuestoNoEncontradoException;
 import obligatorio.obli.exceptions.bonificaciones.BonificacionNoEncontradaException;
 import obligatorio.obli.exceptions.login.LoginCredencialesInvalidasException;
-import obligatorio.obli.models.AdminSesion;
 import obligatorio.obli.models.Estados.Estado;
-import obligatorio.obli.models.PropietarioSesion;
 import obligatorio.obli.models.Puesto;
+import obligatorio.obli.models.Vehiculo;
+import obligatorio.obli.models.Tarifa;
+import obligatorio.obli.models.Transito;
 import obligatorio.obli.models.Bonificaciones.Bonificacion;
+import obligatorio.obli.models.Usuarios.Administrador;
 import obligatorio.obli.models.Usuarios.Propietario;
 import obligatorio.obli.observador.Observable;
 
 public class Fachada extends Observable {
-    private SistemaLogin sistemaLogin;
     private SistemaUsuario sistemaUsuario;
     private SistemaBonificacion sistemaBonificacion;
     private SistemaPuesto sistemaPuesto;
 
     private Fachada() {
-        sistemaLogin = SistemaLogin.getInstancia();
         sistemaUsuario = SistemaUsuario.getInstancia();
         sistemaBonificacion = SistemaBonificacion.getInstancia();
         sistemaPuesto = SistemaPuesto.getInstancia();
@@ -39,15 +39,24 @@ public class Fachada extends Observable {
     }
 
     public enum Eventos {
-        nuevaAsignacion
+        nuevaAsignacion,
+        nuevoTransito
     }
 
-    public PropietarioSesion loginPropietario(String ci, String password) throws LoginCredencialesInvalidasException {
-        return this.sistemaLogin.loginPropietario(ci, password);
+    public Propietario loginPropietario(String ci, String password) throws LoginCredencialesInvalidasException {
+        try {
+            return this.sistemaUsuario.getPropietarioPorCi(ci);
+        } catch (PropietarioNoEncontradoException e) {
+            throw new LoginCredencialesInvalidasException();
+        }
     }
 
-    public AdminSesion loginAdmin(String ci, String password) throws LoginCredencialesInvalidasException {
-        return this.sistemaLogin.loginAdmin(ci, password);
+    public Administrador loginAdmin(String ci, String password) throws LoginCredencialesInvalidasException {
+        try {
+            return this.sistemaUsuario.getAdministradorPorCi(ci);
+        } catch (Exception e) {
+            throw new LoginCredencialesInvalidasException();
+        }
     }
 
     public Propietario buscarPropietarioPorCi(String ci) throws PropietarioNoEncontradoException {
@@ -86,11 +95,39 @@ public class Fachada extends Observable {
         // [estado]"
     }
 
-    public void logoutPropietario(PropietarioSesion sesion) {
-        this.sistemaLogin.logoutPropietario(sesion);
+    public Puesto buscarPuestoPorNombre(String nombrePuesto) throws PuestoNoEncontradoException {
+        return this.sistemaPuesto.buscarPorNombre(nombrePuesto);
     }
 
-    public void logoutAdmin(AdminSesion sesion) {
-        this.sistemaLogin.logoutAdmin(sesion);
+    public Vehiculo buscarVehiculoPorMatricula(String matricula) throws Exception {
+        return this.sistemaUsuario.buscarVehiculoPorMatricula(matricula);
     }
+
+    public Propietario buscarPropietarioDeVehiculo(Vehiculo vehiculo) throws Exception {
+        return this.sistemaUsuario.buscarPropietarioDeVehiculo(vehiculo);
+    }
+
+    public Transito emularTransito(String matricula, String nombrePuesto, String fechaHora) throws Exception {
+        Vehiculo vehiculo = this.sistemaUsuario.buscarVehiculoPorMatricula(matricula);
+        Propietario propietario = this.sistemaUsuario.buscarPropietarioDeVehiculo(vehiculo);
+        Puesto puesto = this.sistemaPuesto.buscarPorNombre(nombrePuesto);
+
+        String categoriaVehiculo = vehiculo.getNombreCategoria();
+        Tarifa tarifa = puesto.obtenerTarifaPorCategoria(categoriaVehiculo);
+        if (tarifa == null) {
+            throw new Exception("No hay tarifa definida para la categoría " + categoriaVehiculo);
+        }
+        Bonificacion bonificacion = propietario.obtenerBonificacionDelTransito(puesto);
+
+        Transito transito = Transito.crearConFechaString(puesto, vehiculo, tarifa, fechaHora, bonificacion);
+
+        propietario.registrarTransito(transito);
+        propietario.enviarNotificacionesTransito(transito);
+
+        // Notificar a observadores (patrón Observer)
+        avisar(Eventos.nuevoTransito);
+
+        return transito;
+    }
+
 }
