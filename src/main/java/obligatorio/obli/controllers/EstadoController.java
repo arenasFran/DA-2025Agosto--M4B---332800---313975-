@@ -3,6 +3,7 @@ package obligatorio.obli.controllers;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -12,17 +13,25 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.SessionAttribute;
 
+import obligatorio.obli.ConexionNavegador;
 import obligatorio.obli.dtos.PropietarioEstadoDTO;
 import obligatorio.obli.exceptions.propietario.PropietarioErrorActualizacionEstadoException;
 import obligatorio.obli.exceptions.propietario.PropietarioNoEncontradoException;
 import obligatorio.obli.models.Sistemas.Fachada;
 import obligatorio.obli.models.Usuarios.Administrador;
 import obligatorio.obli.models.Usuarios.Propietario;
+import obligatorio.obli.observador.Observable;
+import obligatorio.obli.observador.Observador;
 
 @RestController
 @Scope("session")
-public class EstadoController {
+public class EstadoController implements Observador {
     private String propietarioActualCi;
+    private final ConexionNavegador conexionNavegador;
+
+    public EstadoController(@Autowired ConexionNavegador conexionNavegador) {
+        this.conexionNavegador = conexionNavegador;
+    }
 
     @PostMapping("/estado/buscar")
     public List<Respuesta> buscarPropietario(
@@ -58,7 +67,8 @@ public class EstadoController {
             @SessionAttribute(name = LoginController.SESSION_ADMIN_COOKIE, required = true) Administrador admin) {
         List<Respuesta> respuestas = new ArrayList<>();
 
-        System.out.println("Propietario actual: " + this.propietarioActualCi);
+        Fachada.getInstancia().agregarObservador(this);
+
         if (this.propietarioActualCi != null) {
             try {
                 Propietario p = Fachada.getInstancia().buscarPropietarioPorCi(this.propietarioActualCi);
@@ -70,10 +80,40 @@ public class EstadoController {
             } catch (PropietarioNoEncontradoException e) {
                 respuestas.add(new Respuesta("mensaje", "Propietario no encontrado"));
             }
+        } else {
+            System.out.println("Vista de estado conectada - Sin propietario seleccionado");
         }
 
         respuestas.add(new Respuesta("mensaje", "Vista conectada"));
-
         return respuestas;
+    }
+
+    @RequestMapping(value = "/estado/vistaCerrada", method = { RequestMethod.GET, RequestMethod.POST })
+    public void vistaCerrada() {
+        Fachada.getInstancia().quitarObservador(this);
+        System.out.println("Vista de estado desconectada - Observador removido");
+    }
+
+    @Override
+    public void actualizar(Object evento, Observable origen) {
+        if (evento.equals(Fachada.Eventos.cambioEstado)) {
+            if (this.propietarioActualCi != null) {
+                try {
+                    Propietario p = Fachada.getInstancia().buscarPropietarioPorCi(this.propietarioActualCi);
+                    PropietarioEstadoDTO dto = new PropietarioEstadoDTO(
+                            p.getCi(),
+                            p.getNombre(),
+                            p.getEstado().getNombre());
+                    conexionNavegador.enviarJSON(
+                            Respuesta.lista(
+                                    new Respuesta("notificacion", "Estado actualizado"),
+                                    new Respuesta("propietario", dto)));
+                } catch (PropietarioNoEncontradoException e) {
+                    System.err.println("Error al enviar actualización del propietario: " + e.getMessage());
+                }
+            } else {
+                System.out.println("ℹ️ No hay propietario seleccionado en esta sesión, no se envía actualización");
+            }
+        }
     }
 }

@@ -41,7 +41,8 @@ public class Fachada extends Observable {
 
     public enum Eventos {
         nuevaAsignacion,
-        nuevoTransito
+        nuevoTransito,
+        cambioEstado
     }
 
     public Propietario loginPropietario(String ci, String password) throws LoginCredencialesInvalidasException {
@@ -90,6 +91,7 @@ public class Fachada extends Observable {
 
         Estado nuevoEstado = Estado.fromNombre(nuevoEstadoNombre);
         propietario.cambiarEstado(nuevoEstado);
+        avisar(Eventos.cambioEstado);
 
         // Mandar notificacion al propietario
         // "[Fecha y hora] Se ha cambiado tu estado en el sistema. Tu estado actual es

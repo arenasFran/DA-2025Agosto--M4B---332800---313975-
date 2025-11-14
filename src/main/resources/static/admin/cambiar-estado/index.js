@@ -1,3 +1,8 @@
+// CONFIGURACIÓN SSE - Debe definirse ANTES de que vistaWeb.js haga su primer submit
+urlIniciarVista = "/estado/vistaConectada";
+urlCierreVista = "/estado/vistaCerrada";
+urlRegistroSSE = "/administrador/registrarSSE";
+
 // State management
 let propietarioActual = null;
 
@@ -31,6 +36,33 @@ function mostrar_estadoCambiado(message) {
 // Handler for vistaWeb.js callback when an error occurs
 function mostrar_error(errorMessage) {
   mostrarMensaje(errorMessage, "error");
+}
+
+// Handler for SSE notifications
+function mostrar_notificacion(mensaje) {
+  console.log("📬 Notificación recibida:", mensaje);
+  mostrarNotificacionFlotante(mensaje, "info");
+}
+
+function mostrarNotificacionFlotante(texto, tipo) {
+  // Crear elemento de notificación flotante
+  const notif = document.createElement("div");
+  notif.className = "fixed top-4 right-4 p-4 border shadow-lg z-50 transition-all";
+  
+  if (tipo === "info") {
+    notif.className += " border-[var(--primary)] bg-[var(--card)] text-[var(--foreground)]";
+  } else if (tipo === "success") {
+    notif.className += " border-[var(--chart-2)] bg-[var(--card)] text-[var(--chart-2)]";
+  }
+  
+  notif.textContent = texto;
+  document.body.appendChild(notif);
+  
+  // Auto-remover después de 3 segundos
+  setTimeout(() => {
+    notif.style.opacity = "0";
+    setTimeout(() => notif.remove(), 300);
+  }, 3000);
 }
 
 function buscarPropietario() {
