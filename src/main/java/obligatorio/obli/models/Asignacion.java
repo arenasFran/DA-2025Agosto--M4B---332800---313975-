@@ -16,7 +16,7 @@ public class Asignacion {
     public Asignacion(Bonificacion bonificacion, Puesto puesto) {
         this.bonificacion = bonificacion;
         this.puesto = puesto;
-        this.fechaAsignacion = FORMATTER.format(new Date()); // Format current date/time
+        this.fechaAsignacion = FORMATTER.format(new Date());
         validar();
     }
 
@@ -28,12 +28,7 @@ public class Asignacion {
         return puesto;
     }
 
-    /**
-     * Returns formatted assignment date
-     *
-     * @return Date formatted as dd/MM/yyyy HH:mm:ss
-     */
-    public String getfechaAsignacion() {
+    public String getFechaAsignacion() {
         return fechaAsignacion;
     }
 

@@ -2,12 +2,14 @@ package obligatorio.obli.models.Usuarios;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import obligatorio.obli.exceptions.propietario.PropietarioErrorActualizacionEstadoException;
 import obligatorio.obli.exceptions.propietario.estados.EstadoProhibidoRecibirBonificacionException;
 import obligatorio.obli.models.Asignacion;
 import obligatorio.obli.models.Estados.Estado;
 import obligatorio.obli.models.Sistemas.Fachada.Eventos;
+import obligatorio.obli.models.Notificacion;
 import obligatorio.obli.models.Puesto;
 import obligatorio.obli.models.Transito;
 import obligatorio.obli.models.Vehiculo;
@@ -20,6 +22,7 @@ public class Propietario extends User {
     private Estado estado;
     private List<Asignacion> asignaciones;
     private List<Transito> transitos;
+    private List<Notificacion> notificaciones;
 
     public Propietario(int id, String ci, String nombre, String password, List<Vehiculo> vehiculo, double saldo,
             double saldoMinAlerta, Estado estado) {
@@ -30,9 +33,9 @@ public class Propietario extends User {
         this.estado = estado;
         this.asignaciones = new ArrayList<>();
         this.transitos = new ArrayList<>();
+        this.notificaciones = new ArrayList<>();
     }
 
-    // Getters and setters
     public List<Vehiculo> getVehiculo() {
         return vehiculo;
     }
@@ -84,6 +87,9 @@ public class Propietario extends User {
         Asignacion asignacion = new Asignacion(bonificacion, puesto);
         this.agregarAsignacion(asignacion);
         avisar(Eventos.nuevaAsignacion);
+
+        agregarNotificacion(String.format("Se asignó una nueva bonificación: %s para el puesto %s",
+                bonificacion.getNombre(), puesto.getNombre()));
     }
 
     public void cambiarEstado(Estado nuevoEstado) throws PropietarioErrorActualizacionEstadoException {
@@ -93,6 +99,9 @@ public class Propietario extends User {
         }
         this.estado = nuevoEstado;
         avisar(Eventos.cambioEstado);
+
+        agregarNotificacion(String.format("Se ha cambiado tu estado en el sistema. Tu estado actual es %s",
+                nuevoEstado.getNombre()));
     }
 
     public boolean puedeIniciarSesion() {
@@ -179,6 +188,34 @@ public class Propietario extends User {
         return new ArrayList<>(transitos);
     }
 
+    public List<Notificacion> getNotificaciones() {
+        return notificaciones.stream()
+                .sorted((n1, n2) -> Integer.compare(n2.getId(), n1.getId()))
+                .collect(Collectors.toList());
+    }
+
+    public void agregarNotificacion(String mensaje) {
+        if (mensaje == null || mensaje.isEmpty()) {
+            throw new IllegalArgumentException("El mensaje no puede ser null o vacío");
+        }
+
+        if (!this.recibeNotificaciones()) {
+            return;
+        }
+
+        Notificacion notif = new Notificacion(mensaje);
+        this.notificaciones.add(notif);
+        avisar(Eventos.nuevaNotificacion);
+    }
+
+    public void borrarNotificaciones() {
+        if (this.notificaciones.isEmpty()) {
+            throw new IllegalStateException("No hay notificaciones para borrar");
+        }
+        this.notificaciones.clear();
+        avisar(Eventos.borradoNotificaciones);
+    }
+
     public Bonificacion obtenerBonificacionDelTransito(Puesto puesto) {
         if (!this.aplicanBonificacionesEnTransito()) {
             return null;
@@ -198,12 +235,15 @@ public class Propietario extends User {
 
         String vehiculoMatricula = transito.getVehiculo().getMatricula();
         String puestoNombre = transito.getPuesto().getNombre();
-        String notif1 = String.format("Pasaste por el puesto %s con el vehiculo %s",
+        String mensaje1 = String.format("Pasaste por el puesto %s con el vehiculo %s",
                 puestoNombre, vehiculoMatricula);
 
+        agregarNotificacion(mensaje1);
+
         if (this.saldoBajoMinimo()) {
-            String notif2 = String.format("Tu saldo actual es de $%.2f. Te recomendamos hacer una recarga",
+            String mensaje2 = String.format("Tu saldo actual es de $%.2f. Te recomendamos hacer una recarga",
                     this.getSaldo());
+            agregarNotificacion(mensaje2);
         }
     }
 }
