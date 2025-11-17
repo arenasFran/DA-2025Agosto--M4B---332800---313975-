@@ -321,7 +321,7 @@ function renderizarBonificaciones(asignaciones) {
         a.puesto?.nombre || "N/A"
       }</td>
       <td class="py-3 px-4 text-sm text-[var(--muted-foreground)] border-b border-[var(--border)]">${
-        a.fechaAsignacionFormateada || "-"
+        a.fechaAsignacion || "-"
       }</td>
     </tr>
   `
