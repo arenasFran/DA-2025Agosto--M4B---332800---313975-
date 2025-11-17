@@ -27,7 +27,7 @@ import obligatorio.obli.observador.Observador;
 @RestController
 @Scope("session")
 public class EstadoController implements Observador {
-    private String propietarioActualCi;
+    private Propietario propietarioActual;
     private final ConexionNavegador conexionNavegador;
 
     public EstadoController(@Autowired ConexionNavegador conexionNavegador) {
@@ -41,7 +41,7 @@ public class EstadoController implements Observador {
 
         Propietario p = Fachada.getInstancia().buscarPropietarioPorCi(cedula);
 
-        this.propietarioActualCi = p.getCi();
+        this.propietarioActual = p;
 
         PropietarioEstadoDTO dto = new PropietarioEstadoDTO(
                 p.getCi(),
@@ -72,15 +72,14 @@ public class EstadoController implements Observador {
 
         Fachada.getInstancia().agregarObservador(this);
 
-        if (this.propietarioActualCi != null) {
+        if (this.propietarioActual != null) {
             try {
-                Propietario p = Fachada.getInstancia().buscarPropietarioPorCi(this.propietarioActualCi);
                 PropietarioEstadoDTO dto = new PropietarioEstadoDTO(
-                        p.getCi(),
-                        p.getNombre(),
-                        p.getEstado().getNombre());
+                        propietarioActual.getCi(),
+                        propietarioActual.getNombre(),
+                        propietarioActual.getEstado().getNombre());
                 respuestas.add(new Respuesta("propietario", dto));
-            } catch (PropietarioNoEncontradoException e) {
+            } catch (Exception e) {
                 respuestas.add(new Respuesta("mensaje", "Propietario no encontrado"));
             }
         }
@@ -102,15 +101,14 @@ public class EstadoController implements Observador {
     }
 
     private Respuesta propietarioActual() {
-        if (this.propietarioActualCi != null) {
+        if (this.propietarioActual != null) {
             try {
-                Propietario p = Fachada.getInstancia().buscarPropietarioPorCi(this.propietarioActualCi);
                 PropietarioEstadoDTO dto = new PropietarioEstadoDTO(
-                        p.getCi(),
-                        p.getNombre(),
-                        p.getEstado().getNombre());
+                        propietarioActual.getCi(),
+                        propietarioActual.getNombre(),
+                        propietarioActual.getEstado().getNombre());
                 return new Respuesta("propietario", dto);
-            } catch (PropietarioNoEncontradoException e) {
+            } catch (Exception e) {
                 return new Respuesta("error", "Propietario no encontrado");
             }
         }

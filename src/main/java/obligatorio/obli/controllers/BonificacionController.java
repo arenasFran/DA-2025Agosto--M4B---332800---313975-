@@ -33,7 +33,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 @RequestMapping("/bonificaciones")
 public class BonificacionController implements Observador {
 
-    private String propietarioActualCi;
+    private Propietario propietarioActual;
     private final ConexionNavegador conexionNavegador;
 
     public BonificacionController(@Autowired ConexionNavegador conexionNavegador) {
@@ -71,7 +71,7 @@ public class BonificacionController implements Observador {
             throws PropietarioNoEncontradoException {
         Propietario propietario = Fachada.getInstancia().buscarPropietarioPorCi(ci);
 
-        this.propietarioActualCi = ci;
+        this.propietarioActual = propietario;
 
         return Respuesta.lista(
                 new Respuesta("propietario", propietario));
@@ -83,11 +83,11 @@ public class BonificacionController implements Observador {
         List<Respuesta> respuestas = new ArrayList<>();
         Fachada.getInstancia().agregarObservador(this);
 
-        if (this.propietarioActualCi != null) {
+        if (this.propietarioActual != null) {
             try {
-                Propietario propietario = Fachada.getInstancia().buscarPropietarioPorCi(this.propietarioActualCi);
+                Propietario propietario = Fachada.getInstancia().buscarPropietarioPorCi(this.propietarioActual.getCi());
                 respuestas.add(new Respuesta("propietario", propietario));
-            } catch (PropietarioNoEncontradoException e) {
+            } catch (Exception e) {
                 respuestas.add(new Respuesta("mensaje", "Propietario no encontrado"));
             }
         }
@@ -128,11 +128,10 @@ public class BonificacionController implements Observador {
     }
 
     private Respuesta propietarioActual() {
-        if (this.propietarioActualCi != null) {
+        if (this.propietarioActual != null) {
             try {
-                Propietario propietario = Fachada.getInstancia().buscarPropietarioPorCi(this.propietarioActualCi);
-                return new Respuesta("propietario", propietario);
-            } catch (PropietarioNoEncontradoException e) {
+                return new Respuesta("propietario", propietarioActual);
+            } catch (Exception e) {
                 return new Respuesta("error", "Propietario no encontrado");
             }
         }
