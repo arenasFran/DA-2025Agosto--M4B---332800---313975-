@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tablero de control del propietario</title>
+    <link rel="stylesheet" href="../../globals.css" />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  </head>
+  <body class="bg-[var(--background)] text-[var(--foreground)] p-8">
+    <div class="max-w-7xl mx-auto">
+      <!-- Header -->
+      <div class="bg-[var(--card)] border border-[var(--border)] mb-6">
+        <div
+          class="bg-[var(--primary)] text-[var(--primary-foreground)] p-4 flex items-center justify-between"
+        >
+          <div class="flex items-center gap-3">
+            <div
+              class="w-10 h-10 bg-[var(--chart-3)] border border-[var(--primary-foreground)]"
+            ></div>
+            <h1 class="text-xl font-bold">
+              Tablero de control del propietario
+            </h1>
+          </div>
+          <a
+            href="#"
+            id="btnSalir"
+            class="text-[var(--primary-foreground)] hover:opacity-80 underline"
+            >Salir</a
+          >
+        </div>
+      </div>
+
+      <!-- Resumen del propietario -->
+      <div class="bg-[var(--card)] border border-[var(--border)] mb-6">
+        <div class="p-6">
+          <h2 class="text-lg font-bold text-[var(--foreground)] mb-4">
+            Resumen del propietario
+          </h2>
+          <div
+            id="resumenContainer"
+            class="grid grid-cols-1 md:grid-cols-3 gap-6"
+          >
+            <div
+              class="bg-[var(--background)] border-l-4 border-l-[var(--primary)] border border-[var(--border)] p-4"
+            >
+              <p
+                class="text-xs text-[var(--muted-foreground)] mb-2 uppercase tracking-wider"
+              >
+                Nombre completo
+              </p>
+              <p class="text-base font-semibold text-[var(--foreground)]">
+                Cargando...
+              </p>
+            </div>
+            <div
+              class="bg-[var(--background)] border-l-4 border-l-[var(--chart-2)] border border-[var(--border)] p-4"
+            >
+              <p
+                class="text-xs text-[var(--muted-foreground)] mb-2 uppercase tracking-wider"
+              >
+                Estado
+              </p>
+              <p class="text-base font-semibold text-[var(--foreground)]">
+                Cargando...
+              </p>
+            </div>
+            <div
+              class="bg-[var(--background)] border-l-4 border-l-[var(--chart-3)] border border-[var(--border)] p-4"
+            >
+              <p
+                class="text-xs text-[var(--muted-foreground)] mb-2 uppercase tracking-wider"
+              >
+                Saldo actual
+              </p>
+              <p class="text-base font-semibold text-[var(--foreground)]">
+                Cargando...
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bonificaciones y Vehículos -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <!-- Bonificaciones asignadas -->
+        <div class="bg-[var(--card)] border border-[var(--border)]">
+          <div class="p-6">
+            <h2 class="text-lg font-bold text-[var(--foreground)] mb-4">
+              Bonificaciones asignadas
+            </h2>
+            <div class="overflow-x-auto">
+              <table class="w-full border border-[var(--border)]">
+                <thead class="bg-[var(--muted)]">
+                  <tr>
+                    <th
+                      class="text-left py-3 px-4 text-sm font-semibold text-[var(--foreground)] border-b border-[var(--border)]"
+                    >
+                      Bonificación
+                    </th>
+                    <th
+                      class="text-left py-3 px-4 text-sm font-semibold text-[var(--foreground)] border-b border-[var(--border)]"
+                    >
+                      Puesto
+                    </th>
+                    <th
+                      class="text-left py-3 px-4 text-sm font-semibold text-[var(--foreground)] border-b border-[var(--border)]"
+                    >
+                      Fecha asignada
+                    </th>
+                  </tr>
+                </thead>
+                <tbody id="bonificacionesTbody" class="bg-[var(--background)]">
+                  <tr>
+                    <td
+                      colspan="3"
+                      class="py-4 px-4 text-sm text-[var(--muted-foreground)] text-center"
+                    >
+                      Cargando bonificaciones...
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Vehículos registrados -->
+        <div class="bg-[var(--card)] border border-[var(--border)]">
+          <div class="p-6">
+            <h2 class="text-lg font-bold text-[var(--foreground)] mb-4">
+              Vehículos registrados
+            </h2>
+            <div class="overflow-x-auto">
+              <table class="w-full border border-[var(--border)]">
+                <thead class="bg-[var(--muted)]">
+                  <tr>
+                    <th
+                      class="text-left py-3 px-4 text-sm font-semibold text-[var(--foreground)] border-b border-[var(--border)]"
+                    >
+                      Matrícula
+                    </th>
+                    <th
+                      class="text-left py-3 px-4 text-sm font-semibold text-[var(--foreground)] border-b border-[var(--border)]"
+                    >
+                      Modelo
+                    </th>
+                    <th
+                      class="text-left py-3 px-4 text-sm font-semibold text-[var(--foreground)] border-b border-[var(--border)]"
+                    >
+                      Color
+                    </th>
+                    <th
+                      class="text-left py-3 px-4 text-sm font-semibold text-[var(--foreground)] border-b border-[var(--border)]"
+                    >
+                      Tránsitos
+                    </th>
+                    <th
+                      class="text-left py-3 px-4 text-sm font-semibold text-[var(--foreground)] border-b border-[var(--border)]"
+                    >
+                      Monto total
+                    </th>
+                  </tr>
+                </thead>
+                <tbody id="vehiculosTbody" class="bg-[var(--background)]">
+                  <tr>
+                    <td
+                      colspan="5"
+                      class="py-4 px-4 text-sm text-[var(--muted-foreground)] text-center"
+                    >
+                      Cargando vehículos...
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tránsitos realizados -->
+      <div class="bg-[var(--card)] border border-[var(--border)] mb-6">
+        <div class="p-6">
+          <h2 class="text-lg font-bold text-[var(--foreground)] mb-4">
+            Tránsitos realizados
+          </h2>
+          <div class="overflow-x-auto">
+            <table class="w-full border border-[var(--border)]">
+              <thead class="bg-[var(--muted)]">
+                <tr>
+                  <th
+                    class="text-left py-3 px-4 text-sm font-semibold text-[var(--foreground)] border-b border-[var(--border)]"
+                  >
+                    Puesto
+                  </th>
+                  <th
+                    class="text-left py-3 px-4 text-sm font-semibold text-[var(--foreground)] border-b border-[var(--border)]"
+                  >
+                    Matrícula
+                  </th>
+                  <th
+                    class="text-left py-3 px-4 text-sm font-semibold text-[var(--foreground)] border-b border-[var(--border)]"
+                  >
+                    Categoría
+                  </th>
+                  <th
+                    class="text-left py-3 px-4 text-sm font-semibold text-[var(--foreground)] border-b border-[var(--border)]"
+                  >
+                    Monto tarifa
+                  </th>
+                  <th
+                    class="text-left py-3 px-4 text-sm font-semibold text-[var(--foreground)] border-b border-[var(--border)]"
+                  >
+                    Bonificación
+                  </th>
+                  <th
+                    class="text-left py-3 px-4 text-sm font-semibold text-[var(--foreground)] border-b border-[var(--border)]"
+                  >
+                    Monto bonificación
+                  </th>
+                  <th
+                    class="text-left py-3 px-4 text-sm font-semibold text-[var(--foreground)] border-b border-[var(--border)]"
+                  >
+                    Monto pagado
+                  </th>
+                  <th
+                    class="text-left py-3 px-4 text-sm font-semibold text-[var(--foreground)] border-b border-[var(--border)]"
+                  >
+                    Fecha
+                  </th>
+                  <th
+                    class="text-left py-3 px-4 text-sm font-semibold text-[var(--foreground)] border-b border-[var(--border)]"
+                  >
+                    Hora
+                  </th>
+                </tr>
+              </thead>
+              <tbody id="transitosTbody" class="bg-[var(--background)]">
+                <tr>
+                  <td
+                    colspan="9"
+                    class="py-4 px-4 text-sm text-[var(--muted-foreground)] text-center"
+                  >
+                    Cargando tránsitos...
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Notificaciones del sistema -->
+      <div class="bg-[var(--card)] border border-[var(--border)] mb-6">
+        <div class="p-6">
+          <div class="flex justify-between items-center mb-4">
+            <div class="flex items-center gap-3">
+              <div
+                class="w-10 h-10 bg-[var(--primary)] border border-[var(--primary)] flex items-center justify-center"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-5 w-5 text-[var(--primary-foreground)]"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"
+                  />
+                </svg>
+              </div>
+              <h2 class="text-lg font-bold text-[var(--foreground)]">
+                Notificaciones del sistema
+              </h2>
+            </div>
+            <button
+              id="btnBorrarNotificaciones"
+              class="bg-[var(--destructive)] hover:opacity-90 text-white font-semibold px-4 py-2 border border-[var(--destructive)] transition-opacity"
+            >
+              Borrar notificaciones
+            </button>
+          </div>
+          <div class="space-y-3" id="notificacionesContainer">
+            <div
+              class="py-4 px-4 text-sm text-[var(--muted-foreground)] text-center"
+            >
+              Cargando notificaciones...
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="../../vistaWeb.js"></script>
+    <script src="../../sse.js"></script>
+    <script src="index.js"></script>
+  </body>
+</html>
