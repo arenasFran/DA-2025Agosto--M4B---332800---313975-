@@ -7,8 +7,10 @@ import obligatorio.obli.exceptions.propietario.PropietarioErrorActualizacionEsta
 import obligatorio.obli.exceptions.propietario.estados.EstadoProhibidoRecibirBonificacionException;
 import obligatorio.obli.models.Asignacion;
 import obligatorio.obli.models.Estados.Estado;
+import obligatorio.obli.models.Sistemas.Fachada;
 import obligatorio.obli.models.Sistemas.Fachada.Eventos;
 import obligatorio.obli.models.Puesto;
+import obligatorio.obli.models.Tarifa;
 import obligatorio.obli.models.Transito;
 import obligatorio.obli.models.Vehiculo;
 import obligatorio.obli.models.Bonificaciones.Bonificacion;
@@ -205,5 +207,28 @@ public class Propietario extends User {
             String notif2 = String.format("Tu saldo actual es de $%.2f. Te recomendamos hacer una recarga",
                     this.getSaldo());
         }
+    }
+
+    public Transito crearTransito(String matricula, String nombrePuesto, String fechaHora) throws Exception {
+        Vehiculo vehiculo = null;
+        for (Vehiculo v : this.vehiculo) {
+            if (v.getMatricula().equals(matricula)) {
+                vehiculo = v;
+                break;
+            }
+        }
+        if (vehiculo == null) {
+            throw new IllegalArgumentException(
+                    String.format("El propietario no posee un vehículo con la matrícula '%s'", matricula));
+        }
+
+        Puesto puesto = Fachada.getInstancia().buscarPuestoPorNombre(nombrePuesto);
+        Tarifa tarifa = puesto.obtenerTarifaPorCategoria(vehiculo.getNombreCategoria());
+        Bonificacion bonificacion = this.obtenerBonificacionDelTransito(puesto);
+
+        Transito transito = Transito.crearConFechaString(puesto, vehiculo, tarifa, fechaHora, bonificacion);
+        avisar(Eventos.nuevoTransito);
+        return transito;
+
     }
 }

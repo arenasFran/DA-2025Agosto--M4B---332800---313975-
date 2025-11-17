@@ -78,19 +78,6 @@ public class Fachada extends Observable {
         return this.sistemaBonificacion.buscarPorNombre(nombreBonificacion);
     }
 
-    public void cambiarEstadoPropietario(String ci, String nuevoEstadoNombre)
-            throws PropietarioNoEncontradoException, PropietarioErrorActualizacionEstadoException {
-        Propietario propietario = this.buscarPropietarioPorCi(ci);
-
-        Estado nuevoEstado = Estado.fromNombre(nuevoEstadoNombre);
-        propietario.cambiarEstado(nuevoEstado);
-        avisar(Eventos.cambioEstado);
-
-        // Mandar notificacion al propietario
-        // "[Fecha y hora] Se ha cambiado tu estado en el sistema. Tu estado actual es
-        // [estado]"
-    }
-
     public Puesto buscarPuestoPorNombre(String nombrePuesto) throws PuestoNoEncontradoException {
         return this.sistemaPuesto.buscarPorNombre(nombrePuesto);
     }

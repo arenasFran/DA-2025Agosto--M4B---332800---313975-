@@ -18,6 +18,7 @@ import obligatorio.obli.dtos.DetalleTransitoDTO;
 import obligatorio.obli.dtos.TarifaDTO;
 import obligatorio.obli.models.Puesto;
 import obligatorio.obli.models.ResultadoTransito;
+import obligatorio.obli.models.Transito;
 import obligatorio.obli.models.Sistemas.Fachada;
 import obligatorio.obli.models.Usuarios.Administrador;
 import obligatorio.obli.models.Usuarios.Propietario;
@@ -68,19 +69,16 @@ public class TransitoController implements Observador {
             @RequestParam String nombrePuesto,
             @RequestParam String fechaHora) throws Exception {
 
-        Fachada fachada = Fachada.getInstancia();
+        Propietario propietario = Fachada.getInstancia().buscarPropietarioDeVehiculo(
+                Fachada.getInstancia().buscarVehiculoPorMatricula(matricula));
 
-        ResultadoTransito resultado = fachada.emularTransito(matricula, nombrePuesto, fechaHora);
-
-        Propietario propietario = fachada.buscarPropietarioDeVehiculo(
-                fachada.buscarVehiculoPorMatricula(matricula));
-
+        Transito nuevo = propietario.crearTransito(matricula, nombrePuesto, fechaHora);
         DetalleTransitoDTO detalle = new DetalleTransitoDTO(
-                resultado.getTransito(),
+                nuevo,
                 propietario,
-                resultado.getSaldoAntes(),
-                resultado.getSaldoDespues(),
-                resultado.getMontoDescontado());
+                propietario.getSaldoAntes(),
+                nuevo.getSaldoDespues(),
+                nuevo.getMontoDescontado());
 
         this.transitosEmulados.add(detalle);
         this.ultimoTamañoConocido = this.transitosEmulados.size();
