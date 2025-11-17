@@ -73,18 +73,6 @@ public class Fachada extends Observable {
         return this.sistemaPuesto.getPuestos();
     }
 
-    // public void asignarBonificacion(String ci, String nombreBonificacion, String
-    // nombrePuesto)
-    // throws PropietarioNoEncontradoException, BonificacionNoEncontradaException,
-    // PuestoNoEncontradoException,
-    // EstadoProhibidoRecibirBonificacionException {
-    // Puesto puesto = this.sistemaPuesto.buscarPorNombre(nombrePuesto);
-
-    // propietario.asignarBonificacion(bonificacion, puesto);
-
-    // avisar(Eventos.nuevaAsignacion);
-    // }
-
     public Bonificacion buscarBonificacionPorNombre(String nombreBonificacion)
             throws BonificacionNoEncontradaException {
         return this.sistemaBonificacion.buscarPorNombre(nombreBonificacion);
@@ -135,4 +123,7 @@ public class Fachada extends Observable {
         return new ResultadoTransito(transito, saldoAntes, saldoDespues, montoDescontado);
     }
 
+    public Estado buscarEstadoPorNombre(String nombreEstado) {
+        return Estado.fromNombre(nombreEstado);
+    }
 }

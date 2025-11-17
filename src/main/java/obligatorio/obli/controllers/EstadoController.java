@@ -17,6 +17,7 @@ import obligatorio.obli.ConexionNavegador;
 import obligatorio.obli.dtos.PropietarioEstadoDTO;
 import obligatorio.obli.exceptions.propietario.PropietarioErrorActualizacionEstadoException;
 import obligatorio.obli.exceptions.propietario.PropietarioNoEncontradoException;
+import obligatorio.obli.models.Estados.Estado;
 import obligatorio.obli.models.Sistemas.Fachada;
 import obligatorio.obli.models.Usuarios.Administrador;
 import obligatorio.obli.models.Usuarios.Propietario;
@@ -56,7 +57,9 @@ public class EstadoController implements Observador {
             @RequestParam String cedula,
             @RequestParam String nuevoEstado)
             throws PropietarioNoEncontradoException, PropietarioErrorActualizacionEstadoException {
-        Fachada.getInstancia().cambiarEstadoPropietario(cedula, nuevoEstado);
+        Propietario p = Fachada.getInstancia().buscarPropietarioPorCi(cedula);
+        Estado e = Fachada.getInstancia().buscarEstadoPorNombre(nuevoEstado);
+        p.cambiarEstado(e);
 
         return Respuesta.lista(
                 new Respuesta("estadoCambiado", "Estado cambiado correctamente"));

@@ -41,19 +41,23 @@ public class BonificacionController implements Observador {
     }
 
     @GetMapping("/get-bon")
-    public List<Respuesta> getBonificaciones() {
+    public List<Respuesta> getBonificaciones(
+            @SessionAttribute(name = LoginController.SESSION_ADMIN_COOKIE, required = true) Administrador admin) {
         List<Bonificacion> bonificaciones = Fachada.getInstancia().mostrarBonificaciones();
         return Respuesta.lista(new Respuesta("bonificaciones", bonificaciones));
     }
 
     @GetMapping("/get-puestos")
-    public List<Respuesta> getPuestos() {
+    public List<Respuesta> getPuestos(
+            @SessionAttribute(name = LoginController.SESSION_ADMIN_COOKIE, required = true) Administrador admin) {
         List<Puesto> puestos = Fachada.getInstancia().getPuestos();
         return Respuesta.lista(new Respuesta("puestos", puestos));
     }
 
     @GetMapping("/get-asignaciones")
-    public List<Respuesta> getAsignacionesPorPropietario(@RequestParam String ci)
+    public List<Respuesta> getAsignacionesPorPropietario(
+            @SessionAttribute(name = LoginController.SESSION_ADMIN_COOKIE, required = true) Administrador admin,
+            @RequestParam String ci)
             throws PropietarioNoEncontradoException {
         Propietario propietario = Fachada.getInstancia().buscarPropietarioPorCi(ci);
         List<Asignacion> asignaciones = propietario.getAsignaciones();
@@ -61,7 +65,9 @@ public class BonificacionController implements Observador {
     }
 
     @PostMapping("/buscar-propietario")
-    public List<Respuesta> buscarPropietarioConAsignaciones(@RequestParam String ci)
+    public List<Respuesta> buscarPropietarioConAsignaciones(
+            @SessionAttribute(name = LoginController.SESSION_ADMIN_COOKIE, required = true) Administrador admin,
+            @RequestParam String ci)
             throws PropietarioNoEncontradoException {
         Propietario propietario = Fachada.getInstancia().buscarPropietarioPorCi(ci);
 
@@ -97,6 +103,7 @@ public class BonificacionController implements Observador {
 
     @PostMapping("/asignar")
     public List<Respuesta> asignarBonificacion(
+            @SessionAttribute(name = LoginController.SESSION_ADMIN_COOKIE, required = true) Administrador admin,
             @RequestParam String ci,
             @RequestParam String nombreBonificacion,
             @RequestParam String nombrePuesto)

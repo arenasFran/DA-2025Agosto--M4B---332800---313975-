@@ -92,9 +92,9 @@ public class Propietario extends User {
                     String.format("El propietario ya esta en el estado '%s'", nuevoEstado.getNombre()));
         }
         this.estado = nuevoEstado;
+        avisar(Eventos.cambioEstado);
     }
 
-    // Métodos delegados al Estado (Patrón State Expert)
     public boolean puedeIniciarSesion() {
         return this.estado.puedeIniciarSesion();
     }
