@@ -52,12 +52,6 @@ public class BonificacionController implements Observador {
         return Respuesta.lista(new Respuesta("puestos", puestos));
     }
 
-    @GetMapping("/get-propietario")
-    public List<Respuesta> getPropietario(@RequestParam String ci) throws PropietarioNoEncontradoException {
-        Propietario propietario = Fachada.getInstancia().buscarPropietarioPorCi(ci);
-        return Respuesta.lista(new Respuesta("propietario", propietario));
-    }
-
     @GetMapping("/get-asignaciones")
     public List<Respuesta> getAsignacionesPorPropietario(@RequestParam String ci)
             throws PropietarioNoEncontradoException {
@@ -110,7 +104,10 @@ public class BonificacionController implements Observador {
             BonificacionNoEncontradaException,
             PuestoNoEncontradoException,
             EstadoProhibidoRecibirBonificacionException {
-        Fachada.getInstancia().asignarBonificacion(ci, nombreBonificacion, nombrePuesto);
+        Propietario p = Fachada.getInstancia().buscarPropietarioPorCi(ci);
+        Bonificacion bonificacion = Fachada.getInstancia().buscarBonificacionPorNombre(nombreBonificacion);
+        Puesto puesto = Fachada.getInstancia().buscarPuestoPorNombre(nombrePuesto);
+        p.asignarBonificacion(bonificacion, puesto);
 
         return Respuesta.lista(
                 new Respuesta("asignacion exitosa", "Bonificación asignada correctamente"));

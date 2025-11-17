@@ -73,16 +73,21 @@ public class Fachada extends Observable {
         return this.sistemaPuesto.getPuestos();
     }
 
-    public void asignarBonificacion(String ci, String nombreBonificacion, String nombrePuesto)
-            throws PropietarioNoEncontradoException, BonificacionNoEncontradaException, PuestoNoEncontradoException,
-            EstadoProhibidoRecibirBonificacionException {
-        Propietario propietario = this.buscarPropietarioPorCi(ci);
-        Bonificacion bonificacion = this.sistemaBonificacion.buscarPorNombre(nombreBonificacion);
-        Puesto puesto = this.sistemaPuesto.buscarPorNombre(nombrePuesto);
+    // public void asignarBonificacion(String ci, String nombreBonificacion, String
+    // nombrePuesto)
+    // throws PropietarioNoEncontradoException, BonificacionNoEncontradaException,
+    // PuestoNoEncontradoException,
+    // EstadoProhibidoRecibirBonificacionException {
+    // Puesto puesto = this.sistemaPuesto.buscarPorNombre(nombrePuesto);
 
-        propietario.asignarBonificacion(bonificacion, puesto);
+    // propietario.asignarBonificacion(bonificacion, puesto);
 
-        avisar(Eventos.nuevaAsignacion);
+    // avisar(Eventos.nuevaAsignacion);
+    // }
+
+    public Bonificacion buscarBonificacionPorNombre(String nombreBonificacion)
+            throws BonificacionNoEncontradaException {
+        return this.sistemaBonificacion.buscarPorNombre(nombreBonificacion);
     }
 
     public void cambiarEstadoPropietario(String ci, String nuevoEstadoNombre)

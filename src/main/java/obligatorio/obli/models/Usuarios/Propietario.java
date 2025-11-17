@@ -7,6 +7,7 @@ import obligatorio.obli.exceptions.propietario.PropietarioErrorActualizacionEsta
 import obligatorio.obli.exceptions.propietario.estados.EstadoProhibidoRecibirBonificacionException;
 import obligatorio.obli.models.Asignacion;
 import obligatorio.obli.models.Estados.Estado;
+import obligatorio.obli.models.Sistemas.Fachada.Eventos;
 import obligatorio.obli.models.Puesto;
 import obligatorio.obli.models.Transito;
 import obligatorio.obli.models.Vehiculo;
@@ -82,10 +83,7 @@ public class Propietario extends User {
 
         Asignacion asignacion = new Asignacion(bonificacion, puesto);
         this.agregarAsignacion(asignacion);
-    }
-
-    public void removerAsignacion(Asignacion asignacion) {
-        asignaciones.remove(asignacion);
+        avisar(Eventos.nuevaAsignacion);
     }
 
     public void cambiarEstado(Estado nuevoEstado) throws PropietarioErrorActualizacionEstadoException {

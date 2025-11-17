@@ -70,7 +70,7 @@ public class SistemaUsuario {
 
     public Vehiculo buscarVehiculoPorMatricula(String matricula) throws Exception {
         for (Propietario prop : propietarios) {
-            for (obligatorio.obli.models.Vehiculo v : prop.getVehiculo()) {
+            for (Vehiculo v : prop.getVehiculo()) {
                 if (v.getMatricula().equalsIgnoreCase(matricula)) {
                     return v;
                 }
@@ -79,7 +79,7 @@ public class SistemaUsuario {
         throw new Exception("No existe el vehículo");
     }
 
-    public Propietario buscarPropietarioDeVehiculo(obligatorio.obli.models.Vehiculo vehiculo) throws Exception {
+    public Propietario buscarPropietarioDeVehiculo(Vehiculo vehiculo) throws Exception {
         for (Propietario prop : propietarios) {
             if (prop.tieneVehiculo(vehiculo)) {
                 return prop;

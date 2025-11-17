@@ -1,6 +1,8 @@
 package obligatorio.obli.models.Usuarios;
 
-public abstract class User {
+import obligatorio.obli.observador.Observable;
+
+public abstract class User extends Observable {
     private int id;
     private String Ci;
     private String nombre;

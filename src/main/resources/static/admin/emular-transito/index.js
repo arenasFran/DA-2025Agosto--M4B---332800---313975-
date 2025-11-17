@@ -7,14 +7,7 @@ urlRegistroSSE = "/administrador/registrarSSE";
 let puestosDisponibles = [];
 let historicoTrasitos = [];
 
-// ============================================================================
-// HANDLERS DE VISTAWEB.JS - Procesar respuestas del servidor
-// ============================================================================
 
-/**
- * Handler: Mostrar lista de puestos
- * Llamado por vistaWeb.js cuando se ejecuta submit("/transitos/puestos", ...)
- */
 window["mostrar_puestos"] = function(puestos) {
   console.log("Puestos recibidos desde vistaWeb.js:", puestos);
   
