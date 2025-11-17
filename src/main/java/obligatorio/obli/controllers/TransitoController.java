@@ -55,7 +55,7 @@ public class TransitoController implements Observador {
         Puesto puesto = Fachada.getInstancia().buscarPuestoPorNombre(nombrePuesto);
 
         List<TarifaDTO> tarifas = puesto.getTarifas().stream()
-                .map(TarifaDTO::new)
+                .map(tarifa -> new TarifaDTO(tarifa))
                 .collect(Collectors.toList());
 
         return Respuesta.lista(new Respuesta("tarifas", tarifas));
@@ -112,22 +112,22 @@ public class TransitoController implements Observador {
     @Override
     public void actualizar(Object evento, Observable origen) {
         if (evento.equals(Fachada.Eventos.nuevoTransito)) {
-
-            int tamañoActual = this.transitosEmulados.size();
-            if (tamañoActual == this.ultimoTamañoConocido) {
-                return;
-            }
-
-            if (!this.transitosEmulados.isEmpty()) {
-
-                DetalleTransitoDTO ultimoDetalle = this.transitosEmulados.get(this.transitosEmulados.size() - 1);
-                this.ultimoTamañoConocido = tamañoActual;
-
-                conexionNavegador.enviarJSON(
-                        Respuesta.lista(
-                                new Respuesta("notificacion", "Nuevo tránsito emulado"),
-                                new Respuesta("transito_emulado", ultimoDetalle)));
-            }
+            conexionNavegador.enviarJSON(Respuesta.lista(ultimoTransito()));
         }
+    }
+
+    private Respuesta ultimoTransito() {
+        int tamañoActual = this.transitosEmulados.size();
+        if (tamañoActual == this.ultimoTamañoConocido) {
+            return new Respuesta("mensaje", "Sin cambios");
+        }
+
+        if (!this.transitosEmulados.isEmpty()) {
+            DetalleTransitoDTO ultimoDetalle = this.transitosEmulados.get(this.transitosEmulados.size() - 1);
+            this.ultimoTamañoConocido = tamañoActual;
+            return new Respuesta("transito_emulado", ultimoDetalle);
+        }
+
+        return new Respuesta("mensaje", "Sin tránsitos");
     }
 }

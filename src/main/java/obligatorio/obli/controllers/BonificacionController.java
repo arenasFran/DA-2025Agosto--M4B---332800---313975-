@@ -84,16 +84,12 @@ public class BonificacionController implements Observador {
         Fachada.getInstancia().agregarObservador(this);
 
         if (this.propietarioActualCi != null) {
-            System.out.println("Restaurando propietario: " + this.propietarioActualCi);
             try {
                 Propietario propietario = Fachada.getInstancia().buscarPropietarioPorCi(this.propietarioActualCi);
                 respuestas.add(new Respuesta("propietario", propietario));
             } catch (PropietarioNoEncontradoException e) {
-                System.err.println("Error al restaurar propietario: " + e.getMessage());
                 respuestas.add(new Respuesta("mensaje", "Propietario no encontrado"));
             }
-        } else {
-            System.out.println("Vista de bonificaciones conectada - Sin propietario seleccionado");
         }
 
         respuestas.add(new Respuesta("mensaje", "Vista conectada"));
@@ -103,7 +99,6 @@ public class BonificacionController implements Observador {
     @RequestMapping(value = "/vistaCerrada", method = { RequestMethod.GET, RequestMethod.POST })
     public void vistaCerrada() {
         Fachada.getInstancia().quitarObservador(this);
-        System.out.println("Vista de bonificaciones desconectada - Observador removido");
     }
 
     @PostMapping("/asignar")
@@ -124,25 +119,20 @@ public class BonificacionController implements Observador {
     @Override
     public void actualizar(Object evento, Observable origen) {
         if (evento.equals(Fachada.Eventos.nuevaAsignacion)) {
-            System.out.println("🔔 [BonificacionController] Nueva asignación detectada");
-            if (this.propietarioActualCi != null) {
-                System.out.println(
-                        "📤 Enviando notificación SSE para actualizar propietario: " + this.propietarioActualCi);
+            conexionNavegador.enviarJSON(Respuesta.lista(propietarioActual()));
+        }
+    }
 
-                try {
-                    Propietario propietario = Fachada.getInstancia().buscarPropietarioPorCi(this.propietarioActualCi);
-
-                    conexionNavegador.enviarJSON(
-                            Respuesta.lista(
-                                    new Respuesta("notificacion", "Nueva bonificación asignada"),
-                                    new Respuesta("propietario", propietario)));
-                } catch (PropietarioNoEncontradoException e) {
-                    System.err.println("Error al enviar actualización del propietario: " + e.getMessage());
-                }
-            } else {
-                System.out.println("ℹ️ No hay propietario seleccionado en esta sesión, no se envía actualización");
+    private Respuesta propietarioActual() {
+        if (this.propietarioActualCi != null) {
+            try {
+                Propietario propietario = Fachada.getInstancia().buscarPropietarioPorCi(this.propietarioActualCi);
+                return new Respuesta("propietario", propietario);
+            } catch (PropietarioNoEncontradoException e) {
+                return new Respuesta("error", "Propietario no encontrado");
             }
         }
+        return new Respuesta("mensaje", "Sin propietario seleccionado");
     }
 
 }

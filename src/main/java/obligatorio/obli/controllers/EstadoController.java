@@ -80,8 +80,6 @@ public class EstadoController implements Observador {
             } catch (PropietarioNoEncontradoException e) {
                 respuestas.add(new Respuesta("mensaje", "Propietario no encontrado"));
             }
-        } else {
-            System.out.println("Vista de estado conectada - Sin propietario seleccionado");
         }
 
         respuestas.add(new Respuesta("mensaje", "Vista conectada"));
@@ -91,29 +89,28 @@ public class EstadoController implements Observador {
     @RequestMapping(value = "/estado/vistaCerrada", method = { RequestMethod.GET, RequestMethod.POST })
     public void vistaCerrada() {
         Fachada.getInstancia().quitarObservador(this);
-        System.out.println("Vista de estado desconectada - Observador removido");
     }
 
     @Override
     public void actualizar(Object evento, Observable origen) {
         if (evento.equals(Fachada.Eventos.cambioEstado)) {
-            if (this.propietarioActualCi != null) {
-                try {
-                    Propietario p = Fachada.getInstancia().buscarPropietarioPorCi(this.propietarioActualCi);
-                    PropietarioEstadoDTO dto = new PropietarioEstadoDTO(
-                            p.getCi(),
-                            p.getNombre(),
-                            p.getEstado().getNombre());
-                    conexionNavegador.enviarJSON(
-                            Respuesta.lista(
-                                    new Respuesta("notificacion", "Estado actualizado"),
-                                    new Respuesta("propietario", dto)));
-                } catch (PropietarioNoEncontradoException e) {
-                    System.err.println("Error al enviar actualización del propietario: " + e.getMessage());
-                }
-            } else {
-                System.out.println("ℹ️ No hay propietario seleccionado en esta sesión, no se envía actualización");
+            conexionNavegador.enviarJSON(Respuesta.lista(propietarioActual()));
+        }
+    }
+
+    private Respuesta propietarioActual() {
+        if (this.propietarioActualCi != null) {
+            try {
+                Propietario p = Fachada.getInstancia().buscarPropietarioPorCi(this.propietarioActualCi);
+                PropietarioEstadoDTO dto = new PropietarioEstadoDTO(
+                        p.getCi(),
+                        p.getNombre(),
+                        p.getEstado().getNombre());
+                return new Respuesta("propietario", dto);
+            } catch (PropietarioNoEncontradoException e) {
+                return new Respuesta("error", "Propietario no encontrado");
             }
         }
+        return new Respuesta("mensaje", "Sin propietario seleccionado");
     }
 }

@@ -65,7 +65,6 @@ public class ControladorAdministrador implements Observador {
             conexionNavegador.enviarJSON(
                     Respuesta.lista(
                             new Respuesta("notificacion", "✅ Se asignó una nueva bonificación")));
-            System.out.println("Notificación enviada via SSE: Nueva asignación");
         }
     }
 }

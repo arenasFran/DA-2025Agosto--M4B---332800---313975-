@@ -38,7 +38,7 @@ public class ConexionNavegador {
                 conexionSSE = null;
             }
         } catch (Exception e) {
-            System.err.println("Error al cerrar conexión SSE: " + e.getMessage());
+            // Error silencioso al cerrar conexión
         }
     }
 
@@ -59,7 +59,7 @@ public class ConexionNavegador {
             String json = new ObjectMapper().writeValueAsString(informacion);
             enviarMensaje(json);
         } catch (JsonProcessingException e) {
-            System.err.println("Error al convertir a JSON: " + e.getMessage());
+            // Error silencioso al serializar
         }
     }
 
@@ -75,7 +75,6 @@ public class ConexionNavegador {
         try {
             conexionSSE.send(mensaje);
         } catch (Throwable e) {
-            System.err.println("Error al enviar mensaje SSE: " + e.getMessage());
             cerrarConexion();
         }
     }
