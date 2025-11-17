@@ -4,7 +4,6 @@ import java.util.List;
 
 import obligatorio.obli.exceptions.propietario.PropietarioErrorActualizacionEstadoException;
 import obligatorio.obli.exceptions.propietario.PropietarioNoEncontradoException;
-import obligatorio.obli.exceptions.propietario.estados.EstadoProhibidoRecibirBonificacionException;
 import obligatorio.obli.exceptions.puesto.PuestoNoEncontradoException;
 import obligatorio.obli.exceptions.bonificaciones.BonificacionNoEncontradaException;
 import obligatorio.obli.exceptions.login.LoginCredencialesInvalidasException;
@@ -42,7 +41,9 @@ public class Fachada extends Observable {
     public enum Eventos {
         nuevaAsignacion,
         nuevoTransito,
-        cambioEstado
+        cambioEstado,
+        nuevaNotificacion,
+        borradoNotificaciones
     }
 
     public Propietario loginPropietario(String ci, String password) throws LoginCredencialesInvalidasException {
