@@ -39,7 +39,7 @@ public class LoginController {
 
         sessionHttp.setAttribute(SESSION_PROPIETARIO_COOKIE, propietario);
 
-        return Respuesta.lista(new Respuesta("login exitoso", "propietario/dashboard.html"));
+        return Respuesta.lista(new Respuesta("login exitoso", "propietario/dashboard/index.html"));
     }
 
     @PostMapping("/admin")

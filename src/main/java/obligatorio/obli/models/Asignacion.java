@@ -1,15 +1,22 @@
 package obligatorio.obli.models;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import obligatorio.obli.models.Bonificaciones.Bonificacion;
 
 public class Asignacion {
 
+    private static final SimpleDateFormat FORMATTER = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+
     private Bonificacion bonificacion;
     private Puesto puesto;
+    private String fechaAsignacion;
 
     public Asignacion(Bonificacion bonificacion, Puesto puesto) {
         this.bonificacion = bonificacion;
         this.puesto = puesto;
+        this.fechaAsignacion = FORMATTER.format(new Date());
         validar();
     }
 
@@ -19,6 +26,10 @@ public class Asignacion {
 
     public Puesto getPuesto() {
         return puesto;
+    }
+
+    public String getFechaAsignacion() {
+        return fechaAsignacion;
     }
 
     private void validar() {
