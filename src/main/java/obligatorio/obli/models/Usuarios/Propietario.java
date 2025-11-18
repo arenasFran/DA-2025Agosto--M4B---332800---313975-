@@ -267,8 +267,12 @@ public class Propietario extends User {
         Bonificacion bonificacion = this.obtenerBonificacionDelTransito(puesto);
 
         Transito transito = Transito.crearConFechaString(puesto, vehiculo, tarifa, fechaHora, bonificacion);
+
+        registrarTransito(transito);
+
+        enviarNotificacionesTransito(transito);
+
         avisar(Eventos.nuevoTransito);
         return transito;
-
     }
 }
