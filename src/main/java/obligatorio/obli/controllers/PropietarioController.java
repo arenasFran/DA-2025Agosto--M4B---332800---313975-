@@ -1,6 +1,7 @@
 package obligatorio.obli.controllers;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -13,6 +14,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import jakarta.servlet.http.HttpSession;
 import obligatorio.obli.ConexionNavegador;
+import obligatorio.obli.dtos.DetalleTransitoDTO;
 import obligatorio.obli.models.Sistemas.Fachada;
 import obligatorio.obli.models.Usuarios.Propietario;
 import obligatorio.obli.observador.Observable;
@@ -52,8 +54,11 @@ public class PropietarioController implements Observador {
             propietarioObservado = propietario;
         }
 
+        List<DetalleTransitoDTO> transitosDTOs = mapearTransitosADTOs(propietario);
+
         return Respuesta.lista(
-                new Respuesta("propietario", propietario));
+                new Respuesta("propietario", propietario),
+                new Respuesta("transitos", transitosDTOs));
     }
 
     @RequestMapping("/vistaCerrada")
@@ -90,11 +95,23 @@ public class PropietarioController implements Observador {
                     evento.equals(Fachada.Eventos.nuevoTransito) ||
                     evento.equals(Fachada.Eventos.borradoNotificaciones)) {
 
+                List<DetalleTransitoDTO> transitosDTOs = mapearTransitosADTOs(propietarioObservado);
+
                 conexionNavegador.enviarJSON(Respuesta.lista(
-                        new Respuesta("propietario", propietarioObservado)));
+                        new Respuesta("propietario", propietarioObservado),
+                        new Respuesta("transitos", transitosDTOs)));
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * Mapea los tránsitos del propietario a DTOs
+     */
+    private List<DetalleTransitoDTO> mapearTransitosADTOs(Propietario propietario) {
+        return propietario.getTransitos().stream()
+                .map(transito -> new DetalleTransitoDTO(transito, propietario))
+                .collect(Collectors.toList());
     }
 }
