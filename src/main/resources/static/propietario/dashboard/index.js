@@ -56,9 +56,23 @@ window["mostrar_nombrePropietario"] = function (parametro) {
   console.log("Propietario conectado:", parametro);
 };
 
+// Variables para almacenar datos temporalmente
+let transitosDTOsActuales = [];
+let propietarioActual = null;
+
 window["mostrar_propietario"] = function (parametro) {
   console.log("Datos del propietario:", parametro);
-  renderizarDatosPropietario(parametro);
+  propietarioActual = parametro;
+  renderizarDatosPropietario(parametro, transitosDTOsActuales);
+};
+
+window["mostrar_transitos"] = function (parametro) {
+  console.log("Tránsitos DTOs recibidos:", parametro);
+  transitosDTOsActuales = parametro || [];
+  // Si ya tenemos el propietario renderizado, actualizar los transitos
+  if (propietarioActual) {
+    renderizarDatosPropietario(propietarioActual, transitosDTOsActuales);
+  }
 };
 
 window["mostrar_paginaLogin"] = function (parametro) {
@@ -75,8 +89,9 @@ window["mostrar_mensaje"] = function (parametro) {
   // Could show a toast notification here if needed
 };
 
-function renderizarDatosPropietario(propietario) {
+function renderizarDatosPropietario(propietario, transitosDTOs = []) {
   console.log("Renderizando datos del propietario:", propietario);
+  console.log("Tránsitos DTOs:", transitosDTOs);
 
   try {
     // Actualizar resumen
@@ -122,17 +137,14 @@ function renderizarDatosPropietario(propietario) {
       </div>
     `;
 
-    // Renderizar vehículos
-    renderizarVehiculos(
-      propietario?.vehiculo || [],
-      propietario?.transitos || []
-    );
+    // Renderizar vehículos usando DTOs
+    renderizarVehiculos(propietario?.vehiculo || [], transitosDTOs);
 
     // Renderizar bonificaciones
     renderizarBonificaciones(propietario?.asignaciones || []);
 
-    // Renderizar tránsitos
-    renderizarTransitos(propietario?.transitos || []);
+    // Renderizar tránsitos usando DTOs
+    renderizarTransitos(transitosDTOs);
 
     // Renderizar notificaciones
     renderizarNotificacionesDesdeBackend(propietario?.notificaciones || []);
@@ -205,8 +217,9 @@ function calcularMontoFinalTransito(transito, transitosDelDia) {
   return montoBase * (1.0 - descuento);
 }
 
-function renderizarVehiculos(vehiculos, transitos) {
+function renderizarVehiculos(vehiculos, transitosDTOs) {
   console.log("Renderizando vehículos:", vehiculos);
+  console.log("Tránsitos DTOs para estadísticas:", transitosDTOs);
 
   try {
     const tbody = document.getElementById("vehiculosTbody");
@@ -227,16 +240,11 @@ function renderizarVehiculos(vehiculos, transitos) {
       return;
     }
 
-    // Calcular estadísticas por vehículo
+    // Calcular estadísticas por vehículo usando DTOs
     const estadisticasPorVehiculo = {};
-    if (transitos && transitos.length > 0) {
-      // Ordenar transitos por fecha para calcular correctamente
-      const transitosOrdenados = [...transitos].sort((a, b) => {
-        return new Date(a.fecha) - new Date(b.fecha);
-      });
-
-      transitosOrdenados.forEach((transito, index) => {
-        const matricula = transito.vehiculo?.matricula;
+    if (transitosDTOs && transitosDTOs.length > 0) {
+      transitosDTOs.forEach((transitoDTO) => {
+        const matricula = transitoDTO.matricula;
         if (matricula) {
           if (!estadisticasPorVehiculo[matricula]) {
             estadisticasPorVehiculo[matricula] = {
@@ -245,13 +253,17 @@ function renderizarVehiculos(vehiculos, transitos) {
             };
           }
           estadisticasPorVehiculo[matricula].count++;
-          // Calcular monto final usando transitos previos
-          const transitosPrevios = transitosOrdenados.slice(0, index);
-          const montoFinal = calcularMontoFinalTransito(
-            transito,
-            transitosPrevios
-          );
-          estadisticasPorVehiculo[matricula].total += montoFinal;
+          // Extraer monto pagado del DTO (ya viene formateado como "$ XX,XX")
+          // Necesitamos convertir de vuelta a número para sumar
+          const montoPagadoStr = transitoDTO.montoPagado || "$ 0,00";
+          const montoPagado =
+            parseFloat(
+              montoPagadoStr
+                .replace("$", "")
+                .replace(/\./g, "")
+                .replace(",", ".")
+            ) || 0;
+          estadisticasPorVehiculo[matricula].total += montoPagado;
         }
       });
     }
@@ -332,8 +344,8 @@ function renderizarBonificaciones(asignaciones) {
   }
 }
 
-function renderizarTransitos(transitos) {
-  console.log("Renderizando tránsitos:", transitos);
+function renderizarTransitos(transitosDTOs) {
+  console.log("Renderizando tránsitos DTOs:", transitosDTOs);
 
   try {
     const tbody = document.getElementById("transitosTbody");
@@ -343,7 +355,7 @@ function renderizarTransitos(transitos) {
       return;
     }
 
-    if (!transitos || transitos.length === 0) {
+    if (!transitosDTOs || transitosDTOs.length === 0) {
       tbody.innerHTML = `
       <tr>
         <td colspan="9" class="py-4 px-4 text-sm text-[var(--muted-foreground)] text-center">
@@ -355,59 +367,55 @@ function renderizarTransitos(transitos) {
     }
 
     // Ordenar tránsitos por fecha (más recientes primero)
-    const transitosOrdenados = [...transitos].sort((a, b) => {
-      const fechaA = new Date(a.fecha);
-      const fechaB = new Date(b.fecha);
+    // La fecha viene en formato "dd/MM/yyyy HH:mm:ss"
+    const transitosOrdenados = [...transitosDTOs].sort((a, b) => {
+      // Parsear fecha desde formato "dd/MM/yyyy HH:mm:ss"
+      const parsearFecha = (fechaStr) => {
+        const [fechaParte, horaParte] = fechaStr.split(" ");
+        const [dia, mes, año] = fechaParte.split("/");
+        const [hora, minuto, segundo] = horaParte.split(":");
+        return new Date(año, mes - 1, dia, hora, minuto, segundo);
+      };
+      const fechaA = parsearFecha(a.fecha || "");
+      const fechaB = parsearFecha(b.fecha || "");
       return fechaB - fechaA;
     });
 
-    // Crear índice de posición para calcular descuentos correctamente
-    const transitosConIndice = transitosOrdenados.map((t, index) => ({
-      transito: t,
-      indice: transitosOrdenados.length - 1 - index, // Invertir para tener orden cronológico
-    }));
-
-    tbody.innerHTML = transitosConIndice
-      .map(({ transito: t, indice }) => {
-        const montoTarifa = t.tarifa?.monto || 0;
-        const bonificacionNombre = t.bono?.nombre || "Ninguna";
-
-        // Calcular descuento usando transitos previos (en orden cronológico)
-        const transitosPrevios = transitosOrdenados.slice(indice + 1).reverse(); // Revertir para tener orden cronológico
-
-        const montoPagado = calcularMontoFinalTransito(t, transitosPrevios);
-        const montoBonificacion = montoTarifa - montoPagado;
-
-        // Formatear fecha
-        const fecha = new Date(t.fecha);
-        const fechaStr = fecha.toISOString().split("T")[0];
-        const horaStr = fecha.toTimeString().split(" ")[0].substring(0, 5);
+    tbody.innerHTML = transitosOrdenados
+      .map((dto) => {
+        // Extraer fecha y hora del formato "dd/MM/yyyy HH:mm:ss"
+        const fechaCompleta = dto.fecha || "";
+        const [fechaStr, horaStr] = fechaCompleta.split(" ");
 
         return `
     <tr>
       <td class="py-3 px-4 text-sm text-[var(--foreground)] border-b border-[var(--border)]">${
-        t.puesto?.nombre || "N/A"
+        dto.puesto || "N/A"
+      }</td>
+      <td class="py-3 px-4 text-sm text-[var(--foreground)] border-b border-[var(--border)] font-mono">${
+        dto.matricula || "N/A"
       }</td>
       <td class="py-3 px-4 text-sm text-[var(--foreground)] border-b border-[var(--border)]">${
-        t.vehiculo?.matricula || "N/A"
+        dto.categoria || "N/A"
       }</td>
       <td class="py-3 px-4 text-sm text-[var(--foreground)] border-b border-[var(--border)]">${
-        t.tarifa?.categoriaVehiculo || t.vehiculo?.categoria?.nombre || "N/A"
+        dto.montoTarifa || "-"
       }</td>
-      <td class="py-3 px-4 text-sm text-[var(--foreground)] border-b border-[var(--border)]">$ ${montoTarifa
-        .toFixed(2)
-        .replace(".", ",")}</td>
-      <td class="py-3 px-4 text-sm text-[var(--foreground)] border-b border-[var(--border)]">${bonificacionNombre}</td>
       <td class="py-3 px-4 text-sm text-[var(--foreground)] border-b border-[var(--border)]">${
-        montoBonificacion > 0
-          ? "-$ " + montoBonificacion.toFixed(2).replace(".", ",")
-          : "-"
+        dto.bonificacion || "Ninguna"
       }</td>
-      <td class="py-3 px-4 text-sm text-[var(--foreground)] border-b border-[var(--border)]">$ ${montoPagado
-        .toFixed(2)
-        .replace(".", ",")}</td>
-      <td class="py-3 px-4 text-sm text-[var(--muted-foreground)] border-b border-[var(--border)]">${fechaStr}</td>
-      <td class="py-3 px-4 text-sm text-[var(--muted-foreground)] border-b border-[var(--border)]">${horaStr}</td>
+      <td class="py-3 px-4 text-sm text-[var(--foreground)] border-b border-[var(--border)]">${
+        dto.montoBonificacion || "-"
+      }</td>
+      <td class="py-3 px-4 text-sm text-[var(--foreground)] border-b border-[var(--border)] font-semibold">${
+        dto.montoPagado || "-"
+      }</td>
+      <td class="py-3 px-4 text-sm text-[var(--muted-foreground)] border-b border-[var(--border)]">${
+        fechaStr || "-"
+      }</td>
+      <td class="py-3 px-4 text-sm text-[var(--muted-foreground)] border-b border-[var(--border)]">${
+        horaStr || "-"
+      }</td>
     </tr>
   `;
       })

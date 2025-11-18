@@ -7,15 +7,14 @@ urlRegistroSSE = "/administrador/registrarSSE";
 let puestosDisponibles = [];
 let historicoTrasitos = [];
 
-
-window["mostrar_puestos"] = function(puestos) {
+window["mostrar_puestos"] = function (puestos) {
   console.log("Puestos recibidos desde vistaWeb.js:", puestos);
-  
+
   puestosDisponibles = puestos || [];
-  
+
   const select = document.getElementById("puesto");
   select.innerHTML = '<option value="">Seleccione un puesto</option>';
-  
+
   puestos.forEach((puesto) => {
     const option = document.createElement("option");
     option.value = puesto.nombre;
@@ -28,16 +27,17 @@ window["mostrar_puestos"] = function(puestos) {
  * Handler: Mostrar tarifas del puesto seleccionado
  * Llamado por vistaWeb.js cuando se ejecuta submit("/transitos/tarifas?nombrePuesto=X", ...)
  */
-window["mostrar_tarifas"] = function(tarifas) {
+window["mostrar_tarifas"] = function (tarifas) {
   console.log("Tarifas recibidas desde vistaWeb.js:", tarifas);
-  
+
   const listaTarifas = document.getElementById("listaTarifas");
-  
+
   if (!tarifas || tarifas.length === 0) {
-    listaTarifas.innerHTML = '<p class="text-[var(--muted-foreground)] text-center py-4">Sin tarifas disponibles</p>';
+    listaTarifas.innerHTML =
+      '<p class="text-[var(--muted-foreground)] text-center py-4">Sin tarifas disponibles</p>';
     return;
   }
-  
+
   listaTarifas.innerHTML = tarifas
     .map(
       (tarifa) => `
@@ -47,7 +47,7 @@ window["mostrar_tarifas"] = function(tarifas) {
             📋 ${tarifa.nombreCategoria}
           </span>
           <span class="text-[var(--chart-3)] font-bold">
-            $${tarifa.monto ? tarifa.monto.toFixed(2) : '0.00'}
+            $${tarifa.monto ? tarifa.monto.toFixed(2) : "0.00"}
           </span>
         </div>
       </div>
@@ -60,44 +60,53 @@ window["mostrar_tarifas"] = function(tarifas) {
  * Handler: Tránsito emulado exitosamente
  * Llamado por vistaWeb.js cuando emularTransito() retorna éxito
  */
-window["mostrar_transito_emulado"] = function(detalleTransito) {
+window["mostrar_transito_emulado"] = function (detalleTransito) {
   console.log("Tránsito emulado exitosamente:", detalleTransito);
-  
+
   // Mostrar notificación de éxito
-  mostrarNotificacion("✅ Éxito", 
-    `Tránsito registrado: $${detalleTransito.montoDescontado.toFixed(2)} descontado`, 
-    "success");
-  
-  // Agregar a historial
-  if (!historicoTrasitos) {
-    historicoTrasitos = [];
-  }
-  historicoTrasitos.unshift(detalleTransito); // Agregar al inicio
-  
-  // Actualizar vista de historial
-  actualizarHistorial();
-  
+  mostrarNotificacion(
+    "✅ Éxito",
+    "Tránsito registrado exitosamente",
+    "success"
+  );
+
+  // Mostrar resultado en componente visual
+  mostrarResultado(detalleTransito);
+
+  // Agregar a historial (temporalmente deshabilitado hasta actualizar campos)
+  // if (!historicoTrasitos) {
+  //   historicoTrasitos = [];
+  // }
+  // historicoTrasitos.unshift(detalleTransito); // Agregar al inicio
+
+  // Actualizar vista de historial (temporalmente deshabilitado)
+  // actualizarHistorial();
+
   // Limpiar formulario
   document.getElementById("formTransito").reset();
-  document.getElementById("listaTarifas").innerHTML = 
+  document.getElementById("listaTarifas").innerHTML =
     '<p class="text-[var(--muted-foreground)] text-center py-4">Seleccione un puesto para ver sus tarifas</p>';
 };
 
 /**
  * Handler: Error al emular tránsito
  */
-window["mostrar_error_transito"] = function(parametro) {
+window["mostrar_error_transito"] = function (parametro) {
   console.log("Error al emular tránsito:", parametro);
-  mostrarNotificacion("❌ Error", parametro || "No se pudo emular el tránsito", "error");
+  mostrarNotificacion(
+    "❌ Error",
+    parametro || "No se pudo emular el tránsito",
+    "error"
+  );
 };
 
 /**
  * Handler: Restaurar historial de tránsitos desde el servidor
  * Llamado por vistaWeb.js cuando vistaConectada() retorna el historial
  */
-window["mostrar_historial_transitos"] = function(transitos) {
+window["mostrar_historial_transitos"] = function (transitos) {
   console.log("Restaurando historial desde servidor:", transitos);
-  
+
   if (transitos && transitos.length > 0) {
     historicoTrasitos = transitos;
     actualizarHistorial();
@@ -107,21 +116,21 @@ window["mostrar_historial_transitos"] = function(transitos) {
 /**
  * Handler: Notificación del administrador
  */
-window["mostrar_nombreAdmin"] = function(parametro) {
+window["mostrar_nombreAdmin"] = function (parametro) {
   console.log("Administrador conectado:", parametro);
 };
 
 /**
  * Handler: Mensaje genérico
  */
-window["mostrar_mensaje"] = function(parametro) {
+window["mostrar_mensaje"] = function (parametro) {
   console.log("Mensaje del servidor:", parametro);
 };
 
 /**
  * Handler: Redirigir a login (sesión expirada)
  */
-window["mostrar_paginaLogin"] = function(parametro) {
+window["mostrar_paginaLogin"] = function (parametro) {
   window.location.href = parametro || "/login.html";
 };
 
@@ -142,13 +151,13 @@ function cargarPuestos() {
  */
 function cargarTarifas() {
   const nombrePuesto = document.getElementById("puesto").value;
-  
+
   if (!nombrePuesto) {
-    document.getElementById("listaTarifas").innerHTML = 
+    document.getElementById("listaTarifas").innerHTML =
       '<p class="text-[var(--muted-foreground)] text-center py-4">Seleccione un puesto para ver sus tarifas</p>';
     return;
   }
-  
+
   console.log("Cargando tarifas para puesto:", nombrePuesto);
   const params = "nombrePuesto=" + encodeURIComponent(nombrePuesto);
   submit("/transitos/tarifas", params, "GET");
@@ -161,36 +170,46 @@ function emularTransito(form) {
   const nombrePuesto = document.getElementById("puesto").value;
   const matricula = document.getElementById("matricula").value.trim();
   const fechaHora = document.getElementById("fechaHora").value;
-  
+
   // Validaciones
   if (!nombrePuesto) {
     mostrarNotificacion("⚠️ Validación", "Seleccione un puesto", "error");
     return;
   }
-  
+
   if (!matricula) {
-    mostrarNotificacion("⚠️ Validación", "Ingrese la matrícula del vehículo", "error");
+    mostrarNotificacion(
+      "⚠️ Validación",
+      "Ingrese la matrícula del vehículo",
+      "error"
+    );
     return;
   }
-  
+
   if (!fechaHora) {
     mostrarNotificacion("⚠️ Validación", "Seleccione fecha y hora", "error");
     return;
   }
-  
+
   console.log("Emulando tránsito:", { nombrePuesto, matricula, fechaHora });
-  
-  // Convertir datetime-local a formato ISO esperado (yyyy-MM-ddTHH:mm)
+
+  // Convertir datetime-local a formato esperado por backend (dd/MM/yyyy HH:mm:ss)
   const fecha = new Date(fechaHora);
-  const fechaFormato = fecha.toISOString().slice(0, 16); // yyyy-MM-ddTHH:mm
-  
+  const dia = String(fecha.getDate()).padStart(2, "0");
+  const mes = String(fecha.getMonth() + 1).padStart(2, "0");
+  const año = fecha.getFullYear();
+  const horas = String(fecha.getHours()).padStart(2, "0");
+  const minutos = String(fecha.getMinutes()).padStart(2, "0");
+  const segundos = "00"; // Siempre 00 para datetime-local
+  const fechaFormato = `${dia}/${mes}/${año} ${horas}:${minutos}:${segundos}`;
+
   // Construir params para vistaWeb.js
   const params = new URLSearchParams({
     matricula: matricula,
     nombrePuesto: nombrePuesto,
-    fechaHora: fechaFormato
+    fechaHora: fechaFormato,
   }).toString();
-  
+
   // Usar vistaWeb.js - esto llamará window["mostrar_transito_emulado"]() cuando responda
   submit("/transitos/emular", params, "POST");
 }
@@ -200,7 +219,7 @@ function emularTransito(form) {
  */
 function actualizarHistorial() {
   const listaHistorial = document.getElementById("listaHistorial");
-  
+
   if (!historicoTrasitos || historicoTrasitos.length === 0) {
     listaHistorial.innerHTML = `
       <div class="p-4 bg-[var(--background)] border border-[var(--border)] border-l-4 border-l-[var(--muted)]">
@@ -211,49 +230,73 @@ function actualizarHistorial() {
     `;
     return;
   }
-  
+
   listaHistorial.innerHTML = historicoTrasitos
-    .map((transito, index) => `
+    .map(
+      (transito, index) => `
       <div class="p-4 bg-[var(--background)] border border-[var(--border)] border-l-4 border-l-[var(--chart-3)]">
         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
           <!-- Propietario -->
           <div>
             <p class="text-xs font-semibold text-[var(--muted-foreground)] uppercase">Propietario</p>
-            <p class="text-sm text-[var(--foreground)]">${transito.propietarioNombre}</p>
-            <p class="text-xs text-[var(--muted-foreground)]">CI: ${transito.propietarioCi}</p>
-            <p class="text-xs font-semibold text-[var(--chart-1)]">Estado: ${transito.propietarioEstado}</p>
+            <p class="text-sm text-[var(--foreground)]">${
+              transito.propietarioNombre
+            }</p>
+            <p class="text-xs text-[var(--muted-foreground)]">CI: ${
+              transito.propietarioCi
+            }</p>
+            <p class="text-xs font-semibold text-[var(--chart-1)]">Estado: ${
+              transito.propietarioEstado
+            }</p>
           </div>
           
           <!-- Vehículo -->
           <div>
             <p class="text-xs font-semibold text-[var(--muted-foreground)] uppercase">Vehículo</p>
-            <p class="text-sm text-[var(--foreground)] font-mono">${transito.vehiculoMatricula}</p>
-            <p class="text-xs text-[var(--muted-foreground)]">${transito.vehiculoModelo}</p>
-            <p class="text-xs text-[var(--muted-foreground)]">Cat: ${transito.categoriaVehiculo}</p>
+            <p class="text-sm text-[var(--foreground)] font-mono">${
+              transito.vehiculoMatricula
+            }</p>
+            <p class="text-xs text-[var(--muted-foreground)]">${
+              transito.vehiculoModelo
+            }</p>
+            <p class="text-xs text-[var(--muted-foreground)]">Cat: ${
+              transito.categoriaVehiculo
+            }</p>
           </div>
           
           <!-- Puesto -->
           <div>
             <p class="text-xs font-semibold text-[var(--muted-foreground)] uppercase">Puesto</p>
-            <p class="text-sm text-[var(--foreground)]">${transito.puestoNombre}</p>
+            <p class="text-sm text-[var(--foreground)]">${
+              transito.puestoNombre
+            }</p>
           </div>
           
           <!-- Bonificación y Monto -->
           <div>
             <p class="text-xs font-semibold text-[var(--muted-foreground)] uppercase">Bonificación</p>
-            <p class="text-sm text-[var(--foreground)]">${transito.bonificacion}</p>
-            <p class="text-xs font-bold text-[var(--chart-3)]">-$${transito.montoDescontado.toFixed(2)}</p>
+            <p class="text-sm text-[var(--foreground)]">${
+              transito.bonificacion
+            }</p>
+            <p class="text-xs font-bold text-[var(--chart-3)]">-$${transito.montoDescontado.toFixed(
+              2
+            )}</p>
           </div>
           
           <!-- Saldo -->
           <div>
             <p class="text-xs font-semibold text-[var(--muted-foreground)] uppercase">Saldo</p>
-            <p class="text-xs text-[var(--muted-foreground)]">Antes: $${transito.saldoAntes.toFixed(2)}</p>
-            <p class="text-sm font-bold text-[var(--chart-2)]">Después: $${transito.saldoDespues.toFixed(2)}</p>
+            <p class="text-xs text-[var(--muted-foreground)]">Antes: $${transito.saldoAntes.toFixed(
+              2
+            )}</p>
+            <p class="text-sm font-bold text-[var(--chart-2)]">Después: $${transito.saldoDespues.toFixed(
+              2
+            )}</p>
           </div>
         </div>
       </div>
-    `)
+    `
+    )
     .join("");
 }
 
@@ -296,7 +339,7 @@ function confirmarCierreSesion() {
           return;
         }
       }
-      
+
       return fetch("/login/logoutAdmin", {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -314,7 +357,11 @@ function confirmarCierreSesion() {
     })
     .catch((err) => {
       console.error("Error al cerrar sesión:", err);
-      mostrarNotificacion("Error", "No se pudo cerrar sesión correctamente", "error");
+      mostrarNotificacion(
+        "Error",
+        "No se pudo cerrar sesión correctamente",
+        "error"
+      );
       setTimeout(() => {
         window.location.href = "/login.html";
       }, 2000);
@@ -383,10 +430,61 @@ function cerrarNotificacion() {
 }
 
 /**
+ * Mostrar resultado del tránsito emulado
+ */
+function mostrarResultado(detalleTransito) {
+  const resultDisplay = document.getElementById("resultDisplay");
+
+  if (!resultDisplay) {
+    console.error("No se encontró el elemento resultDisplay");
+    return;
+  }
+
+  // Populate fields
+  document.getElementById("resultPuesto").textContent =
+    detalleTransito.puesto || "-";
+  document.getElementById("resultMatricula").textContent =
+    detalleTransito.matricula || "-";
+  document.getElementById("resultCategoria").textContent =
+    detalleTransito.categoria || "-";
+  document.getElementById("resultFecha").textContent =
+    detalleTransito.fecha || "-";
+  document.getElementById("resultMontoTarifa").textContent =
+    detalleTransito.montoTarifa || "-";
+  document.getElementById("resultBonificacion").textContent =
+    detalleTransito.bonificacion || "-";
+  document.getElementById("resultMontoBonificacion").textContent =
+    detalleTransito.montoBonificacion || "-";
+  document.getElementById("resultMontoPagado").textContent =
+    detalleTransito.montoPagado || "-";
+
+  // Show the result component
+  resultDisplay.classList.remove("hidden");
+
+  // Scroll to result
+  resultDisplay.scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
+
+/**
+ * Cerrar resultado del tránsito
+ */
+function cerrarResultado() {
+  const resultDisplay = document.getElementById("resultDisplay");
+  if (resultDisplay) {
+    resultDisplay.classList.add("hidden");
+  }
+}
+
+/**
  * Función requerida por vistaWeb.js para manejar errores
  */
 function procesarErrorSubmit(status, text) {
-  console.log("Error capturado por vistaWeb.js - Status:", status, "Text:", text);
+  console.log(
+    "Error capturado por vistaWeb.js - Status:",
+    status,
+    "Text:",
+    text
+  );
 
   try {
     const errorObj = JSON.parse(text);
@@ -405,11 +503,11 @@ document.addEventListener("DOMContentLoaded", function () {
   const ahora = new Date();
   ahora.setMinutes(ahora.getMinutes() - ahora.getTimezoneOffset());
   document.getElementById("fechaHora").value = ahora.toISOString().slice(0, 16);
-  
+
   // Inicializar historial vacío
   historicoTrasitos = [];
   actualizarHistorial();
-  
+
   // Cargar puestos al iniciar
   cargarPuestos();
 });

@@ -2,107 +2,57 @@ package obligatorio.obli.dtos;
 
 import obligatorio.obli.models.Transito;
 import obligatorio.obli.models.Usuarios.Propietario;
-import obligatorio.obli.models.Vehiculo;
 
-/**
- * DTO siguiendo patrón agenda:
- * - Recibe objetos del modelo
- * - Extrae información usando los métodos Expert de cada objeto
- * - No tiene lógica de negocio
- */
 public class DetalleTransitoDTO {
-    private String propietarioNombre;
-    private String propietarioCi;
-    private String propietarioEstado;
-    private String vehiculoMatricula;
-    private String vehiculoModelo;
-    private String vehiculoColor;
-    private String categoriaVehiculo;
-    private String puestoNombre;
+    private String puesto;
+    private String matricula;
+    private String categoria;
+    private String montoTarifa;
     private String bonificacion;
-    private double montoDescontado;
-    private double saldoAntes;
-    private double saldoDespues;
-    private String fechaHora;
+    private String montoBonificacion;
+    private String montoPagado;
+    private String fecha;
 
-    public DetalleTransitoDTO(Transito transito, Propietario propietario, double saldoAntes, double saldoDespues, double montoDescontado) {
-        // Extraer info usando métodos Expert de cada objeto
-        Vehiculo vehiculo = transito.getVehiculo();
-
-        // Propietario es Expert de sus datos
-        this.propietarioNombre = propietario.getNombre();
-        this.propietarioCi = propietario.getCi();
-        this.propietarioEstado = propietario.getEstado().getNombre();
-
-        // Vehiculo es Expert de sus datos
-        this.vehiculoMatricula = vehiculo.getMatricula();
-        this.vehiculoModelo = vehiculo.getModelo();
-        this.vehiculoColor = vehiculo.getColor();
-        this.categoriaVehiculo = vehiculo.getNombreCategoria();
-
-        // Transito es Expert de sus datos
-        this.puestoNombre = transito.getPuesto().getNombre();
-        this.fechaHora = transito.obtenerFechaFormateada();
-
-        // Propietario es Expert de sus bonificaciones
+    public DetalleTransitoDTO(Transito transito, Propietario propietario) {
+        this.puesto = transito.getPuesto().getNombre();
+        this.matricula = transito.getVehiculo().getMatricula();
+        this.categoria = transito.getVehiculo().getNombreCategoria();
+        this.montoTarifa = transito.obtenerMontoTarifaFormateado();
         this.bonificacion = propietario.obtenerNombreBonificacionDelTransito(transito.getPuesto());
-
-        // Información de resultado (calculada una sola vez en Fachada)
-        this.montoDescontado = montoDescontado;
-        this.saldoAntes = saldoAntes;
-        this.saldoDespues = saldoDespues;
+        this.montoBonificacion = transito.obtenerMontoBonificacionFormateado(propietario);
+        this.montoPagado = transito.obtenerMontoPagadoFormateado(propietario);
+        this.fecha = transito.obtenerFechaFormateada();
     }
 
-    // Getters
-    public String getPropietarioNombre() {
-        return propietarioNombre;
+    public String getPuesto() {
+        return puesto;
     }
 
-    public String getPropietarioCi() {
-        return propietarioCi;
+    public String getMatricula() {
+        return matricula;
     }
 
-    public String getPropietarioEstado() {
-        return propietarioEstado;
+    public String getCategoria() {
+        return categoria;
     }
 
-    public String getVehiculoMatricula() {
-        return vehiculoMatricula;
-    }
-
-    public String getVehiculoModelo() {
-        return vehiculoModelo;
-    }
-
-    public String getVehiculoColor() {
-        return vehiculoColor;
-    }
-
-    public String getCategoriaVehiculo() {
-        return categoriaVehiculo;
-    }
-
-    public String getPuestoNombre() {
-        return puestoNombre;
+    public String getMontoTarifa() {
+        return montoTarifa;
     }
 
     public String getBonificacion() {
         return bonificacion;
     }
 
-    public double getMontoDescontado() {
-        return montoDescontado;
+    public String getMontoBonificacion() {
+        return montoBonificacion;
     }
 
-    public double getSaldoAntes() {
-        return saldoAntes;
+    public String getMontoPagado() {
+        return montoPagado;
     }
 
-    public double getSaldoDespues() {
-        return saldoDespues;
-    }
-
-    public String getFechaHora() {
-        return fechaHora;
+    public String getFecha() {
+        return fecha;
     }
 }

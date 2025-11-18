@@ -91,26 +91,6 @@ public class Fachada extends Observable {
         return this.sistemaUsuario.buscarPropietarioDeVehiculo(vehiculo);
     }
 
-    public ResultadoTransito emularTransito(String matricula, String nombrePuesto, String fechaHora) throws Exception {
-        Vehiculo vehiculo = this.sistemaUsuario.buscarVehiculoPorMatricula(matricula);
-        Propietario propietario = this.sistemaUsuario.buscarPropietarioDeVehiculo(vehiculo);
-        Puesto puesto = this.sistemaPuesto.buscarPorNombre(nombrePuesto);
-
-        String categoriaVehiculo = vehiculo.getNombreCategoria();
-        Tarifa tarifa = puesto.obtenerTarifaPorCategoria(categoriaVehiculo);
-        Bonificacion bonificacion = propietario.obtenerBonificacionDelTransito(puesto);
-
-        Transito transito = Transito.crearConFechaString(puesto, vehiculo, tarifa, fechaHora, bonificacion);
-        double saldoAntes = propietario.getSaldo();
-        double montoDescontado = propietario.registrarTransito(transito);
-        propietario.enviarNotificacionesTransito(transito);
-        double saldoDespues = propietario.getSaldo();
-
-        avisar(Eventos.nuevoTransito);
-
-        return new ResultadoTransito(transito, saldoAntes, saldoDespues, montoDescontado);
-    }
-
     public Estado buscarEstadoPorNombre(String nombreEstado) {
         return Estado.fromNombre(nombreEstado);
     }
