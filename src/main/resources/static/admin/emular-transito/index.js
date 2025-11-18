@@ -5,7 +5,6 @@ urlRegistroSSE = "/administrador/registrarSSE";
 
 // State management
 let puestosDisponibles = [];
-let historicoTrasitos = [];
 
 window["mostrar_puestos"] = function (puestos) {
   console.log("Puestos recibidos desde vistaWeb.js:", puestos);
@@ -64,23 +63,10 @@ window["mostrar_transito_emulado"] = function (detalleTransito) {
   console.log("Tránsito emulado exitosamente:", detalleTransito);
 
   // Mostrar notificación de éxito
-  mostrarNotificacion(
-    "✅ Éxito",
-    "Tránsito registrado exitosamente",
-    "success"
-  );
+  mostrarNotificacion("Éxito", "Tránsito registrado exitosamente", "success");
 
   // Mostrar resultado en componente visual
   mostrarResultado(detalleTransito);
-
-  // Agregar a historial (temporalmente deshabilitado hasta actualizar campos)
-  // if (!historicoTrasitos) {
-  //   historicoTrasitos = [];
-  // }
-  // historicoTrasitos.unshift(detalleTransito); // Agregar al inicio
-
-  // Actualizar vista de historial (temporalmente deshabilitado)
-  // actualizarHistorial();
 
   // Limpiar formulario
   document.getElementById("formTransito").reset();
@@ -98,19 +84,6 @@ window["mostrar_error_transito"] = function (parametro) {
     parametro || "No se pudo emular el tránsito",
     "error"
   );
-};
-
-/**
- * Handler: Restaurar historial de tránsitos desde el servidor
- * Llamado por vistaWeb.js cuando vistaConectada() retorna el historial
- */
-window["mostrar_historial_transitos"] = function (transitos) {
-  console.log("Restaurando historial desde servidor:", transitos);
-
-  if (transitos && transitos.length > 0) {
-    historicoTrasitos = transitos;
-    actualizarHistorial();
-  }
 };
 
 /**
@@ -212,99 +185,6 @@ function emularTransito(form) {
 
   // Usar vistaWeb.js - esto llamará window["mostrar_transito_emulado"]() cuando responda
   submit("/transitos/emular", params, "POST");
-}
-
-/**
- * Actualizar vista del historial de tránsitos
- */
-function actualizarHistorial() {
-  const listaHistorial = document.getElementById("listaHistorial");
-
-  if (!historicoTrasitos || historicoTrasitos.length === 0) {
-    listaHistorial.innerHTML = `
-      <div class="p-4 bg-[var(--background)] border border-[var(--border)] border-l-4 border-l-[var(--muted)]">
-        <p class="text-[var(--muted-foreground)] text-center">
-          No hay tránsitos registrados
-        </p>
-      </div>
-    `;
-    return;
-  }
-
-  listaHistorial.innerHTML = historicoTrasitos
-    .map(
-      (transito, index) => `
-      <div class="p-4 bg-[var(--background)] border border-[var(--border)] border-l-4 border-l-[var(--chart-3)]">
-        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-          <!-- Propietario -->
-          <div>
-            <p class="text-xs font-semibold text-[var(--muted-foreground)] uppercase">Propietario</p>
-            <p class="text-sm text-[var(--foreground)]">${
-              transito.propietarioNombre
-            }</p>
-            <p class="text-xs text-[var(--muted-foreground)]">CI: ${
-              transito.propietarioCi
-            }</p>
-            <p class="text-xs font-semibold text-[var(--chart-1)]">Estado: ${
-              transito.propietarioEstado
-            }</p>
-          </div>
-          
-          <!-- Vehículo -->
-          <div>
-            <p class="text-xs font-semibold text-[var(--muted-foreground)] uppercase">Vehículo</p>
-            <p class="text-sm text-[var(--foreground)] font-mono">${
-              transito.vehiculoMatricula
-            }</p>
-            <p class="text-xs text-[var(--muted-foreground)]">${
-              transito.vehiculoModelo
-            }</p>
-            <p class="text-xs text-[var(--muted-foreground)]">Cat: ${
-              transito.categoriaVehiculo
-            }</p>
-          </div>
-          
-          <!-- Puesto -->
-          <div>
-            <p class="text-xs font-semibold text-[var(--muted-foreground)] uppercase">Puesto</p>
-            <p class="text-sm text-[var(--foreground)]">${
-              transito.puestoNombre
-            }</p>
-          </div>
-          
-          <!-- Bonificación y Monto -->
-          <div>
-            <p class="text-xs font-semibold text-[var(--muted-foreground)] uppercase">Bonificación</p>
-            <p class="text-sm text-[var(--foreground)]">${
-              transito.bonificacion
-            }</p>
-            <p class="text-xs font-bold text-[var(--chart-3)]">-$${transito.montoDescontado.toFixed(
-              2
-            )}</p>
-          </div>
-          
-          <!-- Saldo -->
-          <div>
-            <p class="text-xs font-semibold text-[var(--muted-foreground)] uppercase">Saldo</p>
-            <p class="text-xs text-[var(--muted-foreground)]">Antes: $${transito.saldoAntes.toFixed(
-              2
-            )}</p>
-            <p class="text-sm font-bold text-[var(--chart-2)]">Después: $${transito.saldoDespues.toFixed(
-              2
-            )}</p>
-          </div>
-        </div>
-      </div>
-    `
-    )
-    .join("");
-}
-
-/**
- * Cargar historial de tránsitos
- */
-function cargarHistorial() {
-  actualizarHistorial();
 }
 
 // ============================================================================
@@ -503,10 +383,6 @@ document.addEventListener("DOMContentLoaded", function () {
   const ahora = new Date();
   ahora.setMinutes(ahora.getMinutes() - ahora.getTimezoneOffset());
   document.getElementById("fechaHora").value = ahora.toISOString().slice(0, 16);
-
-  // Inicializar historial vacío
-  historicoTrasitos = [];
-  actualizarHistorial();
 
   // Cargar puestos al iniciar
   cargarPuestos();
