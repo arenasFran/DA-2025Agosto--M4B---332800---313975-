@@ -2,27 +2,27 @@ package obligatorio.obli.models.Sistemas;
 
 import java.util.List;
 
-import obligatorio.obli.exceptions.propietario.PropietarioNoEncontradoException;
-import obligatorio.obli.exceptions.puesto.PuestoNoEncontradoException;
-import obligatorio.obli.exceptions.bonificaciones.BonificacionNoEncontradaException;
-import obligatorio.obli.exceptions.login.LoginCredencialesInvalidasException;
+import obligatorio.obli.exceptions.PropietarioException;
+import obligatorio.obli.exceptions.BonificacionException;
+import obligatorio.obli.exceptions.PuestoException;
+import obligatorio.obli.exceptions.LoginException;
+import obligatorio.obli.exceptions.AdministradorException;
 import obligatorio.obli.models.Estados.Estado;
 import obligatorio.obli.models.Puesto;
 import obligatorio.obli.models.Vehiculo;
 import obligatorio.obli.models.Bonificaciones.Bonificacion;
 import obligatorio.obli.models.Usuarios.Administrador;
 import obligatorio.obli.models.Usuarios.Propietario;
-import obligatorio.obli.observador.Observable;
 
-public class Fachada extends Observable {
+public class Fachada {
     private SistemaUsuario sistemaUsuario;
     private SistemaBonificacion sistemaBonificacion;
     private SistemaPuesto sistemaPuesto;
 
     private Fachada() {
-        sistemaUsuario = SistemaUsuario.getInstancia();
-        sistemaBonificacion = SistemaBonificacion.getInstancia();
-        sistemaPuesto = SistemaPuesto.getInstancia();
+        sistemaUsuario = new SistemaUsuario();
+        sistemaBonificacion = new SistemaBonificacion();
+        sistemaPuesto = new SistemaPuesto();
     }
 
     private static Fachada instancia;
@@ -42,31 +42,31 @@ public class Fachada extends Observable {
         borradoNotificaciones
     }
 
-    public Propietario loginPropietario(String ci, String password) throws LoginCredencialesInvalidasException {
+    public Propietario loginPropietario(String ci, String password) throws LoginException {
         try {
             Propietario propietario = this.sistemaUsuario.getPropietarioPorCi(ci);
             if (!propietario.getPassword().equals(password)) {
-                throw new LoginCredencialesInvalidasException();
+                throw new LoginException("Credenciales inválidas.");
             }
             return propietario;
-        } catch (PropietarioNoEncontradoException e) {
-            throw new LoginCredencialesInvalidasException();
+        } catch (PropietarioException e) {
+            throw new LoginException("Credenciales inválidas.");
         }
     }
 
-    public Administrador loginAdmin(String ci, String password) throws LoginCredencialesInvalidasException {
+    public Administrador loginAdmin(String ci, String password) throws LoginException {
         try {
             Administrador admin = this.sistemaUsuario.getAdministradorPorCi(ci);
             if (!admin.getPassword().equals(password)) {
-                throw new LoginCredencialesInvalidasException();
+                throw new LoginException("Credenciales inválidas.");
             }
             return admin;
-        } catch (Exception e) {
-            throw new LoginCredencialesInvalidasException();
+        } catch (AdministradorException e) {
+            throw new LoginException("Credenciales inválidas.");
         }
     }
 
-    public Propietario buscarPropietarioPorCi(String ci) throws PropietarioNoEncontradoException {
+    public Propietario buscarPropietarioPorCi(String ci) throws PropietarioException {
         return this.sistemaUsuario.getPropietarioPorCi(ci);
     }
 
@@ -79,11 +79,11 @@ public class Fachada extends Observable {
     }
 
     public Bonificacion buscarBonificacionPorNombre(String nombreBonificacion)
-            throws BonificacionNoEncontradaException {
+            throws BonificacionException {
         return this.sistemaBonificacion.buscarPorNombre(nombreBonificacion);
     }
 
-    public Puesto buscarPuestoPorNombre(String nombrePuesto) throws PuestoNoEncontradoException {
+    public Puesto buscarPuestoPorNombre(String nombrePuesto) throws PuestoException {
         return this.sistemaPuesto.buscarPorNombre(nombrePuesto);
     }
 

@@ -6,12 +6,14 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.SessionAttribute;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import obligatorio.obli.ConexionNavegador;
 import obligatorio.obli.dtos.DetalleTransitoDTO;
@@ -31,12 +33,19 @@ public class TransitoController implements Observador {
 
     private List<DetalleTransitoDTO> transitosEmulados;
     private int ultimoTamañoConocido;
+    private Propietario propietarioActual;
     private final ConexionNavegador conexionNavegador;
 
     public TransitoController(@Autowired ConexionNavegador conexionNavegador) {
         this.conexionNavegador = conexionNavegador;
         this.transitosEmulados = new ArrayList<>();
         this.ultimoTamañoConocido = 0;
+    }
+
+    @GetMapping(value = "/transitos/registrarSSE", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public SseEmitter registrarSSE() {
+        conexionNavegador.conectarSSE();
+        return conexionNavegador.getConexionSSE();
     }
 
     @GetMapping("/puestos")
@@ -67,23 +76,37 @@ public class TransitoController implements Observador {
             @RequestParam String matricula,
             @RequestParam String nombrePuesto,
             @RequestParam String fechaHora) throws Exception {
-        Propietario propietario = Fachada.getInstancia().buscarPropietarioDeVehiculo(
-                Fachada.getInstancia().buscarVehiculoPorMatricula(matricula));
+        if (this.propietarioActual != null) {
+            this.propietarioActual.quitarObservador(this);
+        }
 
-        Transito nuevo = propietario.crearTransito(matricula, nombrePuesto, fechaHora);
-        DetalleTransitoDTO detalle = new DetalleTransitoDTO(nuevo, propietario);
+        try {
+            Propietario propietario = Fachada.getInstancia().buscarPropietarioDeVehiculo(
+                    Fachada.getInstancia().buscarVehiculoPorMatricula(matricula));
 
-        this.transitosEmulados.add(detalle);
-        this.ultimoTamañoConocido = this.transitosEmulados.size();
+            this.propietarioActual = propietario;
+            propietario.agregarObservador(this);
 
-        return Respuesta.lista(new Respuesta("transito_emulado", detalle));
+            Transito nuevo = propietario.crearTransito(matricula, nombrePuesto, fechaHora);
+            DetalleTransitoDTO detalle = new DetalleTransitoDTO(nuevo, propietario);
+
+            this.transitosEmulados.add(detalle);
+            this.ultimoTamañoConocido = this.transitosEmulados.size();
+
+            return Respuesta.lista(new Respuesta("transito_emulado", detalle));
+        } catch (Exception e) {
+            this.propietarioActual = null;
+            throw e;
+        }
     }
 
     @PostMapping("/vistaConectada")
     public List<Respuesta> vistaConectada(
             @SessionAttribute(name = LoginController.SESSION_ADMIN_COOKIE, required = true) Administrador admin) {
 
-        Fachada.getInstancia().agregarObservador(this);
+        if (this.propietarioActual != null) {
+            this.propietarioActual.agregarObservador(this);
+        }
 
         List<Respuesta> respuestas = new ArrayList<>();
 
@@ -97,12 +120,14 @@ public class TransitoController implements Observador {
 
     @PostMapping("/vistaCerrada")
     public void vistaCerrada() {
-        Fachada.getInstancia().quitarObservador(this);
+        if (this.propietarioActual != null) {
+            this.propietarioActual.quitarObservador(this);
+        }
     }
 
     @Override
     public void actualizar(Object evento, Observable origen) {
-        if (evento.equals(Fachada.Eventos.nuevoTransito)) {
+        if (origen == this.propietarioActual && evento.equals(Fachada.Eventos.nuevoTransito)) {
             conexionNavegador.enviarJSON(Respuesta.lista(ultimoTransito()));
         }
     }

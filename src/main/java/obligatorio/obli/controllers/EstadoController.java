@@ -5,6 +5,8 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -12,11 +14,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.SessionAttribute;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import obligatorio.obli.ConexionNavegador;
 import obligatorio.obli.dtos.PropietarioEstadoDTO;
-import obligatorio.obli.exceptions.propietario.PropietarioErrorActualizacionEstadoException;
-import obligatorio.obli.exceptions.propietario.PropietarioNoEncontradoException;
+import obligatorio.obli.exceptions.PropietarioException;
 import obligatorio.obli.models.Estados.Estado;
 import obligatorio.obli.models.Sistemas.Fachada;
 import obligatorio.obli.models.Usuarios.Administrador;
@@ -34,21 +36,36 @@ public class EstadoController implements Observador {
         this.conexionNavegador = conexionNavegador;
     }
 
+    @GetMapping(value = "/estado/registrarSSE", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public SseEmitter registrarSSE() {
+        conexionNavegador.conectarSSE();
+        return conexionNavegador.getConexionSSE();
+    }
+
     @PostMapping("/estado/buscar")
     public List<Respuesta> buscarPropietario(
             @SessionAttribute(name = LoginController.SESSION_ADMIN_COOKIE, required = true) Administrador admin,
-            @RequestParam String cedula) throws PropietarioNoEncontradoException {
+            @RequestParam String cedula) throws PropietarioException {
 
-        Propietario p = Fachada.getInstancia().buscarPropietarioPorCi(cedula);
+        if (this.propietarioActual != null) {
+            this.propietarioActual.quitarObservador(this);
+        }
 
-        this.propietarioActual = p;
+        try {
+            Propietario p = Fachada.getInstancia().buscarPropietarioPorCi(cedula);
+            this.propietarioActual = p;
+            p.agregarObservador(this);
 
-        PropietarioEstadoDTO dto = new PropietarioEstadoDTO(
-                p.getCi(),
-                p.getNombre(),
-                p.getEstado().getNombre());
+            PropietarioEstadoDTO dto = new PropietarioEstadoDTO(
+                    p.getCi(),
+                    p.getNombre(),
+                    p.getEstado().getNombre());
 
-        return Respuesta.lista(new Respuesta("propietario", dto));
+            return Respuesta.lista(new Respuesta("propietario", dto));
+        } catch (PropietarioException e) {
+            this.propietarioActual = null;
+            throw e;
+        }
     }
 
     @PutMapping("/estado/actualizar")
@@ -56,7 +73,7 @@ public class EstadoController implements Observador {
             @SessionAttribute(name = LoginController.SESSION_ADMIN_COOKIE, required = true) Administrador admin,
             @RequestParam String cedula,
             @RequestParam String nuevoEstado)
-            throws PropietarioNoEncontradoException, PropietarioErrorActualizacionEstadoException {
+            throws PropietarioException {
         Propietario p = Fachada.getInstancia().buscarPropietarioPorCi(cedula);
         Estado e = Fachada.getInstancia().buscarEstadoPorNombre(nuevoEstado);
         p.cambiarEstado(e);
@@ -70,9 +87,8 @@ public class EstadoController implements Observador {
             @SessionAttribute(name = LoginController.SESSION_ADMIN_COOKIE, required = true) Administrador admin) {
         List<Respuesta> respuestas = new ArrayList<>();
 
-        Fachada.getInstancia().agregarObservador(this);
-
         if (this.propietarioActual != null) {
+            this.propietarioActual.agregarObservador(this);
             try {
                 PropietarioEstadoDTO dto = new PropietarioEstadoDTO(
                         propietarioActual.getCi(),
@@ -90,12 +106,14 @@ public class EstadoController implements Observador {
 
     @RequestMapping(value = "/estado/vistaCerrada", method = { RequestMethod.GET, RequestMethod.POST })
     public void vistaCerrada() {
-        Fachada.getInstancia().quitarObservador(this);
+        if (this.propietarioActual != null) {
+            this.propietarioActual.quitarObservador(this);
+        }
     }
 
     @Override
     public void actualizar(Object evento, Observable origen) {
-        if (evento.equals(Fachada.Eventos.cambioEstado)) {
+        if (origen == this.propietarioActual && evento.equals(Fachada.Eventos.cambioEstado)) {
             conexionNavegador.enviarJSON(Respuesta.lista(propietarioActual()));
         }
     }

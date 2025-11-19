@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Login Propietario</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="globals.css" />
   <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen flex items-center justify-center p-4">
@@ -37,12 +38,14 @@
         </a>
       </div>
     </section>
-
-    <div id="mensaje" aria-live="polite" class="mt-6 text-center text-red-600 font-medium"></div>
   </main>
 
   <script src="vistaWeb.js"></script>
+  <script src="components/toast.js"></script>
   <script>
+    // Initialize toast component
+    importToast();
+
     // Construye una cadena URL encoded a partir de un objeto
     function toUrlEncoded(obj) {
       return Object.keys(obj).map(k => encodeURIComponent(k) + '=' + encodeURIComponent(obj[k])).join('&');
@@ -61,7 +64,7 @@
       if (typeof parametro === 'string' && parametro.length > 0) {
         window.location.href = parametro;
       } else {
-        document.getElementById('mensaje').textContent = 'Inicio de sesión exitoso.';
+        mostrarNotificacion('Éxito', 'Inicio de sesión exitoso.', 'success');
       }
     };
 
@@ -72,19 +75,16 @@
     };
 
     function procesarErrorSubmit(status, text) {
-      const msg = document.getElementById('mensaje');
-      
-      // Intentar parsear el error como JSON
+      // Try to parse error as JSON (GlobalExceptionHandler returns ErrorResponse)
       try {
         const errorObj = JSON.parse(text);
-        msg.textContent = '❌ ' + (errorObj.message || errorObj.error || text);
+        const errorMessage = errorObj.message || text || 'Error en la operación';
+        mostrarNotificacion('Error de inicio de sesión', errorMessage, 'error');
       } catch (e) {
-        // Si no es JSON, mostrar el texto directamente
-        msg.textContent = '❌ ' + (text || ('Error código ' + status));
+        // If not JSON, show the text directly
+        const errorMessage = text || 'Error en la operación';
+        mostrarNotificacion('Error de inicio de sesión', errorMessage, 'error');
       }
-      
-      // Mostrar el mensaje en rojo
-      msg.className = 'mt-6 text-center text-red-600 font-medium bg-red-50 border border-red-200 rounded-md p-3';
     }
   </script>
   <script src="js/app.js"></script>

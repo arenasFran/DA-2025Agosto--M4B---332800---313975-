@@ -7,44 +7,71 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import obligatorio.obli.exceptions.BaseHttpException;
-import obligatorio.obli.exceptions.administrador.AdministradorSesionNoEncontradaException;
-import obligatorio.obli.exceptions.login.SistemaLoginException;
-import obligatorio.obli.exceptions.propietario.PropietarioNoEncontradoException;
+import obligatorio.obli.exceptions.PropietarioException;
+import obligatorio.obli.exceptions.BonificacionException;
+import obligatorio.obli.exceptions.PuestoException;
+import obligatorio.obli.exceptions.TransitoException;
+import obligatorio.obli.exceptions.AdministradorException;
+import obligatorio.obli.exceptions.LoginException;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
     @ExceptionHandler(BaseHttpException.class)
     public ResponseEntity<ErrorResponse> handleBaseHttpException(BaseHttpException ex) {
-        ErrorResponse error = new ErrorResponse(ex.getMessage(), ex.getErrorCode());
-        return ResponseEntity.status(ex.getStatusCode().value()).body(error);
+        ErrorResponse error = new ErrorResponse(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
-    @ExceptionHandler(PropietarioNoEncontradoException.class)
-    public ResponseEntity<ErrorResponse> handlePropietarioNoEncontrado(PropietarioNoEncontradoException ex) {
-        ErrorResponse error = new ErrorResponse(ex.getMessage(), "PROPIETARIO_NO_ENCONTRADO");
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+    @ExceptionHandler(PropietarioException.class)
+    public ResponseEntity<ErrorResponse> handlePropietarioException(PropietarioException ex) {
+        ErrorResponse error = new ErrorResponse(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
-    @ExceptionHandler(SistemaLoginException.class)
-    public ResponseEntity<ErrorResponse> handleSistemaLoginException(SistemaLoginException ex) {
-        ErrorResponse error = new ErrorResponse(ex.getMessage(), "LOGIN_DENEGADO");
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
+    @ExceptionHandler(BonificacionException.class)
+    public ResponseEntity<ErrorResponse> handleBonificacionException(BonificacionException ex) {
+        ErrorResponse error = new ErrorResponse(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
+    @ExceptionHandler(PuestoException.class)
+    public ResponseEntity<ErrorResponse> handlePuestoException(PuestoException ex) {
+        ErrorResponse error = new ErrorResponse(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
+    @ExceptionHandler(TransitoException.class)
+    public ResponseEntity<ErrorResponse> handleTransitoException(TransitoException ex) {
+        ErrorResponse error = new ErrorResponse(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
+    @ExceptionHandler(AdministradorException.class)
+    public ResponseEntity<ErrorResponse> handleAdministradorException(AdministradorException ex) {
+        ErrorResponse error = new ErrorResponse(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
+    @ExceptionHandler(LoginException.class)
+    public ResponseEntity<ErrorResponse> handleLoginException(LoginException ex) {
+        ErrorResponse error = new ErrorResponse(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
     @ExceptionHandler(ServletRequestBindingException.class)
-    public ResponseEntity<BaseHttpException> handleServletRequestBindingException(ServletRequestBindingException ex) {
+    public ResponseEntity<ErrorResponse> handleServletRequestBindingException(ServletRequestBindingException ex) {
         if (ex.getMessage().contains(LoginController.SESSION_ADMIN_COOKIE)) {
-            var error = new AdministradorSesionNoEncontradaException();
-            return ResponseEntity.status(error.getStatusCode().value()).body(error);
+            var error = new AdministradorException("Sesión de administrador no encontrada. Debe iniciar sesión.");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ErrorResponse(error.getMessage()));
         }
 
-        var error = new BaseHttpException(ex.getMessage(), "REQUEST_BINDING_ERROR", HttpStatus.BAD_REQUEST);
-        return ResponseEntity.status(error.getStatusCode().value()).body(error);
+        var error = new BaseHttpException(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse(error.getMessage()));
     }
 
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ErrorResponse> handleRuntimeException(RuntimeException ex) {
-        ErrorResponse error = new ErrorResponse(ex.getMessage(), "ERROR");
+        ErrorResponse error = new ErrorResponse(ex.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 }

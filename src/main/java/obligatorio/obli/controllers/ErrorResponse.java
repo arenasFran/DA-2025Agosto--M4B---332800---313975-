@@ -2,11 +2,9 @@ package obligatorio.obli.controllers;
 
 public class ErrorResponse {
     private String message;
-    private String code;
 
-    public ErrorResponse(String message, String code) {
+    public ErrorResponse(String message) {
         this.message = message;
-        this.code = code;
     }
 
     public String getMessage() {
@@ -15,13 +13,5 @@ public class ErrorResponse {
 
     public void setMessage(String message) {
         this.message = message;
-    }
-
-    public String getCode() {
-        return code;
-    }
-
-    public void setCode(String code) {
-        this.code = code;
     }
 }

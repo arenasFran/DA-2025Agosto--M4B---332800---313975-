@@ -5,18 +5,20 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.SessionAttribute;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import obligatorio.obli.ConexionNavegador;
-import obligatorio.obli.exceptions.bonificaciones.BonificacionNoEncontradaException;
-import obligatorio.obli.exceptions.propietario.PropietarioNoEncontradoException;
-import obligatorio.obli.exceptions.propietario.estados.EstadoProhibidoRecibirBonificacionException;
-import obligatorio.obli.exceptions.puesto.PuestoNoEncontradoException;
+import obligatorio.obli.exceptions.BonificacionException;
+import obligatorio.obli.exceptions.PropietarioException;
+import obligatorio.obli.exceptions.PuestoException;
 import obligatorio.obli.models.Asignacion;
 import obligatorio.obli.models.Puesto;
 import obligatorio.obli.models.Bonificaciones.Bonificacion;
@@ -25,8 +27,6 @@ import obligatorio.obli.models.Usuarios.Administrador;
 import obligatorio.obli.models.Usuarios.Propietario;
 import obligatorio.obli.observador.Observable;
 import obligatorio.obli.observador.Observador;
-
-import org.springframework.web.bind.annotation.GetMapping;
 
 @RestController
 @Scope("session")
@@ -38,6 +38,12 @@ public class BonificacionController implements Observador {
 
     public BonificacionController(@Autowired ConexionNavegador conexionNavegador) {
         this.conexionNavegador = conexionNavegador;
+    }
+
+    @GetMapping(value = "/registrarSSE", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public SseEmitter registrarSSE() {
+        conexionNavegador.conectarSSE();
+        return conexionNavegador.getConexionSSE();
     }
 
     @GetMapping("/get-bon")
@@ -58,7 +64,7 @@ public class BonificacionController implements Observador {
     public List<Respuesta> getAsignacionesPorPropietario(
             @SessionAttribute(name = LoginController.SESSION_ADMIN_COOKIE, required = true) Administrador admin,
             @RequestParam String ci)
-            throws PropietarioNoEncontradoException {
+            throws PropietarioException {
         Propietario propietario = Fachada.getInstancia().buscarPropietarioPorCi(ci);
         List<Asignacion> asignaciones = propietario.getAsignaciones();
         return Respuesta.lista(new Respuesta("asignaciones", asignaciones));
@@ -68,22 +74,34 @@ public class BonificacionController implements Observador {
     public List<Respuesta> buscarPropietarioConAsignaciones(
             @SessionAttribute(name = LoginController.SESSION_ADMIN_COOKIE, required = true) Administrador admin,
             @RequestParam String ci)
-            throws PropietarioNoEncontradoException {
-        Propietario propietario = Fachada.getInstancia().buscarPropietarioPorCi(ci);
+            throws PropietarioException {
+        if (this.propietarioActual != null) {
+            this.propietarioActual.quitarObservador(this);
+        }
 
-        this.propietarioActual = propietario;
+        try {
+            Propietario propietario = Fachada.getInstancia().buscarPropietarioPorCi(ci);
+            this.propietarioActual = propietario;
+            propietario.agregarObservador(this);
 
-        return Respuesta.lista(
-                new Respuesta("propietario", propietario));
+            conexionNavegador.enviarJSON(Respuesta.lista(
+                    new Respuesta("propietario", propietario)));
+
+            return Respuesta.lista(
+                    new Respuesta("propietario", propietario));
+        } catch (PropietarioException e) {
+            this.propietarioActual = null;
+            throw e;
+        }
     }
 
     @RequestMapping(value = "/vistaConectada", method = { RequestMethod.GET, RequestMethod.POST })
     public List<Respuesta> vistaConectada(
             @SessionAttribute(name = LoginController.SESSION_ADMIN_COOKIE, required = true) Administrador admin) {
         List<Respuesta> respuestas = new ArrayList<>();
-        Fachada.getInstancia().agregarObservador(this);
 
         if (this.propietarioActual != null) {
+            this.propietarioActual.agregarObservador(this);
             try {
                 Propietario propietario = Fachada.getInstancia().buscarPropietarioPorCi(this.propietarioActual.getCi());
                 respuestas.add(new Respuesta("propietario", propietario));
@@ -98,7 +116,9 @@ public class BonificacionController implements Observador {
 
     @RequestMapping(value = "/vistaCerrada", method = { RequestMethod.GET, RequestMethod.POST })
     public void vistaCerrada() {
-        Fachada.getInstancia().quitarObservador(this);
+        if (this.propietarioActual != null) {
+            this.propietarioActual.quitarObservador(this);
+        }
     }
 
     @PostMapping("/asignar")
@@ -107,10 +127,9 @@ public class BonificacionController implements Observador {
             @RequestParam String ci,
             @RequestParam String nombreBonificacion,
             @RequestParam String nombrePuesto)
-            throws PropietarioNoEncontradoException,
-            BonificacionNoEncontradaException,
-            PuestoNoEncontradoException,
-            EstadoProhibidoRecibirBonificacionException {
+            throws PropietarioException,
+            BonificacionException,
+            PuestoException {
         Propietario p = Fachada.getInstancia().buscarPropietarioPorCi(ci);
         Bonificacion bonificacion = Fachada.getInstancia().buscarBonificacionPorNombre(nombreBonificacion);
         Puesto puesto = Fachada.getInstancia().buscarPuestoPorNombre(nombrePuesto);
@@ -122,7 +141,7 @@ public class BonificacionController implements Observador {
 
     @Override
     public void actualizar(Object evento, Observable origen) {
-        if (evento.equals(Fachada.Eventos.nuevaAsignacion)) {
+        if (origen == this.propietarioActual && evento.equals(Fachada.Eventos.nuevaAsignacion)) {
             conexionNavegador.enviarJSON(Respuesta.lista(propietarioActual()));
         }
     }

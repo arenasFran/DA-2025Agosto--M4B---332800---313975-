@@ -4,23 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import obligatorio.obli.Precarga;
-import obligatorio.obli.exceptions.puesto.PuestoNoEncontradoException;
+import obligatorio.obli.exceptions.PuestoException;
 import obligatorio.obli.models.Puesto;
 
 public class SistemaPuesto {
-
-    private static SistemaPuesto instancia;
     private final List<Puesto> puestos = new ArrayList<>();
 
-    private SistemaPuesto() {
+    public SistemaPuesto() {
         cargarDatos();
-    }
-
-    public static SistemaPuesto getInstancia() {
-        if (instancia == null) {
-            instancia = new SistemaPuesto();
-        }
-        return instancia;
     }
 
     private void cargarDatos() {
@@ -31,13 +22,13 @@ public class SistemaPuesto {
         return new ArrayList<>(puestos);
     }
 
-    public Puesto buscarPorNombre(String nombre) throws PuestoNoEncontradoException {
+    public Puesto buscarPorNombre(String nombre) throws PuestoException {
         for (Puesto puesto : puestos) {
             if (puesto.getNombre().equals(nombre)) {
                 return puesto;
             }
         }
 
-        throw new PuestoNoEncontradoException(nombre);
+        throw new PuestoException(String.format("No se encontró ningún puesto con el nombre: %s.", nombre));
     }
 }

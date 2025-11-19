@@ -11,6 +11,7 @@ import java.text.SimpleDateFormat;
 
 import obligatorio.obli.models.Bonificaciones.Bonificacion;
 import obligatorio.obli.models.Usuarios.Propietario;
+import obligatorio.obli.exceptions.TransitoException;
 
 public class Transito {
     private static final SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
@@ -158,8 +159,12 @@ public class Transito {
     }
 
     public static Transito crearConFechaString(Puesto puesto, Vehiculo vehiculo, Tarifa tarifa,
-            String fechaString, Bonificacion bono) throws Exception {
-        Date fecha = sdf.parse(fechaString);
-        return new Transito(puesto, vehiculo, tarifa, fecha, bono);
+            String fechaString, Bonificacion bono) throws TransitoException {
+        try {
+            Date fecha = sdf.parse(fechaString);
+            return new Transito(puesto, vehiculo, tarifa, fecha, bono);
+        } catch (java.text.ParseException e) {
+            throw new TransitoException("Formato de fecha inválido: " + fechaString);
+        }
     }
 }

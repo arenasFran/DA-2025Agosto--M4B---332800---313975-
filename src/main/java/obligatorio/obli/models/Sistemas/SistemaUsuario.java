@@ -7,24 +7,15 @@ import obligatorio.obli.models.Vehiculo;
 import obligatorio.obli.models.Usuarios.Administrador;
 import obligatorio.obli.models.Usuarios.Propietario;
 import obligatorio.obli.Precarga;
-import obligatorio.obli.exceptions.administrador.AdministradorNoEncontradoException;
-import obligatorio.obli.exceptions.propietario.PropietarioNoEncontradoException;
+import obligatorio.obli.exceptions.PropietarioException;
+import obligatorio.obli.exceptions.AdministradorException;
 
 public class SistemaUsuario {
-    private static SistemaUsuario instancia;
-
     private final List<Propietario> propietarios = new ArrayList<>();
     private final List<Administrador> administradores = new ArrayList<>();
 
-    private SistemaUsuario() {
+    public SistemaUsuario() {
         cargarDatos();
-    }
-
-    public static SistemaUsuario getInstancia() {
-        if (instancia == null) {
-            instancia = new SistemaUsuario();
-        }
-        return instancia;
     }
 
     private void cargarDatos() {
@@ -48,24 +39,24 @@ public class SistemaUsuario {
         administradores.add(a);
     }
 
-    public Propietario getPropietarioPorCi(String ci) throws PropietarioNoEncontradoException {
+    public Propietario getPropietarioPorCi(String ci) throws PropietarioException {
         for (Propietario p : propietarios) {
             if (p.getCi().equals(ci)) {
                 return p;
             }
         }
 
-        throw new PropietarioNoEncontradoException(ci);
+        throw new PropietarioException("No se encontró ningún propietario con la cédula: " + ci);
     }
 
-    public Administrador getAdministradorPorCi(String ci) throws AdministradorNoEncontradoException {
+    public Administrador getAdministradorPorCi(String ci) throws AdministradorException {
         for (Administrador a : administradores) {
             if (a.getCi().equals(ci)) {
                 return a;
             }
         }
 
-        throw new AdministradorNoEncontradoException(ci);
+        throw new AdministradorException("No se encontró ningún administrador con la cédula: " + ci);
     }
 
     public Vehiculo buscarVehiculoPorMatricula(String matricula) throws Exception {

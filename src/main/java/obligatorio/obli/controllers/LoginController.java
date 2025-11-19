@@ -5,9 +5,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.servlet.http.HttpSession;
-import obligatorio.obli.exceptions.login.LoginCredencialesInvalidasException;
-import obligatorio.obli.exceptions.login.SistemaLoginException;
-import obligatorio.obli.exceptions.propietario.estados.EstadoProhibidoIniciarSesionException;
+import obligatorio.obli.exceptions.LoginException;
+import obligatorio.obli.exceptions.PropietarioException;
 import obligatorio.obli.models.Sistemas.Fachada;
 import obligatorio.obli.models.Usuarios.Administrador;
 import obligatorio.obli.models.Usuarios.Propietario;
@@ -30,11 +29,12 @@ public class LoginController {
     @PostMapping("/propietario")
     public List<Respuesta> loginPropietario(HttpSession sessionHttp, @RequestParam String ci,
             @RequestParam String password)
-            throws LoginCredencialesInvalidasException, EstadoProhibidoIniciarSesionException {
+            throws LoginException, PropietarioException {
         Propietario propietario = this.fachada.loginPropietario(ci, password);
 
         if (!propietario.puedeIniciarSesion()) {
-            throw new EstadoProhibidoIniciarSesionException(propietario.getEstado());
+            throw new PropietarioException(
+                    String.format("Prohibido iniciar sesión en estado '%s'.", propietario.getEstado().getNombre()));
         }
 
         sessionHttp.setAttribute(SESSION_PROPIETARIO_COOKIE, propietario);
@@ -44,7 +44,7 @@ public class LoginController {
 
     @PostMapping("/admin")
     public List<Respuesta> loginAdmin(HttpSession sessionHttp, @RequestParam String ci, @RequestParam String password)
-            throws LoginCredencialesInvalidasException {
+            throws LoginException {
         Administrador admin = this.fachada.loginAdmin(ci, password);
 
         sessionHttp.setAttribute(SESSION_ADMIN_COOKIE, admin);
@@ -53,13 +53,13 @@ public class LoginController {
     }
 
     @PostMapping("/logoutPropietario")
-    public List<Respuesta> logoutPropietario(HttpSession sessionHttp) throws SistemaLoginException {
+    public List<Respuesta> logoutPropietario(HttpSession sessionHttp) {
         sessionHttp.removeAttribute(SESSION_PROPIETARIO_COOKIE);
         return Respuesta.lista(new Respuesta("paginaLogin", "/login.html"));
     }
 
     @PostMapping("/logoutAdmin")
-    public List<Respuesta> logoutAdmin(HttpSession sessionHttp) throws SistemaLoginException {
+    public List<Respuesta> logoutAdmin(HttpSession sessionHttp) {
         sessionHttp.removeAttribute(SESSION_ADMIN_COOKIE);
         return Respuesta.lista(new Respuesta("paginaLogin", "/login.html"));
     }

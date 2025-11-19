@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import obligatorio.obli.exceptions.propietario.PropietarioErrorActualizacionEstadoException;
-import obligatorio.obli.exceptions.propietario.estados.EstadoProhibidoRecibirBonificacionException;
+import obligatorio.obli.exceptions.PropietarioException;
+import obligatorio.obli.exceptions.BonificacionException;
 import obligatorio.obli.models.Asignacion;
 import obligatorio.obli.models.Estados.Estado;
 import obligatorio.obli.models.Sistemas.Fachada;
@@ -81,22 +81,29 @@ public class Propietario extends User {
     }
 
     public void asignarBonificacion(Bonificacion bonificacion, Puesto puesto)
-            throws EstadoProhibidoRecibirBonificacionException {
+            throws PropietarioException, BonificacionException {
         if (!this.puedeRecibirBonificacion()) {
-            throw new EstadoProhibidoRecibirBonificacionException(this.estado);
+            throw new PropietarioException(String.format("Prohibido asignar bonificación a propietario en estado '%s'.",
+                    this.estado.getNombre()));
+        }
+
+        if (this.obtenerBonificacionParaPuesto(puesto) != null) {
+            throw new BonificacionException(String.format(
+                    "Ya existe una bonificación asignada para el puesto '%s'. Solo se permite una bonificación por puesto.",
+                    puesto.getNombre()));
         }
 
         Asignacion asignacion = new Asignacion(bonificacion, puesto);
         this.agregarAsignacion(asignacion);
-        avisar(Eventos.nuevaAsignacion);
+        this.avisar(Eventos.nuevaAsignacion);
 
         agregarNotificacion(String.format("Se asignó una nueva bonificación: %s para el puesto %s",
                 bonificacion.getNombre(), puesto.getNombre()));
     }
 
-    public void cambiarEstado(Estado nuevoEstado) throws PropietarioErrorActualizacionEstadoException {
+    public void cambiarEstado(Estado nuevoEstado) throws PropietarioException {
         if (this.estado.equals(nuevoEstado)) {
-            throw new PropietarioErrorActualizacionEstadoException(
+            throw new PropietarioException(
                     String.format("El propietario ya esta en el estado '%s'", nuevoEstado.getNombre()));
         }
         this.estado = nuevoEstado;

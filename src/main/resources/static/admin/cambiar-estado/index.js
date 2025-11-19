@@ -1,7 +1,7 @@
 // CONFIGURACIÓN SSE - Debe definirse ANTES de que vistaWeb.js haga su primer submit
 urlIniciarVista = "/estado/vistaConectada";
 urlCierreVista = "/estado/vistaCerrada";
-urlRegistroSSE = "/administrador/registrarSSE";
+urlRegistroSSE = "/estado/registrarSSE";
 
 // State management
 let propietarioActual = null;
@@ -41,28 +41,7 @@ function mostrar_error(errorMessage) {
 // Handler for SSE notifications
 function mostrar_notificacion(mensaje) {
   console.log("📬 Notificación recibida:", mensaje);
-  mostrarNotificacionFlotante(mensaje, "info");
-}
-
-function mostrarNotificacionFlotante(texto, tipo) {
-  // Crear elemento de notificación flotante
-  const notif = document.createElement("div");
-  notif.className = "fixed top-4 right-4 p-4 border shadow-lg z-50 transition-all";
-  
-  if (tipo === "info") {
-    notif.className += " border-[var(--primary)] bg-[var(--card)] text-[var(--foreground)]";
-  } else if (tipo === "success") {
-    notif.className += " border-[var(--chart-2)] bg-[var(--card)] text-[var(--chart-2)]";
-  }
-  
-  notif.textContent = texto;
-  document.body.appendChild(notif);
-  
-  // Auto-remover después de 3 segundos
-  setTimeout(() => {
-    notif.style.opacity = "0";
-    setTimeout(() => notif.remove(), 300);
-  }, 3000);
+  mostrarNotificacion("Notificación", mensaje, "info");
 }
 
 function buscarPropietario() {
@@ -148,20 +127,14 @@ function ocultarPropietarioInfo() {
 }
 
 function mostrarMensaje(texto, tipo) {
-  const mensajeDiv = document.getElementById("mensaje");
-  mensajeDiv.textContent = texto;
-  if (tipo === "error") {
-    mensajeDiv.className =
-      "p-4 border border-[var(--destructive)] text-[var(--destructive)] bg-[var(--background)]";
-  } else {
-    mensajeDiv.className =
-      "p-4 border border-[var(--chart-2)] text-[var(--chart-2)] bg-[var(--background)]";
-  }
-  mensajeDiv.style.display = "block";
+  // Use toast component instead of inline messages
+  const titulo =
+    tipo === "error" ? "Error" : tipo === "success" ? "Éxito" : "Información";
+  mostrarNotificacion(titulo, texto, tipo);
 }
 
 function ocultarMensaje() {
-  document.getElementById("mensaje").style.display = "none";
+  // No longer needed - toast auto-closes
 }
 
 function cerrarSesion() {

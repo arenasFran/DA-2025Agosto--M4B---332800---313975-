@@ -6,6 +6,9 @@ urlRegistroSSE = "/propietario/registrarSSE";
 
 // Event listeners - asegurar que el DOM esté listo
 document.addEventListener("DOMContentLoaded", function () {
+  // Initialize toast component
+  importToast();
+
   const btnBorrarNotificaciones = document.getElementById(
     "btnBorrarNotificaciones"
   );
@@ -41,9 +44,9 @@ function procesarErrorSubmit(status, text) {
   // Try to parse error as JSON
   try {
     const errorObj = JSON.parse(text);
-    alert(errorObj.message || text);
+    mostrarNotificacion("Error", errorObj.message || text, "error");
   } catch (e) {
-    alert(text || "Error en la operación");
+    mostrarNotificacion("Error", text || "Error en la operación", "error");
   }
 }
 
@@ -86,7 +89,7 @@ window["mostrar_notificaciones"] = function (parametro) {
 
 window["mostrar_mensaje"] = function (parametro) {
   console.log("Mensaje recibido:", parametro);
-  // Could show a toast notification here if needed
+  mostrarNotificacion("Éxito", parametro || "Operación realizada correctamente", "success");
 };
 
 function renderizarDatosPropietario(propietario, transitosDTOs = []) {

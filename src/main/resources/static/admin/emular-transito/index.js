@@ -1,7 +1,7 @@
 // CONFIGURACIÓN SSE - Debe definirse ANTES de que vistaWeb.js haga su primer submit
 urlIniciarVista = "/transitos/vistaConectada";
 urlCierreVista = "/transitos/vistaCerrada";
-urlRegistroSSE = "/administrador/registrarSSE";
+urlRegistroSSE = "/transitos/registrarSSE";
 
 // State management
 let puestosDisponibles = [];
@@ -251,63 +251,7 @@ function confirmarCierreSesion() {
 // ============================================================================
 // FUNCIONES DE NOTIFICACIÓN
 // ============================================================================
-
-function mostrarNotificacion(titulo, mensaje, tipo = "success") {
-  const modal = document.getElementById("modalNotif");
-  const content = document.getElementById("modalNotifContent");
-  const icon = document.getElementById("modalNotifIcon");
-  const title = document.getElementById("modalNotifTitle");
-  const msg = document.getElementById("modalNotifMessage");
-
-  if (tipo === "success") {
-    content.className =
-      "bg-[var(--card)] border shadow-xl p-4 max-w-sm border-l-4 border-l-[var(--chart-2)] transform transition-all";
-    icon.innerHTML = `
-      <div class="w-8 h-8 bg-[var(--muted)] border border-[var(--border)] flex items-center justify-center">
-        <svg class="w-5 h-5 text-[var(--chart-2)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-        </svg>
-      </div>
-    `;
-  } else if (tipo === "error") {
-    content.className =
-      "bg-[var(--card)] border shadow-xl p-4 max-w-sm border-l-4 border-l-[var(--destructive)] transform transition-all";
-    icon.innerHTML = `
-      <div class="w-8 h-8 bg-[var(--muted)] border border-[var(--border)] flex items-center justify-center">
-        <svg class="w-5 h-5 text-[var(--destructive)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-        </svg>
-      </div>
-    `;
-  } else if (tipo === "info") {
-    content.className =
-      "bg-[var(--card)] border shadow-xl p-4 max-w-sm border-l-4 border-l-[var(--primary)] transform transition-all";
-    icon.innerHTML = `
-      <div class="w-8 h-8 bg-[var(--muted)] border border-[var(--border)] flex items-center justify-center">
-        <svg class="w-5 h-5 text-[var(--primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-        </svg>
-      </div>
-    `;
-  }
-
-  title.textContent = titulo;
-  msg.textContent = mensaje;
-
-  modal.classList.remove("hidden");
-
-  setTimeout(
-    () => {
-      cerrarNotificacion();
-    },
-    tipo === "info" ? 2000 : 5000
-  );
-}
-
-function cerrarNotificacion() {
-  const modal = document.getElementById("modalNotif");
-  modal.classList.add("hidden");
-}
+// Toast notifications are now handled by components/toast.js
 
 /**
  * Mostrar resultado del tránsito emulado
@@ -379,6 +323,9 @@ function procesarErrorSubmit(status, text) {
 // ============================================================================
 
 document.addEventListener("DOMContentLoaded", function () {
+  // Initialize toast component
+  importToast();
+
   // Establecer fecha/hora actual como valor por defecto
   const ahora = new Date();
   ahora.setMinutes(ahora.getMinutes() - ahora.getTimezoneOffset());

@@ -4,23 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import obligatorio.obli.Precarga;
-import obligatorio.obli.exceptions.bonificaciones.BonificacionNoEncontradaException;
+import obligatorio.obli.exceptions.BonificacionException;
 import obligatorio.obli.models.Bonificaciones.Bonificacion;
 
 public class SistemaBonificacion {
-
-    private static SistemaBonificacion instancia;
     private final List<Bonificacion> bonificaciones = new ArrayList<>();
 
-    private SistemaBonificacion() {
+    public SistemaBonificacion() {
         cargarDatos();
-    }
-
-    public static SistemaBonificacion getInstancia() {
-        if (instancia == null) {
-            instancia = new SistemaBonificacion();
-        }
-        return instancia;
     }
 
     private void cargarDatos() {
@@ -31,13 +22,13 @@ public class SistemaBonificacion {
         return new ArrayList<>(bonificaciones);
     }
 
-    public Bonificacion buscarPorNombre(String nombre) throws BonificacionNoEncontradaException {
+    public Bonificacion buscarPorNombre(String nombre) throws BonificacionException {
         for (Bonificacion bonificacion : bonificaciones) {
             if (bonificacion.getNombre().equals(nombre)) {
                 return bonificacion;
             }
         }
 
-        throw new BonificacionNoEncontradaException(nombre);
+        throw new BonificacionException(String.format("No se encontró ninguna bonificación con el nombre: %s.", nombre));
     }
 }
