@@ -87,7 +87,8 @@ public class TransitoController implements Observador {
             this.propietarioActual = propietario;
             propietario.agregarObservador(this);
 
-            Transito nuevo = propietario.crearTransito(matricula, nombrePuesto, fechaHora);
+            Puesto puesto = Fachada.getInstancia().buscarPuestoPorNombre(nombrePuesto);
+            Transito nuevo = propietario.crearTransito(matricula, puesto, fechaHora);
             DetalleTransitoDTO detalle = new DetalleTransitoDTO(nuevo, propietario);
 
             this.transitosEmulados.add(detalle);

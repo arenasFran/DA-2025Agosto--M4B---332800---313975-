@@ -256,7 +256,7 @@ public class Propietario extends User {
         }
     }
 
-    public Transito crearTransito(String matricula, String nombrePuesto, String fechaHora) throws Exception {
+    public Transito crearTransito(String matricula, Puesto puesto, String fechaHora) throws Exception {
         Vehiculo vehiculo = null;
         for (Vehiculo v : this.vehiculo) {
             if (v.getMatricula().equals(matricula)) {
@@ -269,7 +269,6 @@ public class Propietario extends User {
                     String.format("El propietario no posee un vehículo con la matrícula '%s'", matricula));
         }
 
-        Puesto puesto = Fachada.getInstancia().buscarPuestoPorNombre(nombrePuesto);
         Tarifa tarifa = puesto.obtenerTarifaPorCategoria(vehiculo.getNombreCategoria());
         Bonificacion bonificacion = this.obtenerBonificacionDelTransito(puesto);
 
