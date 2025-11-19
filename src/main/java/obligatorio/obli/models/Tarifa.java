@@ -26,7 +26,6 @@ public class Tarifa {
         this.categoriaVehiculo = categoriaVehiculo;
     }
 
-    /** Verifica si esta tarifa es para una categoría específica de vehículo */
     public boolean esParaCategoria(String categoria) {
         if (categoria == null || this.categoriaVehiculo == null) {
             return false;
@@ -34,7 +33,6 @@ public class Tarifa {
         return this.categoriaVehiculo.equalsIgnoreCase(categoria);
     }
 
-    /** Calcula el monto con un descuento aplicado */
     public double calcularMontoConDescuento(double porcentajeDescuento) {
         if (porcentajeDescuento < 0.0 || porcentajeDescuento > 1.0) {
             throw new IllegalArgumentException("El porcentaje de descuento debe estar entre 0.0 y 1.0");

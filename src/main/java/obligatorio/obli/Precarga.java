@@ -107,7 +107,7 @@ public class Precarga {
         // Propietario 3 - Carlos Rodríguez
         List<Vehiculo> vehiculosCarlos = Arrays.asList(vehiculos.get(2), vehiculos.get(8));
         propietarios.add(
-                new Propietario(3, "34567890", "Carlos Alberto Rodríguez", "pass789", vehiculosCarlos, 2200.0, 300.0,
+                new Propietario(3, "34567890", "Carlos Alberto Rodríguez", "pass789", vehiculosCarlos, 2200.0, 2160.0,
                         estados.get(0)));
 
         // Propietario 4 - Ana Fernández
