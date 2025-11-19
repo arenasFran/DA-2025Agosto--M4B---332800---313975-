@@ -2,17 +2,13 @@ package obligatorio.obli.models.Sistemas;
 
 import java.util.List;
 
-import obligatorio.obli.exceptions.propietario.PropietarioErrorActualizacionEstadoException;
 import obligatorio.obli.exceptions.propietario.PropietarioNoEncontradoException;
 import obligatorio.obli.exceptions.puesto.PuestoNoEncontradoException;
 import obligatorio.obli.exceptions.bonificaciones.BonificacionNoEncontradaException;
 import obligatorio.obli.exceptions.login.LoginCredencialesInvalidasException;
 import obligatorio.obli.models.Estados.Estado;
 import obligatorio.obli.models.Puesto;
-import obligatorio.obli.models.ResultadoTransito;
 import obligatorio.obli.models.Vehiculo;
-import obligatorio.obli.models.Tarifa;
-import obligatorio.obli.models.Transito;
 import obligatorio.obli.models.Bonificaciones.Bonificacion;
 import obligatorio.obli.models.Usuarios.Administrador;
 import obligatorio.obli.models.Usuarios.Propietario;
@@ -48,7 +44,11 @@ public class Fachada extends Observable {
 
     public Propietario loginPropietario(String ci, String password) throws LoginCredencialesInvalidasException {
         try {
-            return this.sistemaUsuario.getPropietarioPorCi(ci);
+            Propietario propietario = this.sistemaUsuario.getPropietarioPorCi(ci);
+            if (!propietario.getPassword().equals(password)) {
+                throw new LoginCredencialesInvalidasException();
+            }
+            return propietario;
         } catch (PropietarioNoEncontradoException e) {
             throw new LoginCredencialesInvalidasException();
         }
@@ -56,7 +56,11 @@ public class Fachada extends Observable {
 
     public Administrador loginAdmin(String ci, String password) throws LoginCredencialesInvalidasException {
         try {
-            return this.sistemaUsuario.getAdministradorPorCi(ci);
+            Administrador admin = this.sistemaUsuario.getAdministradorPorCi(ci);
+            if (!admin.getPassword().equals(password)) {
+                throw new LoginCredencialesInvalidasException();
+            }
+            return admin;
         } catch (Exception e) {
             throw new LoginCredencialesInvalidasException();
         }
